@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ApprovalController;
 use App\Mail\TestEmail;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Mail;
@@ -25,3 +26,6 @@ Route::get('/send-test-email', function () {
     Mail::to('your-email@example.com')->send(new TestEmail());
     return 'Test email sent!';
 });
+
+Route::get('/admin/users', [ApprovalController::class, 'index'])->name('approve_users');
+Route::patch('/admin/users/{user}/approve', [ApprovalController::class, 'approve'])->name('approve_user');

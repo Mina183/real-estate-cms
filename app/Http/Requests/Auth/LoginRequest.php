@@ -41,7 +41,9 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+        $user = \App\Models\User::where('email', $this->input('email'))->first();
+
+        if (! $user || ! \Hash::check($this->input('password'), $user->password)) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
@@ -49,6 +51,14 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        // ✅ Block unapproved users
+        if (! $user->is_approved) {
+            throw ValidationException::withMessages([
+                'email' => 'Your account is pending approval by an administrator.',
+            ]);
+        }
+
+        Auth::login($user, $this->boolean('remember'));
         RateLimiter::clear($this->throttleKey());
     }
 
