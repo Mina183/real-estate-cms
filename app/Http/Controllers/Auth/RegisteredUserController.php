@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
+use App\Http\Requests\Auth\RegisterRequest;
 
 class RegisteredUserController extends Controller
 {
@@ -19,7 +20,11 @@ class RegisteredUserController extends Controller
      */
     public function create(): View
     {
-        return view('auth.register');
+        $supervisors = \App\Models\User::where('is_approved', true)
+        ->whereIn('role', ['partner', 'agent'])
+        ->get();
+
+return view('auth.register', compact('supervisors'));
     }
 
     /**
@@ -27,22 +32,19 @@ class RegisteredUserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request): RedirectResponse
+    public function store(RegisterRequest $request): RedirectResponse
     {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
-
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => $request->role, // ✅ role comes from the form
+            'requested_role' => $request->role, // ✅ store selected choice
+            'supervisor_id' => $request->input('supervisor_id'), // could be null
+            'is_approved' => false,
         ]);
 
         event(new Registered($user));
-
-        return redirect(route('dashboard', absolute: false));
+        return redirect()->route('register')->with('pendingApproval', true);
     }
 }

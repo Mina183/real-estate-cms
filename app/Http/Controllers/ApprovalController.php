@@ -16,8 +16,11 @@ class ApprovalController extends Controller
 
     public function approve(User $user)
     {
-        $user->update(['is_approved' => true]);
+        $user->update([
+            'is_approved' => true,
+            'role' => $user->requested_role ?? User::ROLE_AGENT, // fallback to 'agent' if none
+        ]);
 
-        return redirect()->route('approve_users')->with('success', 'User approved.');
+        return redirect()->route('approve_users')->with('success', 'User approved and role assigned.');
     }
 }
