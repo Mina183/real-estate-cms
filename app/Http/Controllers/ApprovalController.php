@@ -18,7 +18,7 @@ class ApprovalController extends Controller
     {
         $user->update([
             'is_approved' => true,
-            'role' => $user->requested_role ?? User::ROLE_AGENT, // fallback to 'agent' if none
+            'role' => $user->requested_role ?? User::ROLE_CHANNEL_PARTNER, // fallback to 'sub partner' if none
         ]);
 
         return redirect()->route('approve_users')->with('success', 'User approved and role assigned.');

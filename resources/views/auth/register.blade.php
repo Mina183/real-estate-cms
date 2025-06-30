@@ -47,28 +47,14 @@
             <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('login') }}">
                 {{ __('Already registered?') }}
             </a>
-
+        </div>
         <div class="flex items-center justify-start mt-4">
             <label for="role">Choose Your Role</label>
             <select name="role" id="role" required style="margin: 15px; border-radius: 5px; border: 1px solid blue;">
-                <option value="agent">Agent</option>
-                <option value="partner">Main Partner</option>
-                <option value="partner">Admin</option>
+                <option value="channel_partner">Channel Partner</option>
+                <option value="admin">Admin</option>
             </select>
         </div>
-
-        <div class="flex items-center justify-start mt-4">
-            <label for="supervisor_id" class="block font-medium text-sm text-gray-700">Your Supervisor (optional)</label>
-                <select id="supervisor_id" name="supervisor_id" class="mt-1 block w-full" style="margin-bottom: 15px; border-radius: 5px; border: 1px solid blue;">
-                    <option value="">-- Select Supervisor --</option>
-                    @foreach ($supervisors as $supervisor)
-                        <option value="{{ $supervisor->id }}">
-                            {{ $supervisor->name }} ({{ ucfirst($supervisor->role) }})
-                        </option>
-                    @endforeach
-                </select>
-        </div>
-
             <x-primary-button>
                 {{ __('Register') }}
             </x-primary-button>

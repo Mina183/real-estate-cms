@@ -15,8 +15,7 @@ class User extends Authenticatable
     // ✅ Add your custom constants here
     public const ROLE_SUPERADMIN = 'superadmin';
     public const ROLE_ADMIN = 'admin';
-    public const ROLE_PARTNER = 'partner';
-    public const ROLE_AGENT = 'agent';
+    public const ROLE_CHANNEL_PARTNER = 'channel_partner';
     public const ROLE_GUEST = 'guest';
 
     /**
@@ -47,14 +46,9 @@ class User extends Authenticatable
         return $this->role === self::ROLE_ADMIN;
     }
 
-    public function isPartner()
+    public function isChannelPartner()
     {
-        return $this->role === self::ROLE_PARTNER;
-    }
-
-    public function isAgent()
-    {
-        return $this->role === self::ROLE_AGENT;
+        return $this->role === self::ROLE_CHANNEL_PARTNER;
     }
 
     public function isGuest()
@@ -83,11 +77,5 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
-    }
-
-    // ✅ Optional: relationship for agents reporting to another user
-    public function supervisor()
-    {
-        return $this->belongsTo(User::class, 'supervisor_id');
     }
 }

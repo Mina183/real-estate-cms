@@ -26,7 +26,7 @@ class RegisterRequest extends FormRequest
         'name' => ['required', 'string', 'max:255'],
         'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
         'password' => ['required', 'confirmed', Password::defaults()],
-        'role' => ['required', 'in:partner,agent,admin'], // ✅ only allowed roles
+        'role' => ['required', 'in:channel_partner,admin'], // ✅ only allowed roles
         'supervisor_id' => ['nullable', 'exists:users,id'], // if you added this field
         ];
     }

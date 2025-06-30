@@ -21,7 +21,7 @@ class RegisteredUserController extends Controller
     public function create(): View
     {
         $supervisors = \App\Models\User::where('is_approved', true)
-        ->whereIn('role', ['partner', 'agent'])
+        ->whereIn('role', ['channel_partner'])
         ->get();
 
 return view('auth.register', compact('supervisors'));
@@ -40,7 +40,6 @@ return view('auth.register', compact('supervisors'));
             'password' => Hash::make($request->password),
             'role' => $request->role, // ✅ role comes from the form
             'requested_role' => $request->role, // ✅ store selected choice
-            'supervisor_id' => $request->input('supervisor_id'), // could be null
             'is_approved' => false,
         ]);
 

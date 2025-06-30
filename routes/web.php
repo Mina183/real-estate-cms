@@ -5,7 +5,9 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\PartnerController;
-use App\Http\Controllers\AgentController;
+use App\Http\Controllers\ClientController;
+use App\Http\Controllers\LeadSourceController;
+
 use Illuminate\Support\Facades\Mail;
 use App\Mail\TestEmail;
 
@@ -46,25 +48,29 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return view('dashboard', compact('user'));
     })->name('dashboard');
 
+     Route::get('/clients', [ClientController::class, 'index'])->name('clients.index');
+
     /*
     |--------------------------------------------------------------------------
-    | Role-Based Dashboards (Optional)
+    | Admin Routs (Optional)
     |--------------------------------------------------------------------------
     */
     Route::middleware('role:admin,superadmin')->group(function () {
-        Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
         Route::get('/admin/users', [ApprovalController::class, 'index'])->name('approve_users');
         Route::patch('/admin/users/{user}/approve', [ApprovalController::class, 'approve'])->name('approve_user');
     });
 
-    Route::middleware('role:partner')->group(function () {
-        Route::get('/partner/dashboard', [PartnerController::class, 'index'])->name('partner.dashboard');
-    });
+        /*
+    |--------------------------------------------------------------------------
+    | Channel Partner Routs (Optional)
+    |--------------------------------------------------------------------------
+    */
 
-    Route::middleware('role:agent')->group(function () {
-        Route::get('/agent/dashboard', [AgentController::class, 'index'])->name('agent.dashboard');
+    Route::middleware('role:channel_partner')->group(function () {
+        Route::resource('lead-sources', \App\Http\Controllers\LeadSourceController::class);
+        Route::get('/lead-sources', [LeadSourceController::class, 'index'])->name('lead-sources.index');
+        Route::post('/lead-sources', [LeadSourceController::class, 'store'])->name('lead-sources.store');
     });
-
     /*
     |--------------------------------------------------------------------------
     | Profile Management

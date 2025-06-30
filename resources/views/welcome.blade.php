@@ -33,7 +33,7 @@
                 <li>Role-based, secure user access</li>
             </ul>
 
-            <a href="/my-clients" class="bg-[#0e2442] text-white px-5 py-2 rounded hover:opacity-90 transition w-fit animate-pulse">
+            <a href="{{ route('clients.index') }}" class="bg-[#0e2442] text-white px-5 py-2 rounded hover:opacity-90 transition w-fit animate-pulse">
                 View My Clients
             </a>
         </div>
