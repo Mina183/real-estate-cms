@@ -26,13 +26,19 @@
         {{-- List of Lead Sources --}}
         <div class="bg-white p-6 shadow-md rounded">
             <h3 class="text-lg font-semibold mb-4">Existing Lead Sources</h3>
-            <ul class="space-y-2">
-                @forelse ($leadSources as $source)
-                    <li class="border-b pb-2">{{ $source->name }}</li>
-                @empty
-                    <li class="text-gray-500">You have not added any lead sources yet.</li>
-                @endforelse
-            </ul>
+            <div class="max-h-[300px] overflow-auto pr-2">
+                <ul class="space-y-2">
+                    @forelse ($leadSources as $source)
+                        <li class="border-b pb-2">{{ $source->name }}</li>
+                    @empty
+                        <li class="text-gray-500">You have not added any lead sources yet.</li>
+                    @endforelse
+                </ul>
+            </div>
         </div>
+        <a href="{{ route('dashboard') }}"
+        class="inline-block bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm font-semibold px-4 py-2 rounded mb-4 mt-3 transition">
+            ← Back to Dashboard
+        </a>
     </div>
 </x-app-layout>
