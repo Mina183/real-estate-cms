@@ -7,6 +7,10 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\PartnerController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\LeadSourceController;
+use App\Http\Controllers\AdminClientController;
+use App\Http\Controllers\AdminDocumentController;
+use App\Http\Controllers\PartnerDocumentController;
+use App\Http\Controllers\DashboardController;
 
 use Illuminate\Support\Facades\Mail;
 use App\Mail\TestEmail;
@@ -37,16 +41,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return view('auth.approval-pending');
     })->name('approval.pending');
 
-    // Shared dashboard for all approved users
-    Route::get('/dashboard', function () {
-        $user = auth()->user();
-
-        if (! $user->is_approved) {
-            return redirect()->route('approval.pending');
-        }
-
-        return view('dashboard', compact('user'));
-    })->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth'])
+    ->name('dashboard');
 
      Route::get('/clients', [ClientController::class, 'index'])->name('clients.index');
 
@@ -63,9 +60,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
     | Admin Routs (Optional)
     |--------------------------------------------------------------------------
     */
-    Route::middleware('role:admin,superadmin')->group(function () {
-        Route::get('/admin/users', [ApprovalController::class, 'index'])->name('approve_users');
-        Route::patch('/admin/users/{user}/approve', [ApprovalController::class, 'approve'])->name('approve_user');
+    Route::middleware('role:admin,superadmin')
+    ->prefix('admin')
+    ->group(function () {
+        Route::get('/users', [ApprovalController::class, 'index'])->name('approve_users');
+        Route::patch('/users/{user}/approve', [ApprovalController::class, 'approve'])->name('approve_user');
+        Route::get('/clients', [AdminClientController::class, 'index'])->name('admin.clients.index');
+        Route::get('/documents', [AdminDocumentController::class, 'index'])->name('admin.documents.index');
+        Route::get('/documents/create', [AdminDocumentController::class, 'create'])->name('admin.documents.create');
+        Route::post('/documents', [AdminDocumentController::class, 'store'])->name('admin.documents.store');
+        Route::patch('/documents/{id}/approve', [AdminDocumentController::class, 'approve'])->name('admin.documents.approve');
+        Route::patch('/responses/{id}/approve', [AdminDocumentController::class, 'approveResponse'])->name('admin.responses.approve');
+        Route::get('documents/{id}', [AdminDocumentController::class, 'show'])->name('admin.documents.show');
     });
 
         /*
@@ -74,10 +80,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::middleware('role:channel_partner')->group(function () {
+    Route::middleware('role:channel_partner')
+    ->prefix('partner') // ✅ NEW PREFIX
+    ->group(function () {
         Route::resource('lead-sources', \App\Http\Controllers\LeadSourceController::class);
         Route::get('/lead-sources', [LeadSourceController::class, 'index'])->name('lead-sources.index');
         Route::post('/lead-sources', [LeadSourceController::class, 'store'])->name('lead-sources.store');
+        Route::get('/documents', [PartnerDocumentController::class, 'index'])->name('partner.documents.index');
+        Route::post('/documents/{id}/upload-response', [PartnerDocumentController::class, 'uploadResponse'])->name('partner.documents.uploadResponse');
+        Route::post('/documents/{id}/acknowledge', [PartnerDocumentController::class, 'acknowledge'])->name('partner.documents.acknowledge');
     });
     /*
     |--------------------------------------------------------------------------

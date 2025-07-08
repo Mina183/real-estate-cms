@@ -3,6 +3,11 @@
         <h2 class="text-xl font-semibold leading-tight">
             {{ __('Your Lead Sources') }}
         </h2>
+        <div class="mb-4">
+            <a href="{{ route('dashboard') }}" class="inline-block bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300">
+                ← Back to Dashboard
+            </a>
+        </div>
     </x-slot>
 
     <div class="py-6 max-w-4xl mx-auto">

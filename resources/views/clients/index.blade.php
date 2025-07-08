@@ -4,9 +4,11 @@
             Clients
         </h2>
         <div class="mb-4">
-            <a href="{{ url()->previous() }}" class="inline-block bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300">
-                ← Back
+        <div class="mb-4">
+            <a href="{{ route('dashboard') }}" class="inline-block bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300">
+                ← Back to Dashboard
             </a>
+        </div>
         </div>
     </x-slot>
 <div class="p-2 bg-[#0e2442]">
@@ -159,6 +161,7 @@
                         <th class="border px-4 py-2">Investor/Buyer</th>
                         <th class="border px-4 py-2">Investor Type</th>
                         <th class="border px-4 py-2">Name</th>
+                        <th class="border px-4 py-2">Passport Number</th>
                         <th class="border px-4 py-2">Phone</th>
                         <th class="border px-4 py-2">Email</th>
                         <th class="border px-4 py-2">Contact Method</th>
@@ -181,6 +184,7 @@
                             <td class="border px-4 py-2">{{ $client->is_investor ? 'Investor' : 'End Buyer' }}</td>
                             <td class="border px-4 py-2">{{ $client->investor_type ?? '-' }}</td>
                             <td class="border px-4 py-2">{{ $client->name }}</td>
+                            <td class="border px-4 py-2">{{ $client->passport_number }}</td>
                             <td class="border px-4 py-2">{{ $client->phone }}</td>
                             <td class="border px-4 py-2">{{ $client->email }}</td>
                             <td class="border px-4 py-2">{{ $client->best_contact_method }}</td>

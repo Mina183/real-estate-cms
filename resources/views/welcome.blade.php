@@ -20,10 +20,6 @@
             <h1 class="text-3xl font-bold mb-6">Your Clients. Your Deals. Fully Secure.</h1>
 
             <p class="mb-4 max-w-md">
-                Real estate agents get full control over their portfolio. Work in a private workspace with no overlap between agents.
-            </p>
-
-            <p class="mb-6 max-w-md">
                 Track client registrations, deals, and history — all securely stored and access-controlled.
             </p>
 
@@ -33,9 +29,21 @@
                 <li>Role-based, secure user access</li>
             </ul>
 
-            <a href="{{ route('clients.index') }}" class="bg-[#0e2442] text-white px-5 py-2 rounded hover:opacity-90 transition w-fit animate-pulse">
-                View My Clients
-            </a>
+            @auth
+                @php
+                    $role = auth()->user()->role;
+                @endphp
+
+                @if($role === 'channel_partner' || $role === 'sub_partner')
+                    <a href="{{ route('clients.index') }}" class="bg-[#0e2442] text-white px-5 py-2 rounded hover:opacity-90 transition w-fit animate-pulse">
+                        View My Clients
+                    </a>
+                @elseif($role === 'admin' || $role === 'superadmin')
+                    <a href="{{ route('admin.clients.index') }}" class="bg-[#0e2442] text-white px-5 py-2 rounded hover:opacity-90 transition w-fit">
+                        View Partners and Clients
+                    </a>
+                @endif
+            @endauth
         </div>
     </div>
 
