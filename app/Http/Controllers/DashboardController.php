@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\PartnerDocument;
 use App\Models\PartnerDocumentResponse;
 use App\Models\User;
+use App\Models\Meeting;
 
 class DashboardController extends Controller
 {
@@ -17,24 +18,30 @@ public function index()
         return redirect()->route('approval.pending');
     }
 
-    $showRedDot = false;
+    // === Initialize Red Dot Flags and Data Collections ===
+    $documentRedDot = false;
+    $calendarRedDot = false;
     $adminTriggeringDocs = collect();
     $partnerTriggeringDocs = collect();
 
-    // ==== Partner Red Dot Logic ====
+    // === CALENDAR RED DOT: Any pending invitation? ===
+    $calendarRedDot = $user->meetings()
+        ->wherePivotNull('is_accepted')
+        ->where('start_time', '>', now())
+        ->exists();
+
+    // === PARTNER DOCUMENTS LOGIC ===
     if ($user->role === 'channel_partner') {
         $partnerId = $user->id;
 
-        // Direct documents that require partner's action
+        // Direct documents assigned to this partner
         $directDocs = PartnerDocument::where('partner_id', $partnerId)
             ->whereIn('status', ['waiting_partner_action', 'review_only'])
             ->get();
 
-        foreach ($directDocs as $doc) {
-            $partnerTriggeringDocs->push($doc);
-        }
+        $partnerTriggeringDocs = $partnerTriggeringDocs->merge($directDocs);
 
-        // Shared documents that this partner hasn't responded to or only partially responded
+        // Shared documents requiring action
         $sharedDocs = PartnerDocument::whereNull('partner_id')->get();
 
         foreach ($sharedDocs as $doc) {
@@ -47,11 +54,20 @@ public function index()
             }
         }
 
-        $showRedDot = $partnerTriggeringDocs->isNotEmpty();
+        $documentRedDot = $partnerTriggeringDocs->isNotEmpty();
     }
 
-    // ==== Admin Red Dot Logic (mirrors create() logic exactly) ====
+    // === ADMIN DOCUMENTS LOGIC ===
+    $adminUpcomingMeetings = collect();
+
     if (in_array($user->role, ['admin', 'superadmin'])) {
+        $adminUpcomingMeetings = Meeting::where('start_time', '>', now())
+            ->with(['attendees' => function ($query) {
+                $query->select('users.id', 'name')->withPivot('is_accepted');
+            }])
+            ->orderBy('start_time')
+            ->get();
+
         $partners = User::where('role', 'channel_partner')->get();
         $sharedDocs = PartnerDocument::whereNull('partner_id')->get();
 
@@ -64,7 +80,7 @@ public function index()
                 if (! $response || in_array($response->status, [
                     'waiting_partner_action',
                     'review_only',
-                    'waiting_admin_approval', // ✅ NEW: admin-triggered status
+                    'waiting_admin_approval',
                     null
                 ])) {
                     if (! $adminTriggeringDocs->contains('id', $doc->id)) {
@@ -74,14 +90,36 @@ public function index()
             }
         }
 
-        $showRedDot = $showRedDot || $adminTriggeringDocs->isNotEmpty();
+        $documentRedDot = $adminTriggeringDocs->isNotEmpty();
+    }
+
+    // === MEETING LISTS FOR PARTNERS ===
+    $upcomingAcceptedMeetings = collect();
+    $pendingMeetingInvitations = collect();
+
+    if ($user->role === 'channel_partner') {
+        $upcomingAcceptedMeetings = $user->meetings()
+            ->wherePivot('is_accepted', 1)
+            ->where('start_time', '>', now())
+            ->orderBy('start_time')
+            ->get();
+
+        $pendingMeetingInvitations = $user->meetings()
+            ->wherePivotNull('is_accepted')
+            ->where('start_time', '>', now())
+            ->orderBy('start_time')
+            ->get();
     }
 
     return view('dashboard', [
         'user' => $user,
-        'showRedDot' => $showRedDot,
+        'documentRedDot' => $documentRedDot,
+        'calendarRedDot' => $calendarRedDot,
         'adminTriggeringDocs' => $adminTriggeringDocs,
         'partnerTriggeringDocs' => $partnerTriggeringDocs,
+        'upcomingAcceptedMeetings' => $upcomingAcceptedMeetings,
+        'pendingMeetingInvitations' => $pendingMeetingInvitations,
+        'adminUpcomingMeetings' => $adminUpcomingMeetings,
     ]);
 }
 }

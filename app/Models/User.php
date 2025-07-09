@@ -78,4 +78,9 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function meetings()
+{
+    return $this->belongsToMany(Meeting::class)->withPivot('is_accepted', 'accepted_at')->withTimestamps();
+}
 }
