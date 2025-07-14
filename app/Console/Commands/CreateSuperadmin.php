@@ -8,13 +8,18 @@ use Illuminate\Support\Facades\Hash;
 
 class CreateSuperadmin extends Command
 {
-    protected $signature = 'make:superadmin';
-    protected $description = 'Create the first Superadmin user';
+    protected $signature = 'make:superadmin {email} {password}';
+    protected $description = 'Create a new Superadmin user';
 
     public function handle()
     {
-        $email = $this->ask('Enter Superadmin email');
-        $password = $this->secret('Enter password');
+        $email = $this->argument('email');
+        $password = $this->argument('password');
+
+        if (User::where('email', $email)->exists()) {
+            $this->error("User with email $email already exists.");
+            return 1;
+        }
 
         $user = User::create([
             'name' => 'Superadmin',
