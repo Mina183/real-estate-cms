@@ -22,10 +22,10 @@ class CreateSuperadmin extends Command
         }
 
         $user = User::create([
-            'name' => 'Superadmin',
+            'name' => 'superadmin',
             'email' => $email,
             'password' => Hash::make($password),
-            'role' => 'Superadmin',
+            'role' => 'superadmin',
             'is_approved' => true,
         ]);
 
