@@ -22,7 +22,11 @@ return new class extends Migration
         $table->string('best_contact_method')->nullable();
 
         // Lead source
-        $table->foreignId('lead_source_id')->constrained()->onDelete('set null')->nullable();
+        $table->unsignedBigInteger('lead_source_id')->nullable();
+        $table->foreign('lead_source_id')
+            ->references('id')
+            ->on('lead_sources')
+            ->onDelete('set null');
         $table->boolean('is_investor')->nullable();
         $table->string('investor_type')->nullable(); // long-term / short-term
         $table->string('preferred_property_type')->nullable();
