@@ -14,16 +14,17 @@ class AdminDocumentController extends Controller
 public function create()
 {
     $partners = User::where('role', 'channel_partner')->get();
-    $triggeringSharedDocs = collect(); // Use collections for consistency
-    $triggeringDocs = collect();       // For debug display
+
+    $triggeringSharedDocs = collect(); // For shared documents
+    $triggeringAssignedDocs = collect(); // ✅ For assigned documents
+    $triggeringDocs = collect(); // For debug display
     $showRedDot = false;
 
-    // Get all shared documents
+    // === Shared Documents Check ===
     $sharedDocs = PartnerDocument::whereNull('partner_id')->get();
 
     foreach ($sharedDocs as $doc) {
         foreach ($partners as $partner) {
-            // Find partner's response for this shared doc
             $response = PartnerDocumentResponse::where('document_id', $doc->id)
                 ->where('partner_id', $partner->id)
                 ->first();
@@ -31,15 +32,13 @@ public function create()
             if (! $response || in_array($response->status, [
                 'waiting_partner_action',
                 'review_only',
-                'waiting_admin_approval', // ✅ NEW status included
+                'waiting_admin_approval',
                 null
             ])) {
-                // Add this doc once
                 if (! $triggeringSharedDocs->contains('id', $doc->id)) {
                     $triggeringSharedDocs->push($doc);
                 }
 
-                // Add actual or fake response for debug display
                 if ($response) {
                     $triggeringDocs->push($response);
                 } else {
@@ -54,12 +53,25 @@ public function create()
         }
     }
 
-    $showRedDot = $triggeringSharedDocs->isNotEmpty();
+    // === ✅ Assigned Documents Check (new) ===
+    $assignedDocs = PartnerDocument::whereNotNull('partner_id')
+        ->whereIn('status', ['waiting_partner_action', 'review_only', 'waiting_admin_approval'])
+        ->get();
+
+    foreach ($assignedDocs as $doc) {
+        if (! $triggeringAssignedDocs->contains('id', $doc->id)) {
+            $triggeringAssignedDocs->push($doc);
+        }
+    }
+
+    // === Final red dot flag ===
+    $showRedDot = $triggeringSharedDocs->isNotEmpty() || $triggeringAssignedDocs->isNotEmpty();
 
     return view('admin.documents.create', compact(
         'partners',
         'showRedDot',
         'triggeringSharedDocs',
+        'triggeringAssignedDocs',
         'triggeringDocs'
     ));
 }
