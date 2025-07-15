@@ -16,22 +16,18 @@ class SendAdminRegistrationNotification implements ShouldQueue
 
     public function handle(Registered $event): void
     {
-        Log::info("Listener triggered for new user: {$event->user->email}");
+        \Log::info('✅ Listener is handling Registered event for: ' . $event->user->email);
 
-        $admins = User::whereIn('role', ['superadmin', 'admin'])->get();
+        $admins = \App\Models\User::whereIn('role', ['superadmin', 'admin'])->get();
 
         foreach ($admins as $admin) {
-            Log::info("Attempting to send to: {$admin->email}");
+            \Log::info("Attempting to send to: {$admin->email}");
 
             try {
-                // 🚨 FORCED FAILURE — send to invalid address
-                Mail::to('fail@test')->send(
-                    new NewUserNeedsApproval($event->user)
-                );
-
-                Log::info("Mail (forced) sent to: fail@test");
+                \Mail::to($admin->email)->send(new \App\Mail\NewUserNeedsApproval($event->user));
+                \Log::info("Mail sent to: {$admin->email}");
             } catch (\Exception $e) {
-                Log::error("Mail send failure for {$admin->email}: " . $e->getMessage());
+                \Log::error("❌ Failed to send mail to {$admin->email}: " . $e->getMessage());
             }
         }
     }
