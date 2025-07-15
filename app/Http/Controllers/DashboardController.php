@@ -71,6 +71,7 @@ public function index()
         $partners = User::where('role', 'channel_partner')->get();
         $sharedDocs = PartnerDocument::whereNull('partner_id')->get();
 
+        // Check shared docs (already existing logic)
         foreach ($sharedDocs as $doc) {
             foreach ($partners as $partner) {
                 $response = PartnerDocumentResponse::where('document_id', $doc->id)
@@ -87,6 +88,17 @@ public function index()
                         $adminTriggeringDocs->push($doc);
                     }
                 }
+            }
+        }
+
+        // ✅ NEW: Check documents assigned directly to a partner
+        $directDocs = PartnerDocument::whereNotNull('partner_id')
+            ->whereIn('status', ['waiting_partner_action', 'review_only'])
+            ->get();
+
+        foreach ($directDocs as $doc) {
+            if (! $adminTriggeringDocs->contains('id', $doc->id)) {
+                $adminTriggeringDocs->push($doc);
             }
         }
 
