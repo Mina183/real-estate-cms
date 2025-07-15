@@ -1,4 +1,7 @@
 <x-mail::message>
+<x-mail::header :url="config('app.url')">
+    <img src="{{ asset('images/logo.png') }}" alt="Logo" style="height: 50px;">
+</x-mail::header>
 # New User Registration Requires Approval
 
 A new user has registered and is waiting for approval.
