@@ -42,7 +42,7 @@ return view('auth.register', compact('supervisors'));
             'requested_role' => $request->role, // ✅ store selected choice
             'is_approved' => false,
         ]);
-
+        \Log::info('Register controller reached before event');
         event(new Registered($user));
         return redirect()->route('register')->with('pendingApproval', true);
     }
