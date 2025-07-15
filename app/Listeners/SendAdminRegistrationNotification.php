@@ -19,9 +19,17 @@ class SendAdminRegistrationNotification implements ShouldQueue
         $admins = User::whereIn('role', ['superadmin', 'admin'])->get();
 
         foreach ($admins as $admin) {
-            Mail::to($admin->email)->send(
-                new NewUserNeedsApproval($event->user)
-            );
+            \Log::info("Attempting to send to: {$admin->email}");
+
+            try {
+                Mail::to($admin->email)->send(
+                    new NewUserNeedsApproval($event->user)
+                );
+                \Log::info("Mail sent to: {$admin->email}");
+            } catch (\Exception $e) {
+                \Log::error("Failed to send mail to: {$admin->email} — " . $e->getMessage());
+            }
         }
-    }
+
+            }
 }
