@@ -22,6 +22,14 @@ class AppServiceProvider extends ServiceProvider
      */
 public function boot(): void
 {
-    URL::forceScheme('https');
+    $logPath = storage_path('logs/laravel.log');
+
+    if (!file_exists(dirname($logPath))) {
+        mkdir(dirname($logPath), 0755, true);
+    }
+
+    if (!file_exists($logPath)) {
+        file_put_contents($logPath, '');
+    }
 }
 }
