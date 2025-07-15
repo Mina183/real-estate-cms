@@ -14,8 +14,14 @@ class SendAdminRegistrationNotification implements ShouldQueue
 
     public function handle(Registered $event): void
     {
-        Mail::to('your-email@example.com')->send(
-            new NewUserNeedsApproval($event->user)
-        );
+        // ✅ CORRECTED: whereIn for multiple roles
+        Log::info("Listener triggered for new user: {$event->user->email}");
+        $admins = User::whereIn('role', ['superadmin', 'admin'])->get();
+
+        foreach ($admins as $admin) {
+            Mail::to($admin->email)->send(
+                new NewUserNeedsApproval($event->user)
+            );
+        }
     }
 }
