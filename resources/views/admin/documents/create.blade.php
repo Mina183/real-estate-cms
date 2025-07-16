@@ -32,7 +32,7 @@
         <div class="bg-[#0e2442] border border-[#afac9b] rounded p-4 shadow-sm">
             <h3 class="text-base font-semibold text-white mb-2">Manage Documents</h3>
             <p class="text-xs text-gray-500">
-                Debug: showRedDot = {{ $showRedDot ? 'true' : 'false' }}
+            {{--  Debug: showRedDot = {{ $showRedDot ? 'true' : 'false' }} --}}
             </p>
             <a href="{{ route('admin.documents.index') }}"
                 class="relative inline-block bg-gray-200 text-[#0e2442] text-sm px-4 py-2 rounded hover:bg-gray-300 transition">
@@ -89,7 +89,7 @@
                 </div>
             </form>
         </div>
-
+{{--
         {{-- 🔍 Debug: Shared documents that triggered red dot --}}
         @if($triggeringSharedDocs->isNotEmpty())
             <div class="bg-yellow-100 text-sm text-yellow-800 p-2 rounded">
@@ -118,6 +118,6 @@
                 </ul>
             </div>
         @endif
-
+--}}
     </div>
 </x-app-layout>

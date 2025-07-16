@@ -165,7 +165,7 @@
             @endif
         </div>
     </div>
-
+{{--
     {{-- Debug Sections --}}
     @if(auth()->user()->role === 'admin' || auth()->user()->role === 'superadmin')
         <div class="max-w-6xl mx-auto mt-10 bg-white p-4 border rounded shadow">
@@ -213,4 +213,5 @@
             @endif
         </div>
     @endif
+--}}
 </x-app-layout>
