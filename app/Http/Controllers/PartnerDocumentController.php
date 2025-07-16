@@ -57,7 +57,7 @@ public function index()
         ]);
 
         // Store file
-        $path = $request->file('response_file')->store('partner_responses', 'public');
+        $path = $request->file('response_file')->store('partner_responses');
 
         // Store or update response
         PartnerDocumentResponse::updateOrCreate(
@@ -82,7 +82,7 @@ public function index()
         'response_file' => 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png,xlsx|max:5120',
     ]);
 
-    $path = $request->file('response_file')->store('partner_responses', 'public');
+    $path = $request->file('response_file')->store('partner_responses');
 
     $doc->update([
         'response_file_path' => $path,

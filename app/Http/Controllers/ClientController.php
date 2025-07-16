@@ -264,7 +264,7 @@ class ClientController extends Controller
         ]);
 
         $file = $request->file('document');
-        $path = $file->store('documents', 'public');
+        $path = $file->store('documents');
 
         $client->documents()->create([
             'filename' => $file->getClientOriginalName(), // original file name
