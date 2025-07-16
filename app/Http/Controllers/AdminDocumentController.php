@@ -147,7 +147,6 @@ public function index()
 
     return view('admin.documents.show', compact('doc'));
 }
-
 public function destroy($id)
 {
     $doc = PartnerDocument::findOrFail($id);
@@ -157,14 +156,28 @@ public function destroy($id)
         PartnerDocumentResponse::where('document_id', $doc->id)->delete();
     }
 
-    // Delete the original file
-    if ($doc->file_path && Storage::disk('public')->exists($doc->file_path)) {
-        Storage::disk('public')->delete($doc->file_path);
+    // Delete the original file if path looks correct
+    if ($doc->file_path) {
+        Log::info('Attempting to delete file: ' . $doc->file_path);
+
+        if (Storage::disk('public')->exists($doc->file_path)) {
+            Storage::disk('public')->delete($doc->file_path);
+            Log::info('File deleted.');
+        } else {
+            Log::warning('File not found: ' . $doc->file_path);
+        }
     }
 
-    // Delete the response file for assigned docs
-    if ($doc->response_file_path && Storage::disk('public')->exists($doc->response_file_path)) {
-        Storage::disk('public')->delete($doc->response_file_path);
+    // Same for response file
+    if ($doc->response_file_path) {
+        Log::info('Attempting to delete response file: ' . $doc->response_file_path);
+
+        if (Storage::disk('public')->exists($doc->response_file_path)) {
+            Storage::disk('public')->delete($doc->response_file_path);
+            Log::info('Response file deleted.');
+        } else {
+            Log::warning('Response file not found: ' . $doc->response_file_path);
+        }
     }
 
     $doc->delete();
