@@ -89,7 +89,7 @@
                 </div>
             </form>
         </div>
-{{--
+ @if(false)
         {{-- 🔍 Debug: Shared documents that triggered red dot --}}
         @if($triggeringSharedDocs->isNotEmpty())
             <div class="bg-yellow-100 text-sm text-yellow-800 p-2 rounded">
@@ -118,6 +118,6 @@
                 </ul>
             </div>
         @endif
---}}
+@endif
     </div>
 </x-app-layout>
