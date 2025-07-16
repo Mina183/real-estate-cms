@@ -18,7 +18,10 @@
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans antialiased">
+    <body class="font-sans antialiased bg-gray-100 text-gray-900 dark:bg-gray-900 dark:text-white">
+    <button id="darkModeToggle" class="fixed top-4 right-4 bg-[#0e2442] text-white px-3 py-2 rounded shadow z-50">
+        Toggle Dark Mode
+    </button>
         <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
             @include('layouts.navigation')
 
@@ -37,6 +40,23 @@
             </main>
         </div>
         <script src="https://unpkg.com/alpinejs" defer></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const toggle = document.getElementById('darkModeToggle');
+                const root = document.documentElement;
+
+                // Enable dark mode if stored
+                if (localStorage.getItem('theme') === 'dark') {
+                    root.classList.add('dark');
+                }
+
+                toggle?.addEventListener('click', () => {
+                    root.classList.toggle('dark');
+                    const mode = root.classList.contains('dark') ? 'dark' : 'light';
+                    localStorage.setItem('theme', mode);
+                });
+            });
+        </script>
     </body>
 </html>
 
