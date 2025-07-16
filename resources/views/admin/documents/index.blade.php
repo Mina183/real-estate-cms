@@ -1,4 +1,3 @@
-
 <x-app-layout>
     <x-slot name="header">
         <h2 class="text-xl font-semibold">All Uploaded Partner Documents</h2>
@@ -34,9 +33,9 @@
                     <tr>
                         <td class="border px-4 py-2">{{ $doc->title }}</td>
                         <td class="border px-4 py-2">
-                            <a href="{{ asset('storage/' . $doc->file_path) }}" target="_blank" class="text-blue-600 hover:underline">
-                                {{ $doc->filename }}
-                            </a>
+                        <a href="{{ Storage::url($doc->file_path) }}" target="_blank" class="text-blue-600 hover:underline">
+                            {{ $doc->filename }}
+                        </a>
                         </td>
                         <td class="border px-4 py-2">
                             {{ $doc->partner ? $doc->partner->name : 'All Partners' }}
@@ -99,9 +98,9 @@
                             @if($doc->partner_id === null)
                                 <span class="text-gray-400 italic">See Responses Column</span>
                             @elseif($doc->response_file_path)
-                                <a href="{{ asset('storage/' . $doc->response_file_path) }}" target="_blank" class="text-blue-600 hover:underline">
-                                    View Response
-                                </a>
+                            <a href="{{ Storage::url($doc->response_file_path) }}" target="_blank" class="text-blue-600 hover:underline">
+                                View Response
+                            </a>
                                 <div class="text-xs text-gray-500 mt-1">
                                     {{ $doc->response_uploaded_at ? $doc->response_uploaded_at->format('Y-m-d H:i') : '' }}
                                 </div>

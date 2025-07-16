@@ -88,7 +88,7 @@ public function store(Request $request)
     ]);
 
     try {
-        $storedPath = $request->file('file')->store('partner_documents', 'public');
+        $storedPath = $request->file('file')->store('partner_documents');
 
         PartnerDocument::create([
             'title' => $data['title'],
@@ -163,8 +163,8 @@ public function destroy($id)
     if ($doc->file_path) {
         Log::info('Attempting to delete file: ' . $doc->file_path);
 
-        if (Storage::disk('public')->exists($doc->file_path)) {
-            Storage::disk('public')->delete($doc->file_path);
+        if (Storage::exists($doc->file_path)) {
+            Storage::delete($doc->file_path);
             Log::info('File deleted.');
         } else {
             Log::warning('File not found: ' . $doc->file_path);
@@ -175,8 +175,8 @@ public function destroy($id)
     if ($doc->response_file_path) {
         Log::info('Attempting to delete response file: ' . $doc->response_file_path);
 
-        if (Storage::disk('public')->exists($doc->response_file_path)) {
-            Storage::disk('public')->delete($doc->response_file_path);
+        if (Storage::exists($doc->response_file_path)) {
+            Storage::delete($doc->response_file_path);
             Log::info('Response file deleted.');
         } else {
             Log::warning('Response file not found: ' . $doc->response_file_path);

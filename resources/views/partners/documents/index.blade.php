@@ -54,7 +54,7 @@
                                 <span class="{{ $status['class'] }} font-medium">{{ $status['label'] }}</span>
                                 @if ($response && $response->response_file_path)
                                     <br>
-                                    <a href="{{ asset('storage/' . $response->response_file_path) }}" target="_blank" class="text-sm text-blue-600 underline">View Response</a>
+                                    <a href="{{ Storage::url($response->response_file_path) }}" target="_blank" class="text-sm text-blue-600 underline">View Response</a>
                                 @endif
                             </td>
 
@@ -66,7 +66,7 @@
                             </td>
 
                             <td class="border px-4 py-2">
-                                <a href="{{ asset('storage/' . $doc->file_path) }}" class="text-blue-600 underline" target="_blank">Download</a>
+                                <a href="{{ Storage::url($doc->file_path) }}" class="text-blue-600 underline" target="_blank">Download</a>
 
                                 {{-- Upload Response --}}
                                 @if($docStatus === 'waiting_partner_action')

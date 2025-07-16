@@ -170,9 +170,9 @@
                             <ul class="list-disc ml-6">
                                 @foreach($client->documents as $doc)
                                     <li>
-                                        <a href="{{ asset('storage/' . $doc->path) }}" target="_blank" class="text-blue-600 underline">
-                                            {{ $doc->filename }}
-                                        </a>
+                                    <a href="{{ Storage::url($doc->path) }}" target="_blank" class="text-blue-600 underline">
+                                        {{ $doc->filename }}
+                                    </a>
                                         <span class="text-gray-500 text-sm">({{ $doc->created_at->format('d M Y') }})</span>
                                     </li>
                                 @endforeach

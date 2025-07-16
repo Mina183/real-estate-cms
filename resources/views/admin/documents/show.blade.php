@@ -13,7 +13,9 @@
             <h3 class="text-lg font-semibold">{{ $doc->title }}</h3>
             <p class="text-gray-700">Uploaded for: {{ $doc->partner ? $doc->partner->name : 'All Partners' }}</p>
             <p class="text-sm text-gray-500">Uploaded on: {{ $doc->created_at->format('Y-m-d H:i') }}</p>
-            <a href="{{ asset('storage/' . $doc->file_path) }}" target="_blank" class="text-blue-600 underline">View Original File</a>
+            <a href="{{ Storage::url($doc->file_path) }}" target="_blank" class="text-blue-600 underline">
+                View Original File
+            </a>
         </div>
 
         @if($doc->partner_id === null)
@@ -33,7 +35,9 @@
                             <tr>
                                 <td class="border px-4 py-2">{{ $response->partner->name ?? 'Unknown' }}</td>
                                 <td class="border px-4 py-2">
-                                    <a href="{{ asset('storage/' . $response->response_file_path) }}" target="_blank" class="text-blue-600 underline">View</a>
+                                <a href="{{ Storage::url($response->response_file_path) }}" target="_blank" class="text-blue-600 underline">
+                                    View
+                                </a>
                                 </td>
                                 <td class="border px-4 py-2">{{ $response->response_uploaded_at->format('Y-m-d H:i') }}</td>
                                 <td class="border px-4 py-2">
