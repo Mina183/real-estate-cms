@@ -147,4 +147,28 @@ public function index()
 
     return view('admin.documents.show', compact('doc'));
 }
+
+public function destroy($id)
+{
+    $doc = PartnerDocument::findOrFail($id);
+
+    // Delete shared responses if they exist
+    if ($doc->partner_id === null) {
+        PartnerDocumentResponse::where('document_id', $doc->id)->delete();
+    }
+
+    // Delete the original file
+    if ($doc->file_path && Storage::disk('public')->exists($doc->file_path)) {
+        Storage::disk('public')->delete($doc->file_path);
+    }
+
+    // Delete the response file for assigned docs
+    if ($doc->response_file_path && Storage::disk('public')->exists($doc->response_file_path)) {
+        Storage::disk('public')->delete($doc->response_file_path);
+    }
+
+    $doc->delete();
+
+    return redirect()->route('admin.documents.index')->with('success', 'Document deleted successfully.');
+}
 }

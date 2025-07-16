@@ -69,9 +69,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/documents/create', [AdminDocumentController::class, 'create'])->name('admin.documents.create');
         Route::post('/documents', [AdminDocumentController::class, 'store'])->name('admin.documents.store');
         Route::patch('/documents/{id}/approve', [AdminDocumentController::class, 'approve'])->name('admin.documents.approve');
+        Route::delete('/documents/{id}', [AdminDocumentController::class, 'destroy'])->name('admin.documents.destroy');
         Route::patch('/responses/{id}/approve', [AdminDocumentController::class, 'approveResponse'])->name('admin.responses.approve');
         Route::get('documents/{id}', [AdminDocumentController::class, 'show'])->name('admin.documents.show');
         Route::resource('meetings', CalendarController::class)->except(['index', 'show']);
+
     });
 
         /*

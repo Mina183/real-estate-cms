@@ -120,15 +120,25 @@
                         </td>
                         <td class="border px-4 py-2">{{ $doc->created_at->format('Y-m-d H:i') }}</td>
                         <td class="border px-4 py-2">
-                            @if($doc->status === 'waiting_admin_approval')
-                                <form action="{{ route('admin.documents.approve', $doc->id) }}" method="POST">
+                            <div class="flex flex-col gap-1 items-start">
+                                {{-- Keep your existing approval logic untouched --}}
+                                @if($doc->status === 'waiting_admin_approval')
+                                    <form action="{{ route('admin.documents.approve', $doc->id) }}" method="POST">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" class="bg-green-700 text-white px-3 py-1 rounded text-sm">Mark as Complete</button>
+                                    </form>
+                                @else
+                                    <span class="text-xs text-gray-400 italic">No action</span>
+                                @endif
+
+                                {{-- Add delete button (separate action) --}}
+                                <form action="{{ route('admin.documents.destroy', $doc->id) }}" method="POST" onsubmit="return confirm('Delete this document?');">
                                     @csrf
-                                    @method('PATCH')
-                                    <button type="submit" class="bg-green-700 text-white px-3 py-1 rounded text-sm">Mark as Complete</button>
+                                    @method('DELETE')
+                                    <button type="submit" class="bg-red-600 text-white px-3 py-1 rounded text-sm">Delete</button>
                                 </form>
-                            @else
-                                <span class="text-xs text-gray-400 italic">No action</span>
-                            @endif
+                            </div>
                         </td>
                     </tr>
                 @empty
