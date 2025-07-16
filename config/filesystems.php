@@ -60,6 +60,17 @@ return [
             'report' => false,
         ],
 
+        'private' => [
+        'driver' => 's3',
+        'key' => env('LARAVEL_OBJECT_STORAGE_KEY'),
+        'secret' => env('LARAVEL_OBJECT_STORAGE_SECRET'),
+        'region' => env('LARAVEL_OBJECT_STORAGE_REGION'),
+        'bucket' => env('LARAVEL_OBJECT_STORAGE_BUCKET'),
+        'endpoint' => env('LARAVEL_OBJECT_STORAGE_ENDPOINT'),
+        'visibility' => 'private',
+        'use_path_style_endpoint' => env('LARAVEL_OBJECT_STORAGE_PATH_STYLE', false),
+    ],
+
     ],
 
     /*
