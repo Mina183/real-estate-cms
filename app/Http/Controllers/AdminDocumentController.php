@@ -7,6 +7,7 @@ use App\Models\PartnerDocumentResponse;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\Partner;
+use Illuminate\Support\Facades\Log;
 
 class AdminDocumentController extends Controller
 {
