@@ -422,7 +422,7 @@
                                         <td class="border px-4 py-2">{{ $doc->filename }}</td>
                                         <td class="border px-4 py-2">{{ $doc->created_at->format('d M Y') }}</td>
                                         <td class="border px-4 py-2">
-                                           <a href="{{ Storage::url($doc->path) }}" class="text-blue-600 underline" target="_blank">Download</a>
+                                           <a href="{{ Storage::disk('private')->temporaryUrl($doc->path, now()->addMinutes(10)) }}" class="text-blue-600 underline" target="_blank">Download</a>
                                         </td>
                                     </tr>
                                 @empty

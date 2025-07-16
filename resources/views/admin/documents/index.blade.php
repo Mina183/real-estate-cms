@@ -33,7 +33,7 @@
                     <tr>
                         <td class="border px-4 py-2">{{ $doc->title }}</td>
                         <td class="border px-4 py-2">
-                        <a href="{{ Storage::url($doc->file_path) }}" target="_blank" class="text-blue-600 hover:underline">
+                        <a href="{{ Storage::disk('private')->temporaryUrl($doc->file_path, now()->addMinutes(10)) }}" target="_blank" class="text-blue-600 hover:underline">
                             {{ $doc->filename }}
                         </a>
                         </td>
@@ -98,7 +98,7 @@
                             @if($doc->partner_id === null)
                                 <span class="text-gray-400 italic">See Responses Column</span>
                             @elseif($doc->response_file_path)
-                            <a href="{{ Storage::url($doc->response_file_path) }}" target="_blank" class="text-blue-600 hover:underline">
+                            <a href="{{ Storage::disk('private')->temporaryUrl($doc->response_file_path, now()->addMinutes(10)) }}" target="_blank" class="text-blue-600 hover:underline">
                                 View Response
                             </a>
                                 <div class="text-xs text-gray-500 mt-1">
