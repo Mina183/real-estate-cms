@@ -150,6 +150,7 @@ public function index()
 }
 public function destroy($id)
 {
+    Log::info("Entered destroy() method for document ID: {$id}");
     $doc = PartnerDocument::findOrFail($id);
 
     // Delete shared responses if they exist
