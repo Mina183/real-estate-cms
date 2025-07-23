@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Meeting;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\MeetingInvite;
+use App\Mail\MeetingUpdated;
 
 class CalendarController extends Controller
 {
@@ -111,6 +112,7 @@ public function update(Request $request, Meeting $meeting)
     $data = $request->validate([
         'title' => 'required|string|max:255',
         'description' => 'nullable|string',
+        'change_comment' => 'required|string|max:1000',
         'start_time' => 'required|date',
         'end_time' => 'nullable|date|after_or_equal:start_time',
         'attendees' => 'required|array|min:1', // <-- validation now handles this
@@ -121,6 +123,7 @@ public function update(Request $request, Meeting $meeting)
         'description' => $data['description'] ?? null,
         'start_time' => $data['start_time'],
         'end_time' => $data['end_time'] ?? null,
+        'change_comment' => $data['change_comment'],
     ]);
 
     $attachData = collect($data['attendees'])->mapWithKeys(function ($partnerId) {
@@ -129,7 +132,12 @@ public function update(Request $request, Meeting $meeting)
 
     $meeting->attendees()->sync($attachData);
 
-    return redirect()->route('calendar.index')->with('success', 'Meeting updated!');
+    // Send update email to all current attendees
+    foreach ($meeting->attendees as $partner) {
+        Mail::to($partner->email)->send(new \App\Mail\MeetingUpdated($meeting, $partner));
+    }
+
+return redirect()->route('calendar.index')->with('success', 'Meeting updated and emails sent!');
 }
 
 public function destroy(Meeting $meeting)

@@ -1,7 +1,9 @@
 <x-mail::message>
-<x-mail::header :url="config('app.url')">
-    <img src="{{ asset('images/logo.png') }}" alt="Logo" style="height: 50px;">
-</x-mail::header>
+    <x-slot name="header">
+    <div style="text-align: center;">
+        <h1 style="color: #0e2442; font-size: 24px; margin: 0;">Poseidon Real Estate</h1>
+    </div>
+    </x-slot>
 # New User Registration Requires Approval
 
 A new user has registered and is waiting for approval.

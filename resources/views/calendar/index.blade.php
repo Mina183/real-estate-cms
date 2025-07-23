@@ -39,6 +39,13 @@
                             <p class="font-medium text-gray-900">📌 {{ $meeting->title }}</p>
                             <p class="text-sm text-gray-700">📅 {{ \Carbon\Carbon::parse($meeting->scheduled_for)->format('l, jS F Y \a\t H:i') }}</p>
 
+                        @if($meeting->change_comment)
+                            <div class="mt-2 p-3 bg-yellow-50 border-l-4 border-yellow-400 text-sm text-yellow-800 rounded">
+                                <strong>Meeting Update:</strong><br>
+                                {{ $meeting->change_comment }}
+                            </div>
+                        @endif
+
                             <div class="mt-3 flex space-x-2">
                                 <form method="POST" action="{{ route('meetings.respond', $meeting->id) }}">
                                     @csrf

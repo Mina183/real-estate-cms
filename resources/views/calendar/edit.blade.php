@@ -54,6 +54,16 @@
                     </select>
                 </div>
 
+                <div class="mb-6">
+                    <label for="change_comment" class="block font-semibold mb-1">Comment on Change</label>
+                    <textarea name="change_comment" id="change_comment" rows="3"
+                            class="w-full border-gray-300 rounded px-3 py-2"
+                            required
+                            placeholder="Explain what was changed (optional)">
+                        {{ old('change_comment', $meeting->change_comment) }}
+                    </textarea>
+                </div>
+
                 <div class="flex items-center justify-between">
                     <button type="submit"
                             class="bg-[#0e2442] text-white px-5 py-2 rounded hover:bg-opacity-90 font-semibold">
