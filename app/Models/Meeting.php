@@ -8,7 +8,7 @@ class Meeting extends Model
 {
     use HasFactory;
     
-    protected $fillable = ['title', 'description', 'start_time', 'end_time', 'created_by'];
+    protected $fillable = ['title', 'description', 'start_time', 'end_time', 'change_comment', 'created_by'];
 
     public function attendees()
     {
