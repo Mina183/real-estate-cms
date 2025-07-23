@@ -21,7 +21,7 @@ class MeetingUpdated extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct()
+    public function __construct($meeting, $partner)
     {
         $this->meeting = $meeting;
         $this->partner = $partner;
@@ -43,7 +43,11 @@ class MeetingUpdated extends Mailable
     public function content(): Content
     {
         return new Content(
-             markdown: 'emails.meetings.updated',
+            view: 'emails.meeting-updated', // use the correct Blade path here
+            with: [
+                'meeting' => $this->meeting,
+                'partner' => $this->partner,
+            ],
         );
     }
 
