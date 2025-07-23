@@ -293,11 +293,18 @@ class ClientController extends Controller
 
     public function editCommunication(Client $client, ClientCommunication $communication)
     {
+        if ($communication->client_id !== $client->id) {
+        abort(403); // prevent access if communication does not belong to client
+    }
         return view('clients.edit_communication', compact('client', 'communication'));
     }
 
     public function updateCommunication(Request $request, Client $client, ClientCommunication $communication)
     {
+    
+        if ($communication->client_id !== $client->id) {
+        abort(403); // protect against tampering
+    }
         $request->validate([
             'date' => 'required|date',
             'action' => 'nullable|string',
