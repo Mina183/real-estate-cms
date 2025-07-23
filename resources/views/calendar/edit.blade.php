@@ -59,9 +59,7 @@
                     <textarea name="change_comment" id="change_comment" rows="3"
                             class="w-full border-gray-300 rounded px-3 py-2"
                             required
-                            placeholder="Explain what was changed (optional)">
-                        {{ old('change_comment', $meeting->change_comment) }}
-                    </textarea>
+                            placeholder="Explain what was changed (optional)">{{ old('change_comment', $meeting->change_comment) }}</textarea>
                 </div>
 
                 <div class="flex items-center justify-between">
@@ -69,7 +67,8 @@
                             class="bg-[#0e2442] text-white px-5 py-2 rounded hover:bg-opacity-90 font-semibold">
                         💾 Update Meeting
                     </button>
-                    </form>
+                </form>
+
                     <form action="{{ route('meetings.destroy', $meeting) }}" method="POST"
                           onsubmit="return confirm('Are you sure you want to delete this meeting?');">
                         @csrf
@@ -79,8 +78,8 @@
                             🗑 Delete
                         </button>
                     </form>
+
                 </div>
-            </form>
+            </div>
         </div>
-    </div>
 </x-app-layout>
