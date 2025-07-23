@@ -43,7 +43,7 @@ class MeetingUpdated extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.meeting-updated', // use the correct Blade path here
+            view: 'emails.meeting.updated', // use the correct Blade path here
             with: [
                 'meeting' => $this->meeting,
                 'partner' => $this->partner,
