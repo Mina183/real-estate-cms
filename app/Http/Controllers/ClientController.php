@@ -290,4 +290,24 @@ class ClientController extends Controller
 
         return redirect()->route('clients.index', ['tab' => 'contact']);
     }
+
+    public function editCommunication(Client $client, ClientCommunication $communication)
+    {
+        return view('clients.edit_communication', compact('client', 'communication'));
+    }
+
+    public function updateCommunication(Request $request, Client $client, ClientCommunication $communication)
+    {
+        $request->validate([
+            'date' => 'required|date',
+            'action' => 'nullable|string',
+            'update' => 'nullable|string',
+            'feedback' => 'nullable|string',
+            'outcome' => 'nullable|string',
+        ]);
+
+        $communication->update($request->only(['date', 'action', 'update', 'feedback', 'outcome']));
+
+        return redirect()->route('clients.index', ['tab' => 'contact'])->with('success', 'Communication updated.');
+    }
 }

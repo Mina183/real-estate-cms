@@ -92,6 +92,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/documents/{id}/upload-response', [PartnerDocumentController::class, 'uploadResponse'])->name('partner.documents.uploadResponse');
         Route::post('/documents/{id}/acknowledge', [PartnerDocumentController::class, 'acknowledge'])->name('partner.documents.acknowledge');
         Route::post('/meetings/{meeting}/respond', [CalendarController::class, 'respond'])->name('meetings.respond');
+        Route::get('/clients/{client}/communications/{communication}/edit', [ClientController::class, 'editCommunication'])->name('clients.communications.edit');
+        Route::put('/clients/{client}/communications/{communication}', [ClientController::class, 'updateCommunication'])->name('clients.communications.update');
     });
     /*
     |--------------------------------------------------------------------------
