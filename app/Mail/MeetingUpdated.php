@@ -5,8 +5,6 @@ namespace App\Mail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use App\Models\Meeting;
 use App\Models\User;
@@ -30,25 +28,14 @@ class MeetingUpdated extends Mailable
     /**
      * Get the message envelope.
      */
-    public function envelope(): Envelope
+    public function build()
     {
-        return new Envelope(
-            subject: 'Meeting Updated' . $this->meeting->title,
-        );
-    }
-
-    /**
-     * Get the message content definition.
-     */
-    public function content(): Content
-    {
-        return new Content(
-            view: 'emails.meeting.updated', // use the correct Blade path here
-            with: [
-                'meeting' => $this->meeting,
-                'partner' => $this->partner,
-            ],
-        );
+        return $this->subject('Meeting Updated: ' . $this->meeting->title)
+                    ->markdown('emails.meeting.updated')
+                    ->with([
+                        'meeting' => $this->meeting,
+                        'partner' => $this->partner,
+                    ]);
     }
 
     /**
