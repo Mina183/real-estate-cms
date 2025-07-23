@@ -305,7 +305,7 @@
                                     <td class="border px-4 py-2">{{ $comm->feedback }}</td>
                                     <td class="border px-4 py-2">{{ $comm->outcome }}</td>
                                     <td class="border px-4 py-2">{{ $comm->update }}</td>
-                                    <td class="border px-4 py-2"><a href="{{ route('clients.communications.edit', $comm->id) }}"
+                                    <td class="border px-4 py-2"><a href="{{ route('clients.communications.edit', [$client->id, $comm->id]) }}"
                                     class="text-blue-600 hover:underline text-sm">✏️ Edit</a></td>
                                 </tr>
                             @empty
