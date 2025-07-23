@@ -139,9 +139,9 @@
                                     <tr class="bg-gray-200">
                                         <th class="border px-4 py-2 text-left">Date</th>
                                         <th class="border px-4 py-2 text-left">Action</th>
-                                        <th class="border px-4 py-2 text-left">Update</th>
                                         <th class="border px-4 py-2 text-left">Feedback</th>
                                         <th class="border px-4 py-2 text-left">Outcome</th>
+                                        <th class="border px-4 py-2 text-left">Last Update</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -149,9 +149,9 @@
                                         <tr>
                                             <td class="border px-4 py-2">{{ $comm->date }}</td>
                                             <td class="border px-4 py-2">{{ $comm->action }}</td>
-                                            <td class="border px-4 py-2">{{ $comm->update }}</td>
                                             <td class="border px-4 py-2">{{ $comm->feedback }}</td>
                                             <td class="border px-4 py-2">{{ $comm->outcome }}</td>
+                                            <td class="border px-4 py-2">{{ $comm->update }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>
