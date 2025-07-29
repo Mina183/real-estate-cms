@@ -326,7 +326,7 @@
                     <div class="mb-6 border-b pb-4">
                         <h4 class="font-semibold mb-2 bg-[#0e2442] text-white pl-2">{{ $client->name }}</h4>
 
-                        <table class="table-auto border-collapse text-sm mb-2 min-w-[600px]">
+                        <table class="table-auto w-max max-w-full text-sm border-collapse mb-2">
                             <thead>
                                 <tr class="bg-gray-200">
                                     <th class="border px-4 py-2 text-left">Date</th>
