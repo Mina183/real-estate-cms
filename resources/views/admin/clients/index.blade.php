@@ -10,7 +10,7 @@
 
     <div class="p-6">
         <form method="GET" class="mb-4 flex flex-wrap sm:flex-nowrap gap-4">
-            <select name="channel_partner_id" class="form-select">
+            <select name="channel_partner_id" class="form-select w-full sm:w-64 max-w-full">
                 <option value="">All Partners</option>
                 @foreach($partners as $partner)
                     <option value="{{ $partner->id }}" {{ request('channel_partner_id') == $partner->id ? 'selected' : '' }}>
