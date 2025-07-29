@@ -286,6 +286,7 @@
                     </form>
 
                     {{-- Note history for selected client --}}
+                    <div class="overflow-x-auto">
                     <table class="w-full table-auto border-collapse text-sm mb-2">
                         <thead>
                             <tr class="bg-gray-200">
@@ -315,6 +316,7 @@
                             @endforelse
                         </tbody>
                     </table>
+                    </div>
                     {{ $client->paginatedCommunications->withQueryString()->links() }}
                 </div>
             @endif
@@ -325,7 +327,7 @@
                 @if ($client->communications->isNotEmpty())
                     <div class="mb-6 border-b pb-4">
                         <h4 class="font-semibold mb-2 bg-[#0e2442] text-white pl-2">{{ $client->name }}</h4>
-
+                        <div class="overflow-x-auto">
                         <table class="table-auto w-max max-w-full text-sm border-collapse mb-2">
                             <thead>
                                 <tr class="bg-gray-200">
@@ -348,6 +350,7 @@
                                 @endforeach
                             </tbody>
                         </table>
+                        </div>
                         {{ $client->paginatedCommunications->withQueryString()->links() }}
                     </div>
                 @endif
