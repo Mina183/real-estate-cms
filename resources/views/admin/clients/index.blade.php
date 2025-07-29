@@ -9,7 +9,7 @@
     </x-slot>
 
     <div class="p-6">
-        <form method="GET" class="mb-4 flex gap-4">
+        <form method="GET" class="mb-4 flex flex-wrap sm:flex-nowrap gap-4">
             <select name="channel_partner_id" class="form-select">
                 <option value="">All Partners</option>
                 @foreach($partners as $partner)
