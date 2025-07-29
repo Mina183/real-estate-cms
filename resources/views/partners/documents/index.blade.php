@@ -14,6 +14,7 @@
         @endif
 
         @if($documents->count())
+        <div class="overflow-x-auto w-full">
             <table class="min-w-full table-auto border-collapse text-sm">
                 <thead>
                     <tr class="bg-gray-200">
@@ -92,7 +93,7 @@
                     @endforeach
                 </tbody>
             </table>
-
+        </div>
             {{ $documents->links() }}
         @else
             <p class="text-gray-600">No documents available.</p>

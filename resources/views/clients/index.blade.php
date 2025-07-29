@@ -24,7 +24,7 @@
         <button type="submit" formaction="#" onclick="handleClientAction(event)" class="bg-gray-200 text-gray-800 px-4 py-2 rounded">
             Edit/Delete a client
         </button>
-        <select name="client_id" id="clientSelect" class="select2" required>
+        <select name="client_id" id="clientSelect" class="select2 form-select w-full sm:w-64 max-w-full" required>
             <option value="">-- Search client by name or email --</option>
             @foreach ($clients as $client)
                 <option value="{{ $client->id }}">{{ $client->name }} ({{ $client->email }})</option>
@@ -203,7 +203,7 @@
             {{ $clients->withQueryString()->links() }}
         </div>
 
-        <div x-show="tab === 'finance'" x-cloak>
+        <div x-show="tab === 'finance'" x-cloak class="overflow-x-auto w-full max-w-full">
             <h3 class="font-semibold text-lg mb-2">Financial & Property Context</h3>
             <table class="w-full table-auto border-collapse text-sm">
                 <thead>
@@ -230,7 +230,7 @@
             {{ $clients->withQueryString()->links() }}
         </div>
 
-<div x-show="tab === 'contact'" x-cloak>
+<div x-show="tab === 'contact'" x-cloak class="overflow-x-auto w-full max-w-full">
     <h3 class="font-semibold text-lg mb-4">Communication Log</h3>
 
     {{-- Filter form --}}
@@ -355,7 +355,7 @@
         @endif
     </div>
 
-       <div x-show="tab === 'documents'" x-cloak>
+       <div x-show="tab === 'documents'" x-cloak class="overflow-x-auto w-full max-w-full">
             <h3 class="font-semibold text-lg mb-4">Uploaded Documents</h3>
 
             {{-- Client filter shown only on this tab --}}
