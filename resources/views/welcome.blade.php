@@ -30,11 +30,11 @@
             <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-6 leading-tight">
                 Your Clients. Your Deals. Fully Secure.
             </h1>
-
-            <p class="mb-4 text-sm sm:text-base md:text-lg max-w-prose">
+        <div class="border-b-2 border-[#0e2442] text-left mb-1">
+            <p class="mb-1 text-sm sm:text-base md:text-lg max-w-prose">
                 Track client registrations, deals, and history — all securely stored and access-controlled.
             </p>
-
+        </div>
             <ul class="list-disc list-inside space-y-2 mb-8 text-sm sm:text-base md:text-lg text-left">
                 <li>Exclusive access to your own clients only</li>
                 <li>Passport validation to prevent duplicates</li>
