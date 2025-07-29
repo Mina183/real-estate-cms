@@ -129,7 +129,7 @@
             </div>
 
             {{-- CONTACT --}}
-            <div x-show="tab === 'contact'" x-cloak class="mt-4">
+            <div x-show="tab === 'contact'" x-cloak class="overflow-x-auto w-full max-w-full">
                 @foreach($clients as $client)
                     @if($client->communications->isNotEmpty())
                         <div class="mb-4">
@@ -162,7 +162,7 @@
             </div>
 
             {{-- DOCUMENTS --}}
-            <div x-show="tab === 'documents'" x-cloak class="mt-4">
+            <div x-show="tab === 'documents'" x-cloak class="overflow-x-auto w-full max-w-full">
                 @foreach($clients as $client)
                     @if($client->documents->isNotEmpty())
                         <div class="mb-4">
