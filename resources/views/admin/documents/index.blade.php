@@ -14,7 +14,7 @@
                 {{ session('success') }}
             </div>
         @endif
-
+<div class="overflow-x-auto w-full">
         <table class="w-full table-auto border border-gray-300 text-sm">
             <thead class="bg-gray-100">
                 <tr>
@@ -147,7 +147,7 @@
                 @endforelse
             </tbody>
         </table>
-
+</div>
         <div class="mt-4">
             {{ $documents->links() }}
         </div>
