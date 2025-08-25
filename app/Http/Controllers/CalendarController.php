@@ -53,7 +53,7 @@ public function fetchMeetings()
                 'start' => $meeting->start_time,
                 'end' => $meeting->end_time ?? null,
                 'description' => $meeting->description,
-                'is_accepted' => isset($meeting->pivot) ? (int) $meeting->pivot->is_accepted : null,
+                'is_accepted' => isset($meeting->pivot) ? $meeting->pivot->is_accepted : null,
             ];
         });
     }
