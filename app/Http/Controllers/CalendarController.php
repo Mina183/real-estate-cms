@@ -30,12 +30,12 @@ public function fetchMeetings()
     $user = auth()->user();
 
     if (in_array($user->role, ['admin', 'superadmin'])) {
-        $meetings = Meeting::with('attendees')->where('created_by', $user->id)->get();
+        $meetings = Meeting::with('attendees')->get();
 
         $events = $meetings->map(function ($meeting) {
             return [
                 'id' => $meeting->id,
-                'title' => $meeting->title,
+                'title' => $meeting->titl . ' (by ' . ($meeting->creator->name ?? 'Unknown') . ')',
                 'start' => $meeting->start_time,
                 'end' => $meeting->end_time ?? null,
                 'description' => $meeting->description,
