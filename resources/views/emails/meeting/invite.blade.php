@@ -1,5 +1,4 @@
 <x-mail::message>
-<x-mail::header :url="config('app.url')">
     <x-slot name="header">
     <div style="text-align: center;">
         <h1 style="color: #0e2442; font-size: 24px; margin: 0;">Poseidon Real Estate</h1>
