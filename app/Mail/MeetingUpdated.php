@@ -19,7 +19,7 @@ class MeetingUpdated extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct($meeting, $partner)
+    public function __construct(Meeting $meeting, User $partner)
     {
         $this->meeting = $meeting;
         $this->partner = $partner;

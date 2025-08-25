@@ -13,8 +13,8 @@ class MeetingInvite extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $meeting;
-    public $partner;
+    public Meeting $meeting;
+    public User $partner;
 
     /**
      * Create a new message instance.
@@ -38,7 +38,11 @@ class MeetingInvite extends Mailable
     public function build()
     {
         return $this->subject('You have been invited to a team meeting')
-                    ->markdown('emails.meeting.invite');
+                    ->markdown('emails.meeting.invite')
+                    ->with([
+                    'meeting' => $this->meeting,
+                    'partner' => $this->partner,
+                ]);
     }
 
 }
