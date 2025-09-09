@@ -37,8 +37,9 @@
                     @if (is_null($pivot->is_accepted))
                         <div class="border p-4 rounded mb-4 bg-gray-50">
                             <p class="font-medium text-gray-900">📌 {{ $meeting->title }}</p>
-                            <p class="text-sm text-gray-700">📅 @php $tz = auth()->user()->timezone ?? config('app.timezone', 'UTC'); @endphp
-{{ optional($meeting->start_time)->timezone($tz)->format('l, jS F Y \a\t H:i') }}</p>
+                            <p class="text-sm text-gray-700">
+                            📅 <span class="utc-dt" data-utc="{{ optional($meeting->start_time)->toIso8601String() }}"></span>
+                            </p>
 
                         @if($meeting->change_comment)
                             <div class="mt-2 p-3 bg-yellow-50 border-l-4 border-yellow-400 text-sm text-yellow-800 rounded">
@@ -77,7 +78,17 @@
     <script>
         window.userRole = "{{ auth()->user()->role }}";
     </script>
-
+    <script>
+    document.querySelectorAll('.utc-dt').forEach(function (el) {
+        var iso = el.getAttribute('data-utc');
+        if (!iso) return;
+        var d = new Date(iso); // ISO UTC from server
+        el.textContent = d.toLocaleString(undefined, {
+        weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+        hour: '2-digit', minute: '2-digit', hour12: false
+        });
+    });
+    </script>
     @vite(['resources/js/calendar.js'])
 </x-app-layout>
 
