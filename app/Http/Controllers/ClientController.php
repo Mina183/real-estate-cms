@@ -56,7 +56,7 @@ class ClientController extends Controller
     }
 
     if ($request->filled('investor_type')) {
-        $query->where('investor_type', 'like', '%' . $request->investor_type . '%');
+        $query->where('investor_type', $request->investor_type);
     }
 
     if ($request->filled('preferred_property_type')) {
@@ -77,14 +77,6 @@ class ClientController extends Controller
 
     if ($request->filled('best_contact_method')) {
         $query->where('best_contact_method', 'like', '%' . $request->best_contact_method . '%');
-    }
-
-    if ($request->filled('property_detail_type')) {
-        $query->where('property_detail_type', 'like', '%' . $request->property_detail_type . '%');
-    }
-
-    if ($request->filled('investment_type')) {
-        $query->where('investment_type', 'like', '%' . $request->investment_type . '%');
     }
 
     if ($request->filled('investment_budget')) {
@@ -127,7 +119,7 @@ class ClientController extends Controller
 
             $funnelStages = [
                 'inquiry' => 'Inquiry',
-                'showed interest' => 'Showed Interest',
+                'confirmed interest' => 'Confirmed Interest',
                 'site visit' => 'Site Visit',
                 'negotiation' => 'Negotiation',
                 'closed' => 'Closed',
@@ -161,14 +153,12 @@ class ClientController extends Controller
         'base_location' => 'nullable|string|max:255',
         'lead_source_id' => 'nullable|exists:lead_sources,id',
         'is_investor' => 'nullable|boolean',
-        'investor_type' => 'nullable|string|max:255',
+        'investor_type' => 'nullable|in:off-plan,secondary,distressed',
         'preferred_property_type' => 'nullable|string|max:255',
         'preferred_location' => 'nullable|string|max:255',
         'uae_visa_required' => 'nullable|boolean',
         'funnel_stage' => 'nullable|string|max:50',
         'best_contact_method' => 'nullable|string|max:100',
-        'property_detail_type' => 'nullable|string|max:255',
-        'investment_type' => 'nullable|string|max:255',
         'investment_budget' => 'nullable|string|max:255',
         'employment_source' => 'nullable|string|max:255',
         'funds_location' => 'nullable|string|max:255',
@@ -197,7 +187,7 @@ class ClientController extends Controller
 
          $funnelStages = [
         'inquiry' => 'Inquiry',
-        'showed_interest' => 'Showed Interest',
+        'confirmed_interest' => 'Confirmed Interest',
         'site_visit' => 'Site Visit',
         'negotiation' => 'Negotiation',
         'closed' => 'Closed',
@@ -231,14 +221,12 @@ class ClientController extends Controller
         'base_location' => 'nullable|string|max:255',
         'lead_source_id' => 'nullable|exists:lead_sources,id',
         'is_investor' => 'nullable|boolean',
-        'investor_type' => 'nullable|string|max:255',
+        'investor_type' => 'nullable|in:off-plan,secondary,distressed',
         'preferred_property_type' => 'nullable|string|max:255',
         'preferred_location' => 'nullable|string|max:255',
         'uae_visa_required' => 'nullable|boolean',
         'funnel_stage' => 'nullable|string|max:50',
         'best_contact_method' => 'nullable|string|max:100',
-        'property_detail_type' => 'nullable|string|max:255',
-        'investment_type' => 'nullable|string|max:255',
         'investment_budget' => 'nullable|string|max:255',
         'employment_source' => 'nullable|string|max:255',
         'funds_location' => 'nullable|string|max:255',

@@ -48,7 +48,7 @@
                     <input name="language" type="text" class="form-input w-full" value="{{ old('language', $client->language) }}" />
                 </div>
                 <div>
-                    <label class="block">Base Location</label>
+                    <label class="block">Resident Country</label>
                     <input name="base_location" type="text" class="form-input w-full" value="{{ old('base_location', $client->base_location) }}" />
                 </div>
             </div>
@@ -57,24 +57,41 @@
             <h3 class="text-lg font-semibold mb-2">Investment Details</h3>
             <div class="grid grid-cols-2 gap-4 mb-6">
                 <div>
-                    <label class="block">Is Investor</label>
+                    <label class="block">User/End User</label>
                     <select name="is_investor" class="form-select w-full">
                         <option value="">Select</option>
-                        <option value="1" {{ $client->is_investor == 1 ? 'selected' : '' }}>Investor</option>
-                        <option value="0" {{ $client->is_investor == 0 ? 'selected' : '' }}>End Buyer</option>
+                        <option value="1" {{ $client->is_investor == 1 ? 'selected' : '' }}>User</option>
+                        <option value="0" {{ $client->is_investor == 0 ? 'selected' : '' }}>End User</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block">Investor Type</label>
-                    <input name="investor_type" type="text" class="form-input w-full" value="{{ old('investor_type', $client->investor_type) }}" />
+                    <label for="investor_type" class="form-label">Investor Type</label>
+                    <select id="investor_type" name="investor_type" class="form-select">
+                        <option value="">-- Select --</option>
+                        <option value="off-plan"  {{ old('investor_type', $client->investor_type ?? '') === 'off-plan' ? 'selected' : '' }}>Off Plan</option>
+                        <option value="secondary" {{ old('investor_type', $client->investor_type ?? '') === 'secondary' ? 'selected' : '' }}>Secondary</option>
+                        <option value="distressed" {{ old('investor_type', $client->investor_type ?? '') === 'distressed' ? 'selected' : '' }}>Distressed</option>
+                    </select>
                 </div>
                 <div>
-                    <label class="block">Preferred Property Type</label>
+                    <label class="block">Preferred Property Type (Appartment, Town House, Villa)</label>
                     <input name="preferred_property_type" type="text" class="form-input w-full" value="{{ old('preferred_property_type', $client->preferred_property_type) }}" />
                 </div>
                 <div>
-                    <label class="block">Preferred Location</label>
+                    <label class="block">Locations</label>
                     <input name="preferred_location" type="text" class="form-input w-full" value="{{ old('preferred_location', $client->preferred_location) }}" />
+                </div>
+                                <div>
+                    <label class="block">Investment Budget</label>
+                    <input name="investment_budget" type="text" class="form-input w-full" value="{{ old('investment_budget', $client->investment_budget) }}" />
+                </div>
+                <div>
+                    <label class="block">Source od Funds</label>
+                    <input name="employment_source" type="text" class="form-input w-full" value="{{ old('employment_source', $client->employment_source) }}" />
+                </div>
+                <div>
+                    <label class="block">Funds Location</label>
+                    <input name="funds_location" type="text" class="form-input w-full" value="{{ old('funds_location', $client->funds_location) }}" />
                 </div>
                 <div>
                     <label class="block">UAE Visa Required</label>
@@ -83,31 +100,6 @@
                         <option value="1" {{ $client->uae_visa_required == 1 ? 'selected' : '' }}>Required</option>
                         <option value="0" {{ $client->uae_visa_required == 0 ? 'selected' : '' }}>Not Required</option>
                     </select>
-                </div>
-            </div>
-
-            <!-- Category: Finance Info -->
-            <h3 class="text-lg font-semibold mb-2">Finance</h3>
-            <div class="grid grid-cols-2 gap-4 mb-6">
-                <div>
-                    <label class="block">Investment Budget</label>
-                    <input name="investment_budget" type="text" class="form-input w-full" value="{{ old('investment_budget', $client->investment_budget) }}" />
-                </div>
-                <div>
-                    <label class="block">Property Detail Type</label>
-                    <input name="property_detail_type" type="text" class="form-input w-full" value="{{ old('property_detail_type', $client->property_detail_type) }}" />
-                </div>
-                <div>
-                    <label class="block">Investment Type</label>
-                    <input name="investment_type" type="text" class="form-input w-full" value="{{ old('investment_type', $client->investment_type) }}" />
-                </div>
-                <div>
-                    <label class="block">Employment / Funds Source</label>
-                    <input name="employment_source" type="text" class="form-input w-full" value="{{ old('employment_source', $client->employment_source) }}" />
-                </div>
-                <div>
-                    <label class="block">Funds Location</label>
-                    <input name="funds_location" type="text" class="form-input w-full" value="{{ old('funds_location', $client->funds_location) }}" />
                 </div>
             </div>
 

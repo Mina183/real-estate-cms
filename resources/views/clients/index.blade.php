@@ -57,7 +57,7 @@
                 <input type="text" name="passport_number" placeholder="Passport Number" value="{{ request('passport_number') }}" class="form-input w-full">
                 <input type="text" name="nationality" placeholder="Nationality" class="form-input w-full" value="{{ request('nationality') }}">
                 <input type="text" name="language" placeholder="Language" class="form-input w-full" value="{{ request('language') }}">
-                <input type="text" name="base_location" placeholder="Base Location" class="form-input w-full" value="{{ request('base_location') }}">
+                <input type="text" name="base_location" placeholder="Resident Country" class="form-input w-full" value="{{ request('base_location') }}">
                 <select name="lead_source_id" class="form-select w-full">
                     <option value="">All Lead Sources</option>
                     @foreach ($leadSources as $source)
@@ -65,13 +65,21 @@
                     @endforeach
                 </select>
                 <select name="is_investor" class="form-select w-full">
-                    <option value="">Investor or Buyer?</option>
-                    <option value="1" {{ request('is_investor') === '1' ? 'selected' : '' }}>Investor</option>
-                    <option value="0" {{ request('is_investor') === '0' ? 'selected' : '' }}>End Buyer</option>
+                    <option value="">User or End User?</option>
+                    <option value="1" {{ request('is_investor') === '1' ? 'selected' : '' }}>User</option>
+                    <option value="0" {{ request('is_investor') === '0' ? 'selected' : '' }}>End User</option>
                 </select>
-                <input type="text" name="investor_type" placeholder="Investor Type" class="form-input w-full" value="{{ request('investor_type') }}">
+                <select name="investor_type" class="form-select w-full">
+                    <option value="">Investor Type</option>
+                    <option value="off-plan"  {{ request('investor_type')==='off-plan' ? 'selected' : '' }}>Off Plan</option>
+                    <option value="secondary" {{ request('investor_type')==='secondary' ? 'selected' : '' }}>Secondary</option>
+                    <option value="distressed" {{ request('investor_type')==='distressed' ? 'selected' : '' }}>Distressed</option>
+                </select>
                 <input type="text" name="preferred_property_type" placeholder="Preferred Property Type" class="form-input w-full" value="{{ request('preferred_property_type') }}">
-                <input type="text" name="preferred_location" placeholder="Preferred Location" class="form-input w-full" value="{{ request('preferred_location') }}">
+                <input type="text" name="preferred_location" placeholder="Locations" class="form-input w-full" value="{{ request('preferred_location') }}">
+                <input type="text" name="investment_budget" placeholder="Investment Budget" class="form-input w-full" value="{{ request('investment_budget') }}">
+                <input type="text" name="employment_source" placeholder="Source of Funds" class="form-input w-full" value="{{ request('employment_source') }}">
+                <input type="text" name="funds_location" placeholder="Funds Location" class="form-input w-full" value="{{ request('funds_location') }}">
                 <select name="uae_visa_required" class="form-select w-full">
                     <option value="">UAE Visa</option>
                     <option value="1" {{ request('uae_visa_required') === '1' ? 'selected' : '' }}>Required</option>
@@ -79,17 +87,6 @@
                 </select>
                 <input type="text" name="funnel_stage" placeholder="Funnel Stage" class="form-input w-full" value="{{ request('funnel_stage') }}">
                 <input type="text" name="best_contact_method" placeholder="Contact Method" class="form-input w-full" value="{{ request('best_contact_method') }}">
-            </div>
-        </details>
-
-        <details class="border rounded p-4">
-            <summary class="font-semibold cursor-pointer text-white">Finance</summary>
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
-                <input type="text" name="property_detail_type" placeholder="Property Detail Type" class="form-input w-full" value="{{ request('property_detail_type') }}">
-                <input type="text" name="investment_type" placeholder="Investment Type" class="form-input w-full" value="{{ request('investment_type') }}">
-                <input type="text" name="investment_budget" placeholder="Investment Budget" class="form-input w-full" value="{{ request('investment_budget') }}">
-                <input type="text" name="employment_source" placeholder="Employment / Funds Source" class="form-input w-full" value="{{ request('employment_source') }}">
-                <input type="text" name="funds_location" placeholder="Funds Location" class="form-input w-full" value="{{ request('funds_location') }}">
             </div>
         </details>
 
@@ -133,12 +130,6 @@
                         Basic
                     </button>
                     <button
-                        @click="switchTab('finance')"
-                        :class="tab === 'finance' ? 'bg-[#0e2442] text-white' : 'bg-gray-200 text-gray-700'"
-                        class="px-4 py-2 rounded ml-2">
-                        Finance
-                    </button>
-                    <button
                         @click="switchTab('contact')"
                         :class="tab === 'contact' ? 'bg-[#0e2442] text-white' : 'bg-gray-200 text-gray-700'"
                         class="px-4 py-2 rounded ml-2">
@@ -158,7 +149,7 @@
                 <thead>
                     <tr class="bg-gray-200">
                         <th class="border px-4 py-2">Lead Source</th>
-                        <th class="border px-4 py-2">Investor/Buyer</th>
+                        <th class="border px-4 py-2">User/End User</th>
                         <th class="border px-4 py-2">Investor Type</th>
                         <th class="border px-4 py-2">Name</th>
                         <th class="border px-4 py-2">Passport Number</th>
@@ -167,9 +158,12 @@
                         <th class="border px-4 py-2">Contact Method</th>
                         <th class="border px-4 py-2">Nationality</th>
                         <th class="border px-4 py-2">Language</th>
-                        <th class="border px-4 py-2">Base Location</th>
-                        <th class="border px-4 py-2">Preferred Property</th>
-                        <th class="border px-4 py-2">Preferred Location</th>
+                        <th class="border px-4 py-2">Resident Country</th>
+                        <th class="border px-4 py-2">Preferred Property Type (Appartment, Town House, Villa)</th>
+                        <th class="border px-4 py-2">Locations</th>
+                        <th class="border px-4 py-2">Investment Budget</th>
+                        <th class="border px-4 py-2">Source of Funds</th>
+                        <th class="border px-4 py-2">Funds Location</th>
                         <th class="border px-4 py-2">UAE Visa</th>
                         <th class="border px-4 py-2">CP Remarks</th>
                         <th class="border px-4 py-2">
@@ -181,7 +175,7 @@
                     @foreach($clients as $client)
                         <tr>
                             <td class="border px-4 py-2">{{ $client->leadSource->name ?? '-' }}</td>
-                            <td class="border px-4 py-2">{{ $client->is_investor ? 'Investor' : 'End Buyer' }}</td>
+                            <td class="border px-4 py-2">{{ $client->is_investor ? 'User' : 'End User' }}</td>
                             <td class="border px-4 py-2">{{ $client->investor_type ?? '-' }}</td>
                             <td class="border px-4 py-2">{{ $client->name }}</td>
                             <td class="border px-4 py-2">{{ $client->passport_number }}</td>
@@ -193,36 +187,12 @@
                             <td class="border px-4 py-2">{{ $client->base_location }}</td>
                             <td class="border px-4 py-2">{{ $client->preferred_property_type }}</td>
                             <td class="border px-4 py-2">{{ $client->preferred_location }}</td>
-                            <td class="border px-4 py-2">{{ $client->uae_visa_required ? 'Required' : 'Not Required' }}</td>
-                            <td class="border px-4 py-2">{{ $client->cp_remarks }}</td>
-                            <td class="border px-4 py-2">{{ $client->funnel_stage }}</td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-            {{ $clients->withQueryString()->links() }}
-        </div>
-
-        <div x-show="tab === 'finance'" x-cloak class="overflow-x-auto w-full max-w-full">
-            <h3 class="font-semibold text-lg mb-2">Financial & Property Context</h3>
-            <table class="w-full table-auto border-collapse text-sm">
-                <thead>
-                    <tr class="bg-gray-200">
-                        <th class="border px-4 py-2">Property Detail Type</th>
-                        <th class="border px-4 py-2">Investment Type</th>
-                        <th class="border px-4 py-2">Investment Budget</th>
-                        <th class="border px-4 py-2">Employment / Source of Funds</th>
-                        <th class="border px-4 py-2">Funds Location</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($clients as $client)
-                        <tr>
-                            <td class="border px-4 py-2">{{ $client->property_detail_type }}</td>
-                            <td class="border px-4 py-2">{{ $client->investment_type }}</td>
                             <td class="border px-4 py-2">{{ $client->investment_budget }}</td>
                             <td class="border px-4 py-2">{{ $client->employment_source }}</td>
                             <td class="border px-4 py-2">{{ $client->funds_location }}</td>
+                            <td class="border px-4 py-2">{{ $client->uae_visa_required ? 'Required' : 'Not Required' }}</td>
+                            <td class="border px-4 py-2">{{ $client->cp_remarks }}</td>
+                            <td class="border px-4 py-2">{{ $client->funnel_stage }}</td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -306,7 +276,7 @@
                                     <td class="border px-4 py-2">{{ $comm->feedback }}</td>
                                     <td class="border px-4 py-2">{{ $comm->outcome }}</td>
                                     <td class="border px-4 py-2">{{ $comm->update }}</td>
-                                    <td class="border px-4 py-2"><a href="{{ route('clients.communications.edit', [$client->id, $comm->id]) }}"
+                                    <td class="border px-4 py-2"><a href="{{ route('clients.communications.edit', [$selectedClient->id, $comm->id]) }}"
                                     class="text-blue-600 hover:underline text-sm">✏️ Edit</a></td>
                                 </tr>
                             @empty
@@ -317,7 +287,7 @@
                         </tbody>
                     </table>
                     </div>
-                    {{ $client->paginatedCommunications->withQueryString()->links() }}
+                    {{ $selectedClient->paginatedCommunications->withQueryString()->links() }}
                 </div>
             @endif
 

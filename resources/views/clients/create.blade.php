@@ -59,7 +59,7 @@
                     <input name="language" type="text" class="form-input w-full" />
                 </div>
                 <div>
-                    <label class="block">Base Location</label>
+                    <label class="block">Resident Country</label>
                     <input name="base_location" type="text" class="form-input w-full" />
                 </div>
             </div>
@@ -68,24 +68,41 @@
             <h3 class="text-lg font-semibold mb-2">Investment Details</h3>
             <div class="grid grid-cols-2 gap-4 mb-6">
                 <div>
-                    <label class="block">Is Investor</label>
+                    <label class="block">User/End User</label>
                     <select name="is_investor" class="form-select w-full">
                         <option value="">Select</option>
-                        <option value="1">Investor</option>
-                        <option value="0">End Buyer</option>
+                        <option value="1">User</option>
+                        <option value="0">End User</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block">Investor Type</label>
-                    <input name="investor_type" type="text" class="form-input w-full" />
+                    <label for="investor_type" class="form-label">Investor Type</label>
+                    <select id="investor_type" name="investor_type" class="form-select">
+                        <option value="">-- Select --</option>
+                        <option value="off-plan"  {{ old('investor_type', $client->investor_type ?? '') === 'off-plan' ? 'selected' : '' }}>Off Plan</option>
+                        <option value="secondary" {{ old('investor_type', $client->investor_type ?? '') === 'secondary' ? 'selected' : '' }}>Secondary</option>
+                        <option value="distressed" {{ old('investor_type', $client->investor_type ?? '') === 'distressed' ? 'selected' : '' }}>Distressed</option>
+                    </select>
                 </div>
                 <div>
-                    <label class="block">Preferred Property Type</label>
+                    <label class="block">Preferred Property Type (Appartment, Town House, Villa)</label>
                     <input name="preferred_property_type" type="text" class="form-input w-full" />
                 </div>
                 <div>
-                    <label class="block">Preferred Location</label>
+                    <label class="block">Locations</label>
                     <input name="preferred_location" type="text" class="form-input w-full" />
+                </div>
+                                <div>
+                    <label class="block">Investment Budget</label>
+                    <input name="investment_budget" type="text" class="form-input w-full" />
+                </div>
+                <div>
+                    <label class="block">Source of Funds</label>
+                    <input name="employment_source" type="text" class="form-input w-full" />
+                </div>
+                <div>
+                    <label class="block">Funds Location</label>
+                    <input name="funds_location" type="text" class="form-input w-full" />
                 </div>
                 <div>
                     <label class="block">UAE Visa Required</label>
@@ -94,31 +111,6 @@
                         <option value="1">Required</option>
                         <option value="0">Not Required</option>
                     </select>
-                </div>
-            </div>
-
-            <!-- Category: Finance Info -->
-            <h3 class="text-lg font-semibold mb-2">Finance</h3>
-            <div class="grid grid-cols-2 gap-4 mb-6">
-                <div>
-                    <label class="block">Investment Budget</label>
-                    <input name="investment_budget" type="text" class="form-input w-full" />
-                </div>
-                <div>
-                    <label class="block">Property Detail Type</label>
-                    <input name="property_detail_type" type="text" class="form-input w-full" />
-                </div>
-                <div>
-                    <label class="block">Investment Type</label>
-                    <input name="investment_type" type="text" class="form-input w-full" />
-                </div>
-                <div>
-                    <label class="block">Employment / Funds Source</label>
-                    <input name="employment_source" type="text" class="form-input w-full" />
-                </div>
-                <div>
-                    <label class="block">Funds Location</label>
-                    <input name="funds_location" type="text" class="form-input w-full" />
                 </div>
             </div>
 
