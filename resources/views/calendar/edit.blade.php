@@ -33,17 +33,17 @@
                 @endphp
 
                 <div class="mb-4">
-                    <label class="block font-semibold mb-1">Start Time</label>
-                    <input type="datetime-local" name="start_time"
-                           value="{{ old('start_time', optional($meeting->start_time)->timezone($tz)->format('Y-m-d\TH:i')) }}"
-                           required class="w-full border-gray-300 rounded px-3 py-2">
+                <label class="block font-semibold mb-1">Start Time</label>
+                <input type="datetime-local" name="start_time"
+                        value="{{ old('start_time', optional($meeting->start_time)->tz($tz)->format('Y-m-d\TH:i')) }}"
+                        required class="w-full border-gray-300 rounded px-3 py-2">
                 </div>
 
                 <div class="mb-4">
-                    <label class="block font-semibold mb-1">End Time</label>
-                    <input type="datetime-local" name="end_time"
-                           value="{{ old('end_time', optional($meeting->end_time)->timezone($tz)->format('Y-m-d\TH:i')) }}"
-                           class="w-full border-gray-300 rounded px-3 py-2">
+                <label class="block font-semibold mb-1">End Time</label>
+                <input type="datetime-local" name="end_time"
+                        value="{{ old('end_time', optional($meeting->end_time)->tz($tz)->format('Y-m-d\TH:i')) }}"
+                        class="w-full border-gray-300 rounded px-3 py-2">
                 </div>
 
                 <div class="mb-6">
