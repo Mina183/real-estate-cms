@@ -8,8 +8,38 @@ document.addEventListener('DOMContentLoaded', function () {
     const calendar = new Calendar(calendarEl, {
         plugins: [dayGridPlugin],
         initialView: 'dayGridMonth',
+        timeZone: 'local',
         events: '/calendar/fetch',
         eventDisplay: 'block',
+
+        // ✅ Add classes based on whether event is past / ongoing
+        eventClassNames: function (info) {
+        const now   = new Date();
+        const start = info.event.start;
+        const end   = info.event.end || start;  // if no end, treat as instant event
+
+        if (end < now) return ['is-past'];                // finished
+        if (start <= now && end >= now) return ['is-ongoing']; // happening now
+        return [];                                        // upcoming
+        },
+
+        eventDataTransform: (raw) => {
+        // if your API returns scheduled_for instead of start, map it:
+        if (raw.scheduled_for && !raw.start) raw.start = raw.scheduled_for;
+
+        // Normalize to ISO if there's a space instead of 'T'
+        if (typeof raw.start === 'string' && raw.start.includes(' ') ) {
+            raw.start = raw.start.replace(' ', 'T');
+        }
+
+        // synthesize an end if missing (default 60 mins or use raw.duration_minutes)
+        if (!raw.end && raw.start) {
+        const end = new Date(raw.start);
+        end.setMinutes(end.getMinutes() + (raw.duration_minutes ?? 60));
+        raw.end = end.toISOString();
+        }
+        return raw;
+    },
 
         // ✅ Redirect on event click (admins only)
         eventClick: function (info) {
@@ -75,4 +105,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     calendar.render();
+
+    // 🔁 Recompute past/ongoing every minute without page reload
+    setInterval(() => calendar.rerenderEvents(), 60 * 1000);
 });

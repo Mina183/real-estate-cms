@@ -125,4 +125,16 @@
 .fc-daygrid-event-harness {
     width: 100% !important;
 }
+
+/* Past events: dim + desaturate + dashed border */
+.fc .is-past {
+  opacity: 0.6;
+  filter: grayscale(35%);
+  border: 1px dashed #afac9b !important;
+}
+
+/* Ongoing events: subtle left accent in brand accent color */
+.fc .is-ongoing {
+  box-shadow: inset 3px 0 0 0 #b44c4c;
+}
 </style>
