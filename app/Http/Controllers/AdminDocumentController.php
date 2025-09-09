@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use App\Models\Partner;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\NewDocumentAssigned;
 
 class AdminDocumentController extends Controller
 {
@@ -90,7 +92,7 @@ public function store(Request $request)
     try {
         $storedPath = $request->file('file')->store('partner_documents');
 
-        PartnerDocument::create([
+        $document = PartnerDocument::create([
             'title' => $data['title'],
             'filename' => $request->file('file')->getClientOriginalName(),
             'file_path' => $storedPath,
@@ -98,6 +100,18 @@ public function store(Request $request)
             'partner_id' => $data['partner_id'] ?? null,
             'status' => $request->has('requires_response') ? 'waiting_partner_action' : 'review_only',
         ]);
+
+        // Send notifications
+        $uploader = auth()->user();
+        if ($data['partner_id']) {
+            $partner = User::find($data['partner_id']);
+            Mail::to($partner->email)->send(new NewDocumentAssigned($document, $uploader, $partner));
+        } else {
+            $partners = User::where('role', 'channel_partner')->get();
+            foreach ($partners as $partner) {
+                Mail::to($partner->email)->send(new NewDocumentAssigned($document, $uploader, $partner));
+            }
+        }
 
         return redirect()->route('admin.documents.index')->with('success', 'Document uploaded successfully!');
     } catch (\Exception $e) {

@@ -7,6 +7,9 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\PartnerDocument;
 use App\Models\PartnerDocumentResponse;
 use Illuminate\Support\Facades\Auth;
+use App\Mail\PartnerResponseSubmitted;
+use Illuminate\Support\Facades\Mail;
+use App\Models\User;
 
 class PartnerDocumentController extends Controller
 {
@@ -69,6 +72,12 @@ public function index()
             ]
         );
 
+        $admins = User::whereIn('role', ['admin', 'superadmin'])->get();
+        $partner = auth()->user();
+        foreach ($admins as $admin) {
+            Mail::to($admin->email)->send(new PartnerResponseSubmitted($doc, $partner, $admin));
+        }
+
         return redirect()->route('partner.documents.index')->with('success', 'Response uploaded!');
     }
 
@@ -89,6 +98,13 @@ public function index()
         'response_uploaded_at' => now(),
         'status' => 'waiting_admin_approval',
     ]);
+
+    // Add this email notification:
+    $admins = User::whereIn('role', ['admin', 'superadmin'])->get();
+    $partner = auth()->user();
+    foreach ($admins as $admin) {
+        Mail::to($admin->email)->send(new PartnerResponseSubmitted($doc, $partner, $admin));
+    }
 
     return redirect()->route('partner.documents.index')->with('success', 'Response uploaded!');
 }
