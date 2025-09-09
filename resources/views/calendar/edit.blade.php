@@ -32,17 +32,36 @@
                 $tz = auth()->user()->timezone ?? config('app.timezone', 'UTC');
                 @endphp
 
+                @php
+                $startValue = '';
+                $endValue = '';
+                if ($meeting->start_time) {
+                    try {
+                        $startValue = $meeting->start_time->tz($tz)->format('Y-m-d\TH:i');
+                    } catch (\Exception $e) {
+                        $startValue = $meeting->start_time->format('Y-m-d\TH:i');
+                    }
+                }
+                if ($meeting->end_time) {
+                    try {
+                        $endValue = $meeting->end_time->tz($tz)->format('Y-m-d\TH:i');
+                    } catch (\Exception $e) {
+                        $endValue = $meeting->end_time->format('Y-m-d\TH:i');
+                    }
+                }
+                @endphp
+
                 <div class="mb-4">
-                <label class="block font-semibold mb-1">Start Time</label>
-                <input type="datetime-local" name="start_time"
-                        value="{{ old('start_time', optional($meeting->start_time)->tz($tz)->format('Y-m-d\TH:i')) }}"
+                    <label class="block font-semibold mb-1">Start Time</label>
+                    <input type="datetime-local" name="start_time"
+                        value="{{ old('start_time', $startValue) }}"
                         required class="w-full border-gray-300 rounded px-3 py-2">
                 </div>
 
                 <div class="mb-4">
-                <label class="block font-semibold mb-1">End Time</label>
-                <input type="datetime-local" name="end_time"
-                        value="{{ old('end_time', optional($meeting->end_time)->tz($tz)->format('Y-m-d\TH:i')) }}"
+                    <label class="block font-semibold mb-1">End Time</label>
+                    <input type="datetime-local" name="end_time"
+                        value="{{ old('end_time', $endValue) }}"
                         class="w-full border-gray-300 rounded px-3 py-2">
                 </div>
 

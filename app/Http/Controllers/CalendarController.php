@@ -39,7 +39,7 @@ public function fetchMeetings()
 
             return [
                 'id' => $meeting->id,
-                'title' => $meeting->titl . ' (by ' . ($meeting->creator->name ?? 'Unknown') . ')',
+                'title' => $meeting->title . ' (by ' . ($meeting->creator->name ?? 'Unknown') . ')',
                 // SEND ISO (UTC) so the browser can convert to its local time
                 'start'       => $start?->toIso8601String(),
                 'end'         => $end?->toIso8601String(),
