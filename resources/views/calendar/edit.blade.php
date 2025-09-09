@@ -28,17 +28,21 @@
                               rows="3">{{ old('description', $meeting->description) }}</textarea>
                 </div>
 
+                @php
+                $tz = auth()->user()->timezone ?? config('app.timezone', 'UTC');
+                @endphp
+
                 <div class="mb-4">
                     <label class="block font-semibold mb-1">Start Time</label>
                     <input type="datetime-local" name="start_time"
-                           value="{{ old('start_time', \Carbon\Carbon::parse($meeting->start_time)->format('Y-m-d\TH:i')) }}"
+                           value="{{ old('start_time', optional($meeting->start_time)->timezone($tz)->format('Y-m-d\TH:i')) }}"
                            required class="w-full border-gray-300 rounded px-3 py-2">
                 </div>
 
                 <div class="mb-4">
                     <label class="block font-semibold mb-1">End Time</label>
                     <input type="datetime-local" name="end_time"
-                           value="{{ old('end_time', $meeting->end_time ? \Carbon\Carbon::parse($meeting->end_time)->format('Y-m-d\TH:i') : '') }}"
+                           value="{{ old('end_time', optional($meeting->end_time)->timezone($tz)->format('Y-m-d\TH:i')) }}"
                            class="w-full border-gray-300 rounded px-3 py-2">
                 </div>
 
