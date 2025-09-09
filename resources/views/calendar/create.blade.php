@@ -63,6 +63,17 @@
                 @enderror
             </div>
 
+            {{-- Browser timezone (used server-side to convert to UTC) --}}
+                <input type="hidden" name="tz" id="meeting-tz-create" value="">
+                <script>
+                (function(){
+                    var el = document.getElementById('meeting-tz-create');
+                    if (el && window.Intl && Intl.DateTimeFormat) {
+                    el.value = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+                    }
+                })();
+                </script>
+
             <div class="pt-4">
                 <button type="submit"
                     class="bg-[#0e2442] text-white font-semibold px-6 py-2 rounded hover:bg-opacity-90 transition">

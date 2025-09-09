@@ -66,6 +66,17 @@
                             placeholder="Explain what was changed (optional)">{{ old('change_comment', $meeting->change_comment) }}</textarea>
                 </div>
 
+                {{-- Browser timezone (used server-side to convert to UTC) --}}
+                    <input type="hidden" name="tz" id="meeting-tz-edit" value="">
+                    <script>
+                    (function(){
+                        var el = document.getElementById('meeting-tz-edit');
+                        if (el && window.Intl && Intl.DateTimeFormat) {
+                        el.value = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+                        }
+                    })();
+                    </script>
+
                 <div class="flex items-center justify-between">
                     <button type="submit"
                             class="bg-[#0e2442] text-white px-5 py-2 rounded hover:bg-opacity-90 font-semibold">

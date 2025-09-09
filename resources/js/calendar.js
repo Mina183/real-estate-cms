@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function () {
         plugins: [dayGridPlugin],
         initialView: 'dayGridMonth',
         timeZone: 'local',
+        eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false }, // <-- add this
         events: '/calendar/fetch',
         eventDisplay: 'block',
 
