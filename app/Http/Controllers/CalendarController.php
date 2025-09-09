@@ -30,9 +30,12 @@ public function fetchMeetings()
     $user = auth()->user();
 
     if (in_array($user->role, ['admin', 'superadmin'])) {
-        $meetings = Meeting::with('attendees')->get();
+        $meetings = Meeting::with('attendees', 'creator')->get();
 
         $events = $meetings->map(function ($meeting) {
+            $start = $meeting->start_time; // Carbon (thanks to cast)
+            $end   = $meeting->end_time ?: ($start ? $start->copy()->addHour() : null);
+
             return [
                 'id' => $meeting->id,
                 'title' => $meeting->titl . ' (by ' . ($meeting->creator->name ?? 'Unknown') . ')',
@@ -47,6 +50,9 @@ public function fetchMeetings()
         $meetings = $user->meetings()->withPivot('is_accepted')->get();
 
         $events = $meetings->map(function ($meeting) {
+            $start = $meeting->start_time;
+            $end   = $meeting->end_time ?: ($start ? $start->copy()->addHour() : null);
+
             return [
                 'id' => $meeting->id,
                 'title' => $meeting->title,
@@ -76,6 +82,15 @@ public function store(Request $request)
         'end_time' => 'nullable|date|after_or_equal:start_time',
         'attendees' => 'required|array',
     ]);
+
+    // 👇 Pick a timezone (per-user if you store one; otherwise app timezone)
+    $tz = auth()->user()->timezone ?? config('app.timezone', 'UTC');
+
+    // 👇 datetime-local (e.g. 2025-09-10T15:04) parsed in user's tz, stored as UTC
+    $startUtc = Carbon::parse($data['start_time'], $tz)->utc();
+    $endUtc   = isset($data['end_time']) && $data['end_time'] !== null
+              ? Carbon::parse($data['end_time'], $tz)->utc()
+              : null;
 
     $meeting = Meeting::create([
         'title' => $data['title'],
@@ -117,6 +132,13 @@ public function update(Request $request, Meeting $meeting)
         'end_time' => 'nullable|date|after_or_equal:start_time',
         'attendees' => 'required|array|min:1', // <-- validation now handles this
     ]);
+
+    $tz = auth()->user()->timezone ?? config('app.timezone', 'UTC');
+
+    $startUtc = Carbon::parse($data['start_time'], $tz)->utc();
+    $endUtc   = isset($data['end_time']) && $data['end_time'] !== null
+              ? Carbon::parse($data['end_time'], $tz)->utc()
+              : null;
 
     $meeting->update([
         'title' => $data['title'],

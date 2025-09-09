@@ -37,7 +37,8 @@
                     @if (is_null($pivot->is_accepted))
                         <div class="border p-4 rounded mb-4 bg-gray-50">
                             <p class="font-medium text-gray-900">📌 {{ $meeting->title }}</p>
-                            <p class="text-sm text-gray-700">📅 {{ \Carbon\Carbon::parse($meeting->scheduled_for)->format('l, jS F Y \a\t H:i') }}</p>
+                            <p class="text-sm text-gray-700">📅 @php $tz = auth()->user()->timezone ?? config('app.timezone', 'UTC'); @endphp
+{{ optional($meeting->start_time)->timezone($tz)->format('l, jS F Y \a\t H:i') }}</p>
 
                         @if($meeting->change_comment)
                             <div class="mt-2 p-3 bg-yellow-50 border-l-4 border-yellow-400 text-sm text-yellow-800 rounded">
