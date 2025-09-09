@@ -91,15 +91,13 @@ public function store(Request $request)
 
     // Parse datetime-local in that tz, then convert to UTC
     $startUtc = Carbon::parse($data['start_time'], $tz)->utc();
-    $endUtc   = isset($data['end_time']) && $data['end_time'] !== null
-        ? Carbon::parse($data['end_time'], $tz)->utc()
-        : null;
+    $endUtc   = $request->filled('end_time') ? Carbon::parse($data['end_time'], $tz)->utc() : null;
 
     $meeting = Meeting::create([
         'title' => $data['title'],
         'description' => $data['description'] ?? null,
-        'start_time' => $data['start_time'],
-        'end_time' => $data['end_time'] ?? null,
+        'start_time'  => $startUtc,   // ← save UTC
+        'end_time'    => $endUtc,     // ← save UTC
         'created_by' => auth()->id(),
     ]);
 
@@ -140,15 +138,13 @@ public function update(Request $request, Meeting $meeting)
     $tz = $request->input('tz') ?: (auth()->user()->timezone ?? config('app.timezone', 'UTC'));
 
      $startUtc = Carbon::parse($data['start_time'], $tz)->utc();
-    $endUtc   = isset($data['end_time']) && $data['end_time'] !== null
-        ? Carbon::parse($data['end_time'], $tz)->utc()
-        : null;
+    $endUtc   = $request->filled('end_time') ? Carbon::parse($data['end_time'], $tz)->utc() : null;
 
     $meeting->update([
         'title' => $data['title'],
         'description' => $data['description'] ?? null,
-        'start_time' => $data['start_time'],
-        'end_time' => $data['end_time'] ?? null,
+        'start_time'     => $startUtc,   // ← save UTC
+        'end_time'       => $endUtc,     // ← save UTC
         'change_comment' => $data['change_comment'],
     ]);
 
