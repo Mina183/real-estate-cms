@@ -74,6 +74,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('documents/{id}', [AdminDocumentController::class, 'show'])->name('admin.documents.show');
         Route::resource('meetings', CalendarController::class)->except(['index', 'show']);
 
+        // Meeting proposal management routes
+        Route::get('/meeting-proposals', [CalendarController::class, 'proposals'])->name('admin.meeting.proposals');
+        Route::post('/meetings/{meeting}/approve', [CalendarController::class, 'approveProposal'])->name('meetings.approve');
+        Route::delete('/meetings/{meeting}/reject', [CalendarController::class, 'rejectProposal'])->name('meetings.reject');
+
     });
 
         /*
@@ -94,6 +99,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/meetings/{meeting}/respond', [CalendarController::class, 'respond'])->name('meetings.respond');
         Route::get('/clients/{client}/communications/{communication}/edit', [ClientController::class, 'editCommunication'])->name('clients.communications.edit');
         Route::put('/clients/{client}/communications/{communication}', [ClientController::class, 'updateCommunication'])->name('clients.communications.update');
+
+        // Meeting proposal routes
+        Route::get('/meetings/propose', [CalendarController::class, 'createProposal'])->name('meetings.create.proposal');
+        Route::post('/meetings/propose', [CalendarController::class, 'storeProposal'])->name('meetings.store.proposal');
     });
     /*
     |--------------------------------------------------------------------------

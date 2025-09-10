@@ -16,6 +16,14 @@
                 </a>
             </div>
         @endif
+        @if(auth()->user()->role === 'channel_partner')
+        <div class="mb-6">
+            <a href="{{ route('meetings.create.proposal') }}"
+            class="inline-block bg-[#0e2442] text-white font-semibold px-4 py-2 rounded hover:bg-opacity-90 transition">
+                📝 Propose New Meeting
+            </a>
+        </div>
+        @endif
     </x-slot>
 
     <div class="py-10 px-6 max-w-6xl mx-auto">

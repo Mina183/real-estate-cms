@@ -111,6 +111,13 @@
                                 <span class="absolute top-1 right-2 inline-block w-3 h-3 bg-red-600 rounded-full animate-pulse"></span>
                             @endif
                         </a>
+                        <a href="{{ route('admin.meeting.proposals') }}"
+                            class="relative block bg-white text-[#0e2442] px-4 py-2 rounded hover:bg-gray-200 font-semibold transition">
+                            📋 Meeting Proposals
+                            @if(!empty($proposalsRedDot))
+                                <span class="absolute top-1 right-2 inline-block w-3 h-3 bg-red-600 rounded-full animate-pulse"></span>
+                            @endif
+                        </a>
                     </nav>
                 </aside>
 
@@ -146,7 +153,26 @@
                                 </ul>
                             </div>
                         @endif
+
+                        {{-- Pending Meeting Proposals --}}
+                        @if($pendingProposals->count())
+                            <div class="mb-6 bg-purple-100 border-l-4 border-purple-400 p-4 rounded">
+                                <h4 class="text-lg font-semibold text-purple-800 mb-2">📋 Pending Meeting Proposals ({{ $pendingProposals->count() }})</h4>
+                                <ul class="list-disc list-inside text-gray-800 space-y-2">
+                                    @foreach($pendingProposals as $proposal)
+                                        <li>
+                                            <strong>{{ $proposal->title }}</strong> 
+                                            by {{ $proposal->creator->name }} – {{ $proposal->start_time->format('M d, H:i') }}
+                                        </li>
+                                    @endforeach
+                                </ul>
+                                <a href="{{ route('admin.meeting.proposals') }}" class="text-purple-600 hover:underline mt-2 inline-block">
+                                    Review all proposals →
+                                </a>
+                            </div>
+                        @endif
                     </div>
+                    
                     @if($adminTriggeringDocs->isNotEmpty())
                     <div class="mt-6">
                         <h4 class="text-lg font-semibold text-blue-800 mb-2">📁 Documents Awaiting Partner Actions or Admin Review</h4>

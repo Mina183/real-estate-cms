@@ -103,6 +103,10 @@ public function index()
         }
 
         $documentRedDot = $adminTriggeringDocs->isNotEmpty();
+
+        // Add this new section for meeting proposals
+        $pendingProposals = Meeting::where('status', 'draft')->get();
+        $proposalsRedDot = $pendingProposals->count() > 0;
     }
 
     // === MEETING LISTS FOR PARTNERS ===
@@ -132,6 +136,8 @@ public function index()
         'upcomingAcceptedMeetings' => $upcomingAcceptedMeetings,
         'pendingMeetingInvitations' => $pendingMeetingInvitations,
         'adminUpcomingMeetings' => $adminUpcomingMeetings,
+        'pendingProposals' => $pendingProposals ?? collect(),
+        'proposalsRedDot' => $proposalsRedDot ?? false,    
     ]);
 }
 }

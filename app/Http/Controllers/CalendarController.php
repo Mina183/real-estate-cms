@@ -31,7 +31,9 @@ public function fetchMeetings()
     $user = auth()->user();
 
     if (in_array($user->role, ['admin', 'superadmin'])) {
-        $meetings = Meeting::with('attendees', 'creator')->get();
+        $meetings = Meeting::with('attendees', 'creator')
+        ->where('status', 'approved')
+        ->get();
 
         $events = $meetings->map(function ($meeting) {
             $start = $meeting->start_time; // Carbon (thanks to cast)
@@ -49,7 +51,9 @@ public function fetchMeetings()
         });
     } else {
         // ✅ IMPORTANT: withPivot
-        $meetings = $user->meetings()->withPivot('is_accepted')->get();
+        $meetings = $user->meetings()->withPivot('is_accepted')
+        ->where('status', 'approved')
+        ->get();
 
         $events = $meetings->map(function ($meeting) {
             $start = $meeting->start_time;
@@ -182,5 +186,102 @@ public function respond(Request $request, Meeting $meeting)
     ]);
 
     return redirect()->route('calendar.index')->with('success', 'Response recorded.');
+}
+
+/**
+ * Show form for partners to create meeting proposals
+ */
+public function createProposal()
+{
+    $partners = User::where('role', 'channel_partner')->get();
+    return view('calendar.create-proposal', compact('partners'));
+}
+
+/**
+ * Store meeting proposal (draft status)
+ */
+public function storeProposal(Request $request)
+{
+    $data = $request->validate([
+        'title' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'start_time' => 'required|date',
+        'end_time' => 'nullable|date|after_or_equal:start_time',
+        'attendees' => 'required|array',
+        'tz' => 'nullable|string',
+    ]);
+
+    $tz = $request->input('tz') ?: (auth()->user()->timezone ?? config('app.timezone', 'UTC'));
+    $startUtc = Carbon::parse($data['start_time'], $tz)->utc();
+    $endUtc = $request->filled('end_time') ? Carbon::parse($data['end_time'], $tz)->utc() : null;
+
+    $meeting = Meeting::create([
+        'title' => $data['title'],
+        'description' => $data['description'] ?? null,
+        'start_time' => $startUtc,
+        'end_time' => $endUtc,
+        'created_by' => auth()->id(),
+        'status' => 'draft', // This is the key difference
+    ]);
+
+    $attachData = collect($data['attendees'])->mapWithKeys(function ($partnerId) {
+        return [$partnerId => ['is_accepted' => null, 'accepted_at' => null]];
+    })->toArray();
+
+    $meeting->attendees()->attach($attachData);
+
+    // Send notification to admins about new proposal
+    $admins = User::whereIn('role', ['admin', 'superadmin'])->get();
+    foreach ($admins as $admin) {
+        Mail::to($admin->email)->send(new \App\Mail\MeetingProposal($meeting, auth()->user(), $admin));
+    }
+
+    return redirect()->route('calendar.index')->with('success', 'Meeting proposal submitted for admin approval!');
+}
+
+/**
+ * Show all meeting proposals to admins
+ */
+public function proposals()
+{
+    $proposals = Meeting::with(['attendees', 'creator'])
+                       ->where('status', 'draft')
+                       ->latest()
+                       ->get();
+    
+    return view('admin.meeting-proposals', compact('proposals'));
+}
+
+/**
+ * Approve a meeting proposal
+ */
+public function approveProposal(Meeting $meeting)
+{
+    if ($meeting->status !== 'draft') {
+        return redirect()->back()->with('error', 'Only draft proposals can be approved.');
+    }
+
+    $meeting->update(['status' => 'approved']);
+
+    // Send emails to all attendees like normal meeting creation
+    foreach ($meeting->attendees as $partner) {
+        Mail::to($partner->email)->send(new MeetingInvite($meeting, $partner));
+    }
+
+    return redirect()->route('admin.meeting.proposals')->with('success', 'Meeting proposal approved and invites sent!');
+}
+
+/**
+ * Reject a meeting proposal
+ */
+public function rejectProposal(Meeting $meeting)
+{
+    if ($meeting->status !== 'draft') {
+        return redirect()->back()->with('error', 'Only draft proposals can be rejected.');
+    }
+
+    $meeting->delete(); // Simply delete rejected proposals
+
+    return redirect()->route('admin.meeting.proposals')->with('success', 'Meeting proposal rejected and deleted.');
 }
 }
