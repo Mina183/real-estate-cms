@@ -45,7 +45,6 @@
         }">
             <div class="mb-4 border-b border-gray-400 bg-gray-200">
                 <button @click="switchTab('basic')" :class="tab === 'basic' ? 'bg-[#0e2442] text-white' : 'bg-gray-200 text-gray-700'" class="px-4 py-2 rounded">Basic</button>
-                <button @click="switchTab('finance')" :class="tab === 'finance' ? 'bg-[#0e2442] text-white' : 'bg-gray-200 text-gray-700'" class="px-4 py-2 rounded ml-2">Finance</button>
                 <button @click="switchTab('contact')" :class="tab === 'contact' ? 'bg-[#0e2442] text-white' : 'bg-gray-200 text-gray-700'" class="px-4 py-2 rounded ml-2">Contact</button>
                 <button @click="switchTab('documents')" :class="tab === 'documents' ? 'bg-[#0e2442] text-white' : 'bg-gray-200 text-gray-700'" class="px-4 py-2 rounded ml-2">Documents</button>
             </div>
@@ -57,7 +56,7 @@
                         <tr class="bg-gray-200">
                             <th class="border px-4 py-2 text-left">Partner</th>
                             <th class="border px-4 py-2 text-left">Lead Source</th>
-                            <th class="border px-4 py-2 text-left">Investor/Buyer</th>
+                            <th class="border px-4 py-2 text-left">User/End User</th>
                             <th class="border px-4 py-2 text-left">Investor Type</th>
                             <th class="border px-4 py-2 text-left ">Name</th>
                             <th class="border px-4 py-2 text-left">Passport Number</th>
@@ -66,9 +65,12 @@
                             <th class="border px-4 py-2 text-left">Contact Method</th>
                             <th class="border px-4 py-2 text-left">Nationality</th>
                             <th class="border px-4 py-2 text-left">Language</th>
-                            <th class="border px-4 py-2 text-left">Base Location</th>
-                            <th class="border px-4 py-2 text-left">Preferred Property</th>
-                            <th class="border px-4 py-2 text-left">Preferred Location</th>
+                            <th class="border px-4 py-2 text-left">Resident Country</th>
+                            <th class="border px-4 py-2 text-left">Preferred Property Type (Appartment, Town House, Villa)</th>
+                            <th class="border px-4 py-2 text-left">Locations</th>
+                            <th class="border px-4 py-2 text-left">Investment Budget</th>
+                            <th class="border px-4 py-2 text-left">Source of Funds</th>
+                            <th class="border px-4 py-2 text-left">Funds Location</th>
                             <th class="border px-4 py-2 text-left">UAE Visa</th>
                             <th class="border px-4 py-2 text-left">CP Remarks</th>
                             <th class="border px-4 py-2 text-left">
@@ -81,7 +83,7 @@
                             <tr>
                                 <td class="border px-4 py-2">{{ $client->channelPartner->name ?? '-' }}</td>
                                 <td class="border px-4 py-2">{{ $client->leadSource->name ?? '-' }}</td>
-                                <td class="border px-4 py-2">{{ $client->is_investor ? 'Investor' : 'End Buyer' }}</td>
+                                <td class="border px-4 py-2">{{ $client->is_investor ? 'User' : 'End User' }}</td>
                                 <td class="border px-4 py-2">{{ $client->investor_type ?? '-' }}</td>
                                 <td class="border px-4 py-2">{{ $client->name }}</td>
                                 <td class="border px-4 py-2">{{ $client->passport_number }}</td>
@@ -93,35 +95,12 @@
                                 <td class="border px-4 py-2">{{ $client->base_location }}</td>
                                 <td class="border px-4 py-2">{{ $client->preferred_property_type }}</td>
                                 <td class="border px-4 py-2">{{ $client->preferred_location }}</td>
-                                <td class="border px-4 py-2">{{ $client->uae_visa_required ? 'Required' : 'Not Required' }}</td>
-                                <td class="border px-4 py-2">{{ $client->cp_remarks }}</td>
-                                <td class="border px-4 py-2">{{ $client->funnel_stage }}</td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-
-            {{-- FINANCE --}}
-            <div x-show="tab === 'finance'" x-cloak class="overflow-x-auto mt-4">
-                <table class="w-full table-auto border-collapse text-sm">
-                    <thead>
-                        <tr class="bg-gray-200">
-                            <th class="border px-4 py-2 text-left">Property Detail Type</th>
-                            <th class="border px-4 py-2 text-left">Investment Type</th>
-                            <th class="border px-4 py-2 text-left">Investment Budget</th>
-                            <th class="border px-4 py-2 text-left">Employment / Source of Funds</th>
-                            <th class="border px-4 py-2 text-left">Funds Location</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($clients as $client)
-                            <tr>
-                                <td class="border px-4 py-2">{{ $client->property_detail_type }}</td>
-                                <td class="border px-4 py-2">{{ $client->investment_type }}</td>
                                 <td class="border px-4 py-2">{{ $client->investment_budget }}</td>
                                 <td class="border px-4 py-2">{{ $client->employment_source }}</td>
                                 <td class="border px-4 py-2">{{ $client->funds_location }}</td>
+                                <td class="border px-4 py-2">{{ $client->uae_visa_required ? 'Required' : 'Not Required' }}</td>
+                                <td class="border px-4 py-2">{{ $client->cp_remarks }}</td>
+                                <td class="border px-4 py-2">{{ $client->funnel_stage }}</td>
                             </tr>
                         @endforeach
                     </tbody>
