@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\User;
+use App\Models\Client;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStyles;
@@ -15,15 +16,18 @@ class PartnersExport implements FromCollection, WithHeadings, WithStyles, WithTi
     public function collection()
     {
         return User::where('role', 'channel_partner')
-                  ->withCount(['clients', 'leadSources'])
                   ->get()
                   ->map(function ($partner) {
+                      // Count clients manually since the relationship might not exist
+                      $clientsCount = Client::where('channel_partner_id', $partner->id)->count();
+                      $leadSourcesCount = \App\Models\LeadSource::where('partner_id', $partner->id)->count();
+                      
                       return [
                           'name' => $partner->name,
                           'email' => $partner->email,
                           'phone' => $partner->phone ?? 'N/A',
-                          'clients_count' => $partner->clients_count ?? 0,
-                          'lead_sources_count' => $partner->lead_sources_count ?? 0,
+                          'clients_count' => $clientsCount,
+                          'lead_sources_count' => $leadSourcesCount,
                           'is_approved' => $partner->is_approved ? 'Yes' : 'No',
                           'registered_date' => $partner->created_at->format('Y-m-d H:i'),
                           'last_login' => $partner->last_login_at ? $partner->last_login_at->format('Y-m-d H:i') : 'Never',
