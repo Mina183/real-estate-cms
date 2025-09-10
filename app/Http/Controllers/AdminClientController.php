@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Client;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Exports\ClientsExport;
+use App\Exports\PartnersExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AdminClientController extends Controller
 {
@@ -33,5 +36,23 @@ class AdminClientController extends Controller
     $leadSources = \App\Models\LeadSource::all();
 
     return view('admin.clients.index', compact('clients', 'partners', 'leadSources'));
+}
+
+public function exportClients(Request $request)
+{
+    $partnerId = $request->get('channel_partner_id');
+    $leadSourceId = $request->get('lead_source_id');
+    $name = $request->get('name');
+    
+    $filename = 'clients-report-' . date('Y-m-d-H-i-s') . '.xlsx';
+    
+    return Excel::download(new ClientsExport($partnerId, $leadSourceId, $name), $filename);
+}
+
+public function exportPartners()
+{
+    $filename = 'partners-report-' . date('Y-m-d-H-i-s') . '.xlsx';
+    
+    return Excel::download(new PartnersExport(), $filename);
 }
 }

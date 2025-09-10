@@ -5,6 +5,10 @@
             <a href="{{ route('dashboard') }}" class="inline-block bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300">
                 ← Back to Dashboard
             </a>
+            <a href="{{ route('admin.export.clients', request()->query()) }}" 
+            class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 font-semibold">
+                📊 Download Excel Report
+            </a>
         </div>
     </x-slot>
 
