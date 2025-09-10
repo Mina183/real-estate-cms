@@ -35,11 +35,18 @@
                             <tr>
                                 <td class="border px-4 py-2">{{ $response->partner->name ?? 'Unknown' }}</td>
                                 <td class="border px-4 py-2">
-                                <a href="{{ Storage::disk('private')->temporaryUrl($response->response_file_path, now()->addMinutes(10)) }}" target="_blank" class="text-blue-600 underline">
-                                    View
-                                </a>
+                                <td class="border px-4 py-2">
+                                    @if($response->response_file_path)
+                                        <a href="{{ Storage::disk('private')->temporaryUrl($response->response_file_path, now()->addMinutes(10)) }}" target="_blank" class="text-blue-600 underline">
+                                            View Response File
+                                        </a>
+                                    @else
+                                        <span class="text-gray-500 italic">No file uploaded</span>
+                                    @endif
                                 </td>
-                                <td class="border px-4 py-2">{{ $response->response_uploaded_at->format('Y-m-d H:i') }}</td>
+                               <td class="border px-4 py-2">
+                                    {{ $response->response_uploaded_at ? $response->response_uploaded_at->format('Y-m-d H:i') : 'N/A' }}
+                                </td>
                                 <td class="border px-4 py-2">
                                     @if($response->status === 'waiting_admin_approval')
                                         <form method="POST" action="{{ route('admin.responses.approve', $response->id) }}">
