@@ -8,6 +8,8 @@ use App\Models\ClientCommunication;
 use App\Models\ClientDocument;
 use App\Models\LeadSource;
 use Illuminate\Support\Facades\Storage;
+use App\Exports\PartnerClientsExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ClientController extends Controller
 {
@@ -305,4 +307,12 @@ class ClientController extends Controller
 
         return redirect()->route('clients.index', ['tab' => 'contact'])->with('success', 'Communication updated.');
     }
+
+    public function exportMyClients()
+{
+    $partnerId = auth()->id();
+    $filename = 'my-clients-report-' . date('Y-m-d-H-i-s') . '.xlsx';
+    
+    return Excel::download(new PartnerClientsExport($partnerId), $filename);
+}
 }

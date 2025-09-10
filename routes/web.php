@@ -105,6 +105,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Meeting proposal routes
         Route::get('/meetings/propose', [CalendarController::class, 'createProposal'])->name('meetings.create.proposal');
         Route::post('/meetings/propose', [CalendarController::class, 'storeProposal'])->name('meetings.store.proposal');
+
+        Route::get('/export/clients', [ClientController::class, 'exportMyClients'])->name('partner.export.clients');
     });
     /*
     |--------------------------------------------------------------------------
