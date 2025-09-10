@@ -8,7 +8,15 @@ class Meeting extends Model
 {
     use HasFactory;
     
-    protected $fillable = ['title', 'description', 'start_time', 'end_time', 'change_comment', 'created_by'];
+    protected $fillable = [
+        'title', 
+        'description', 
+        'start_time', 
+        'end_time', 
+        'change_comment', 
+        'created_by',
+        'status'
+    ];
 
     protected $casts = [
         'start_time' => 'datetime',
@@ -23,5 +31,16 @@ class Meeting extends Model
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    // Helper methods for checking status
+    public function isDraft()
+    {
+        return $this->status === 'draft';
+    }
+
+    public function isApproved()
+    {
+        return $this->status === 'approved';
     }
 }
