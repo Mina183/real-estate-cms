@@ -79,8 +79,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/meetings/{meeting}/approve', [CalendarController::class, 'approveProposal'])->name('meetings.approve');
         Route::delete('/meetings/{meeting}/reject', [CalendarController::class, 'rejectProposal'])->name('meetings.reject');
 
-        Route::get('/admin/export/clients', [AdminClientController::class, 'exportClients'])->name('admin.export.clients');
-        Route::get('/admin/export/partners', [AdminClientController::class, 'exportPartners'])->name('admin.export.partners');
+        Route::get('/export/clients', [AdminClientController::class, 'exportClients'])->name('admin.export.clients');
+        Route::get('/export/partners', [AdminClientController::class, 'exportPartners'])->name('admin.export.partners');
     });
 
         /*
