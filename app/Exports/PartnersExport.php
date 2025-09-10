@@ -20,7 +20,7 @@ class PartnersExport implements FromCollection, WithHeadings, WithStyles, WithTi
                   ->map(function ($partner) {
                       // Count clients manually since the relationship might not exist
                       $clientsCount = Client::where('channel_partner_id', $partner->id)->count();
-                      $leadSourcesCount = \App\Models\LeadSource::where('partner_id', $partner->id)->count();
+                      $leadSourcesCount = \App\Models\LeadSource::where('channel_partner_id', $partner->id)->count();
                       
                       return [
                           'name' => $partner->name,

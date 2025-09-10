@@ -6,11 +6,11 @@
                 ← Back to Dashboard
             </a>
             <a href="{{ route('admin.export.clients', request()->query()) }}" 
-            class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 font-semibold">
+            class="inline-block bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 font-semibold">
                 📊 Download Excel Report
             </a>
             <a href="{{ route('admin.export.partners') }}" 
-            class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 font-semibold">
+            class="inline-block bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 font-semibold">
                 📊 Download Partners Report
             </a>
         </div>
