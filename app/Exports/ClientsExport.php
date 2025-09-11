@@ -45,7 +45,7 @@ class ClientsExport implements FromCollection, WithHeadings, WithStyles, WithTit
             return [
                 'partner' => $client->channelPartner ? $client->channelPartner->name : 'N/A',
                 'lead_source' => $client->leadSource ? $client->leadSource->name : 'N/A',
-                'is_investor' => ucfirst($client->is_investor ?? 'N/A'),
+                'is_investor' => $client->is_investor === 1 ? 'User' : ($client->is_investor === 0 ? 'End User' : 'N/A'),
                 'investor_type' => ucfirst($client->investor_type ?? 'N/A'),
                 'name' => $client->name,
                 'passport_number' => $client->passport_number ?? 'N/A',
@@ -60,7 +60,7 @@ class ClientsExport implements FromCollection, WithHeadings, WithStyles, WithTit
                 'investment_budget' => $client->investment_budget ?? 'N/A',
                 'employment_source' => $client->employment_source ?? 'N/A',
                 'funds_location' => $client->funds_location ?? 'N/A',
-                'uae_visa_required' => ucfirst($client->uae_visa_required ?? 'N/A'),
+                'uae_visa_required' => $client->uae_visa_required === 1 ? 'Yes' : ($client->uae_visa_required === 0 ? 'No' : 'N/A'),
                 'cp_remarks' => $client->cp_remarks ?? 'N/A',
                 'funnel_stage' => $client->funnel_stage ?? 'N/A',
                 'communications_count' => $client->communications->count(),
