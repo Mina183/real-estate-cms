@@ -45,7 +45,7 @@ class ClientsExport implements FromCollection, WithHeadings, WithStyles, WithTit
             return [
                 'partner' => $client->channelPartner ? $client->channelPartner->name : 'N/A',
                 'lead_source' => $client->leadSource ? $client->leadSource->name : 'N/A',
-                'user_type' => ucfirst($client->user_end_user ?? 'N/A'),
+                'is_investor' => ucfirst($client->is_investor ?? 'N/A'),
                 'investor_type' => ucfirst($client->investor_type ?? 'N/A'),
                 'name' => $client->name,
                 'passport_number' => $client->passport_number ?? 'N/A',
@@ -54,10 +54,15 @@ class ClientsExport implements FromCollection, WithHeadings, WithStyles, WithTit
                 'contact_method' => ucfirst($client->contact_method ?? 'N/A'),
                 'nationality' => $client->nationality ?? 'N/A',
                 'language' => ucfirst($client->language ?? 'N/A'),
-                'resident_country' => $client->resident_country ?? 'N/A',
+                'base_location' => $client->base_location ?? 'N/A',
                 'property_type' => $client->preferred_property_type ?? 'N/A',
                 'locations' => $client->locations ?? 'N/A',
                 'investment_budget' => $client->investment_budget ?? 'N/A',
+                'employment_source' => $client->employment_source ?? 'N/A',
+                'funds_location' => $client->funds_location ?? 'N/A',
+                'uae_visa_required' => ucfirst($client->uae_visa_required ?? 'N/A'),
+                'cp_remarks' => $client->cp_remarks ?? 'N/A',
+                'funnel_stage' => $client->funnel_stage ?? 'N/A',
                 'communications_count' => $client->communications->count(),
                 'last_communication' => $client->communications->last()?->created_at?->format('Y-m-d H:i') ?? 'Never',
                 'documents_count' => $client->documents->count(),
@@ -71,7 +76,7 @@ class ClientsExport implements FromCollection, WithHeadings, WithStyles, WithTit
         return [
             'Partner',
             'Lead Source', 
-            'User Type',
+            'User/End User',
             'Investor Type',
             'Name',
             'Passport Number',
@@ -84,6 +89,11 @@ class ClientsExport implements FromCollection, WithHeadings, WithStyles, WithTit
             'Property Type',
             'Locations',
             'Investment Budget',
+            'Source of Funds',
+            'Funds Location',
+            'UAE Visa',
+            'CP Remarks',
+            'Sales Funnel Stage',
             'Communications',
             'Last Communication',
             'Documents',
@@ -92,31 +102,47 @@ class ClientsExport implements FromCollection, WithHeadings, WithStyles, WithTit
     }
 
     public function styles(Worksheet $sheet)
-    {
-        return [
-            // Header row styling
-            1 => [
-                'font' => [
-                    'bold' => true,
-                    'color' => ['rgb' => 'FFFFFF'],
-                    'size' => 12,
-                ],
-                'fill' => [
-                    'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                    'startColor' => ['rgb' => '0e2442'],
-                ],
-                'alignment' => [
-                    'horizontal' => Alignment::HORIZONTAL_CENTER,
+{
+    return [
+        // Header row styling
+        1 => [
+            'font' => [
+                'bold' => true,
+                'color' => ['rgb' => 'FFFFFF'],
+                'size' => 12
+            ],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => ['rgb' => '0e2442'],
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    'color' => ['rgb' => '000000'],
                 ],
             ],
-            // Auto-size columns
-            'A:S' => [
-                'alignment' => [
-                    'horizontal' => Alignment::HORIZONTAL_LEFT,
+        ],
+        
+        // Data rows styling
+        'A2:X1000' => [  // X because you have 24 columns
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_LEFT,
+                'vertical' => Alignment::VERTICAL_TOP,
+                'wrapText' => true
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    'color' => ['rgb' => 'CCCCCC'],
                 ],
             ],
-        ];
-    }
+        ],
+    ];
+}
 
     public function title(): string
     {

@@ -30,9 +30,21 @@ class PartnerClientsExport implements FromCollection, WithHeadings, WithStyles, 
                             'email' => $client->email,
                             'phone' => $client->phone ?? 'N/A',
                             'nationality' => $client->nationality ?? 'N/A',
+                            'language' => ucfirst($client->language ?? 'N/A'),
+                            'passport_number' => $client->passport_number ?? 'N/A',
+                            'contact_method' => ucfirst($client->contact_method ?? 'N/A'),
+                            'base_location' => $client->base_location ?? 'N/A',
                             'lead_source' => $client->leadSource ? $client->leadSource->name : 'N/A',
+                            'is_investor' => ucfirst($client->is_investor ?? 'N/A'),
+                            'investor_type' => ucfirst($client->investor_type ?? 'N/A'),
                             'investment_budget' => $client->investment_budget ?? 'N/A',
                             'property_type' => $client->preferred_property_type ?? 'N/A',
+                            'locations' => $client->locations ?? 'N/A',
+                            'employment_source' => $client->employment_source ?? 'N/A',
+                            'funds_location' => $client->funds_location ?? 'N/A',
+                            'uae_visa_required' => ucfirst($client->uae_visa_required ?? 'N/A'),
+                            'cp_remarks' => $client->cp_remarks ?? 'N/A',
+                            'funnel_stage' => $client->funnel_stage ?? 'N/A',
                             'communications_count' => $client->communications->count(),
                             'last_communication' => $client->communications->last()?->created_at?->format('Y-m-d H:i') ?? 'Never',
                             'registered_date' => $client->created_at->format('Y-m-d H:i'),
@@ -43,32 +55,73 @@ class PartnerClientsExport implements FromCollection, WithHeadings, WithStyles, 
     public function headings(): array
     {
         return [
-            'Name',
-            'Email', 
-            'Phone',
-            'Nationality',
-            'Lead Source',
-            'Investment Budget',
-            'Property Type',
-            'Communications',
-            'Last Communication',
-            'Registered Date'
+                    'Name',
+                    'Email',
+                    'Phone',
+                    'Nationality',
+                    'Language',
+                    'Passport Number',
+                    'Contact Method',
+                    'Base Location',
+                    'Lead Source',
+                    'User/End User',
+                    'Investor Type',
+                    'Investment Budget',
+                    'Property Type',
+                    'Locations',
+                    'Source of Funds',
+                    'Funds Location',
+                    'UAE Visa',
+                    'CP Remarks',
+                    'Funnel Stage',
+                    'Communications Count',
+                    'Last Communication',
+                    'Registered Date'
         ];
     }
 
-    public function styles(Worksheet $sheet)
-    {
-        return [
-            1 => [
-                'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
-                'fill' => [
-                    'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                    'startColor' => ['rgb' => '0e2442'],
-                ],
-                'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
+public function styles(Worksheet $sheet)
+{
+    return [
+        // Header row styling
+        1 => [
+            'font' => [
+                'bold' => true, 
+                'color' => ['rgb' => 'FFFFFF'],
+                'size' => 12
             ],
-        ];
-    }
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => ['rgb' => '0e2442'],
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    'color' => ['rgb' => '000000'],
+                ],
+            ],
+        ],
+        
+        // Data rows styling
+        'A2:V1000' => [
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_LEFT,
+                'vertical' => Alignment::VERTICAL_TOP,
+                'wrapText' => true
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    'color' => ['rgb' => 'CCCCCC'],
+                ],
+            ],
+        ],
+    ];
+}
 
     public function title(): string
     {
