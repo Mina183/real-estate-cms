@@ -126,6 +126,14 @@
                                 <span class="absolute top-1 right-2 inline-block w-3 h-3 bg-red-600 rounded-full animate-pulse"></span>
                             @endif
                         </a>
+                        <a href="{{ asset('files/PRE-CMS User Manual.pdf') }}" target="_blank"
+                        class="relative block bg-white text-[#0e2442] px-4 py-2 rounded hover:bg-gray-200 font-semibold transition">
+                            📖 User Manual
+                        </a>
+                        <a href="{{ route('demo.video') }}"
+                        class="relative block bg-white text-[#0e2442] px-4 py-2 rounded hover:bg-gray-200 font-semibold transition">
+                            🎥 Demo Video
+                        </a>
                     </nav>
                 </aside>
 
