@@ -29,6 +29,10 @@ Route::get('/send-test-email', function () {
     return 'Test email sent!';
 });
 
+Route::get('/demo', function () {
+    return view('demo');
+})->name('demo.video');
+
 /*
 |--------------------------------------------------------------------------
 | Authenticated & Verified Routes
