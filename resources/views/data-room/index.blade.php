@@ -8,16 +8,40 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                
+                {{-- Header with Download and Read Me buttons --}}
                 <div class="mb-6 flex justify-between items-center">
                     <div>
                         <h3 class="text-lg font-semibold text-gray-800">Document Structure</h3>
                         <p class="text-sm text-gray-600 mt-1">Hierarchical folder organization with security levels</p>
                     </div>
-                    <div class="text-sm text-gray-600">
-                        Total Documents: <span class="font-semibold">{{ \App\Models\DataRoomDocument::count() }}</span>
+                    
+                    <div class="flex gap-3 items-center">
+                        <div class="text-sm text-gray-600 mr-2">
+                            Total Documents: <span class="font-semibold">{{ \App\Models\DataRoomDocument::count() }}</span>
+                        </div>
+                        
+                        {{-- Document Index Download Button --}}
+                        <a href="{{ route('data-room.export-index') }}" 
+                           class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow transition duration-150 ease-in-out">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            Download Index
+                        </a>
+                        
+                        {{-- Read Me button --}}
+                        <button onclick="showReadMe()" 
+                                class="inline-flex items-center px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm font-semibold rounded-lg shadow transition duration-150 ease-in-out">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Read Me
+                        </button>
                     </div>
                 </div>
                 
+                {{-- Folder Structure (existing code) --}}
                 @foreach($folders as $folder)
                     <div class="mb-4 border border-gray-200 rounded-lg overflow-hidden">
                         <div class="flex items-center p-4 bg-gray-50">
@@ -104,4 +128,73 @@
             </div>
         </div>
     </div>
+
+    {{-- Read Me Modal --}}
+    <div id="readMeModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-2/3 lg:w-1/2 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-medium text-gray-900">How to Use This Data Room</h3>
+                    <button onclick="closeReadMe()" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="text-sm text-gray-600 space-y-3">
+                    <p><strong>Purpose:</strong> This Data Room contains all essential documents related to fund operations, legal structure, compliance, and performance reporting.</p>
+                    
+                    <p><strong>Document Organization:</strong></p>
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li>Documents are organized by section numbers (0, 1, 2, 3, etc.)</li>
+                        <li>Each section contains related folders and subfolders</li>
+                        <li>Security levels indicate access restrictions</li>
+                    </ul>
+                    
+                    <p><strong>Security Levels:</strong></p>
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li><span class="text-green-600 font-semibold">Public</span> - Available to all users</li>
+                        <li><span class="text-yellow-600 font-semibold">Restricted</span> - Limited access required</li>
+                        <li><span class="text-orange-600 font-semibold">Confidential</span> - Approved users only</li>
+                        <li><span class="text-red-600 font-semibold">Highly Confidential</span> - Senior management only</li>
+                    </ul>
+                    
+                    <p><strong>Document Index:</strong> Click "Download Index" to get a complete Excel listing of all documents with versions, dates, and descriptions.</p>
+                    
+                    <p><strong>Contact Information:</strong></p>
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li><strong>Legal queries:</strong> legal@yourfund.com</li>
+                        <li><strong>Admin support:</strong> admin@yourfund.com</li>
+                        <li><strong>Technical issues:</strong> support@yourfund.com</li>
+                    </ul>
+                </div>
+                
+                <div class="mt-6 text-right">
+                    <button onclick="closeReadMe()" 
+                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- JavaScript --}}
+    <script>
+    function showReadMe() {
+        document.getElementById('readMeModal').classList.remove('hidden');
+    }
+
+    function closeReadMe() {
+        document.getElementById('readMeModal').classList.add('hidden');
+    }
+
+    // Close modal on outside click
+    document.getElementById('readMeModal')?.addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeReadMe();
+        }
+    });
+    </script>
 </x-app-layout>

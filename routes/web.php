@@ -14,6 +14,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CalendarController;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\TestEmail;
+use App\Exports\DocumentIndexExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 /*
 |--------------------------------------------------------------------------
@@ -65,6 +67,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 ->get();
     return view('data-room.index', compact('folders'));
 })->middleware('auth')->name('data-room.index');
+
+// Document Index Download Route
+Route::get('/data-room/export-index', function() {
+    $fileName = 'Document_Index_' . date('Y-m-d') . '.xlsx';
+    return Excel::download(new DocumentIndexExport, $fileName);
+})->middleware('auth')->name('data-room.export-index');
 
     /*
     |--------------------------------------------------------------------------
