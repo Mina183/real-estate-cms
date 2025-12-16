@@ -9,6 +9,10 @@ class SampleDocumentsSeeder extends Seeder
 {
     public function run(): void
     {
+
+        // Get first available user ID
+        $firstUserId = DB::table('users')->first()->id ?? 1;
+
         // Find folders by their numbers
         $folders = [
             '1.1' => DB::table('data_room_folders')->where('folder_number', '1.1')->first(),
@@ -28,9 +32,9 @@ class SampleDocumentsSeeder extends Seeder
                 'version' => '2.0',
                 'description' => 'Updated executive summary with Q4 2024 performance data',
                 'status' => 'approved',
-                'uploaded_by' => 1,
+                'uploaded_by' => $firstUserId,
                 'approved_at' => now()->subDays(5),
-                'approved_by' => 1,
+                'approved_by' => $firstUserId,
             ],
             [
                 'folder_id' => $folders['1.1']->id,
@@ -41,9 +45,9 @@ class SampleDocumentsSeeder extends Seeder
                 'version' => '1.5',
                 'description' => 'Key investment highlights and fund differentiation',
                 'status' => 'approved',
-                'uploaded_by' => 1,
+                'uploaded_by' => $firstUserId,
                 'approved_at' => now()->subDays(10),
-                'approved_by' => 1,
+                'approved_by' => $firstUserId,
             ],
             
             // PPM
@@ -56,9 +60,9 @@ class SampleDocumentsSeeder extends Seeder
                 'version' => '3.1',
                 'description' => 'Official PPM - Final version dated December 2024',
                 'status' => 'approved',
-                'uploaded_by' => 1,
+                'uploaded_by' => $firstUserId,
                 'approved_at' => now()->subDays(30),
-                'approved_by' => 1,
+                'approved_by' => $firstUserId,
             ],
             [
                 'folder_id' => $folders['1.2']->id,
@@ -69,9 +73,9 @@ class SampleDocumentsSeeder extends Seeder
                 'version' => '1.0',
                 'description' => 'Additional risk factor disclosures',
                 'status' => 'approved',
-                'uploaded_by' => 1,
+                'uploaded_by' => $firstUserId,
                 'approved_at' => now()->subDays(25),
-                'approved_by' => 1,
+                'approved_by' => $firstUserId,
             ],
             
             // Legal & Constitutional
@@ -84,9 +88,9 @@ class SampleDocumentsSeeder extends Seeder
                 'version' => '1.0',
                 'description' => 'Official DIFC registration certificate',
                 'status' => 'approved',
-                'uploaded_by' => 1,
+                'uploaded_by' => $firstUserId,
                 'approved_at' => now()->subMonths(3),
-                'approved_by' => 1,
+                'approved_by' => $firstUserId,
             ],
             [
                 'folder_id' => $folders['2.1']->id,
@@ -97,9 +101,9 @@ class SampleDocumentsSeeder extends Seeder
                 'version' => '2.0',
                 'description' => 'Amended M&A effective November 2024',
                 'status' => 'approved',
-                'uploaded_by' => 1,
+                'uploaded_by' => $firstUserId,
                 'approved_at' => now()->subMonths(2),
-                'approved_by' => 1,
+                'approved_by' => $firstUserId,
             ],
             
             // Key Personnel
@@ -112,9 +116,9 @@ class SampleDocumentsSeeder extends Seeder
                 'version' => '1.2',
                 'description' => 'Detailed bios of fund management team',
                 'status' => 'approved',
-                'uploaded_by' => 1,
+                'uploaded_by' => $firstUserId,
                 'approved_at' => now()->subDays(15),
-                'approved_by' => 1,
+                'approved_by' => $firstUserId,
             ],
             
             // Some pending documents
@@ -127,7 +131,7 @@ class SampleDocumentsSeeder extends Seeder
                 'version' => '0.9',
                 'description' => 'Draft quarterly update pending final review',
                 'status' => 'pending_review',
-                'uploaded_by' => 1,
+                'uploaded_by' => $firstUserId,
                 'approved_at' => null,
                 'approved_by' => null,
             ],
@@ -144,28 +148,33 @@ class SampleDocumentsSeeder extends Seeder
         $this->addSampleActivityLogs();
     }
 
-    private function addSampleActivityLogs()
-    {
-        $documents = DB::table('data_room_documents')->get();
-        
-        $activities = [
-            [
-                'user_id' => 1,
-                'activity_type' => 'view',
-                'resource_type' => 'document',
-                'resource_id' => $documents->first()->id,
-                'ip_address' => '192.168.1.100',
-                'activity_at' => now()->subHours(2),
-            ],
-            [
-                'user_id' => 1,
-                'activity_type' => 'download',
-                'resource_type' => 'document',
-                'resource_id' => $documents->first()->id,
-                'ip_address' => '192.168.1.100',
-                'activity_at' => now()->subHours(1),
-            ],
-        ];
+private function addSampleActivityLogs()
+{
+    $firstUserId = DB::table('users')->first()->id ?? 1;
+    $documents = DB::table('data_room_documents')->get();
+    
+    if ($documents->isEmpty()) {
+        return; // No documents to log
+    }
+    
+    $activities = [
+        [
+            'user_id' => $firstUserId,  // ← Izmenjeno
+            'activity_type' => 'view',
+            'resource_type' => 'document',
+            'resource_id' => $documents->first()->id,
+            'ip_address' => '192.168.1.100',
+            'activity_at' => now()->subHours(2),
+        ],
+        [
+            'user_id' => $firstUserId,  // ← Izmenjeno
+            'activity_type' => 'download',
+            'resource_type' => 'document',
+            'resource_id' => $documents->first()->id,
+            'ip_address' => '192.168.1.100',
+            'activity_at' => now()->subHours(1),
+        ],
+    ];
 
         foreach ($activities as $activity) {
             DB::table('data_room_activity_log')->insert(array_merge($activity, [
