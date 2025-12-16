@@ -58,6 +58,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/clients/{client}/documents', [ClientController::class, 'storeDocument'])->name('clients.documents.store');
     Route::post('/clients/{client}/communications', [ClientController::class, 'storeCommunication'])->name('clients.communications.store');
 
+    Route::get('/data-room', function() {
+    $folders = \App\Models\DataRoomFolder::whereNull('parent_folder_id')
+                ->with('children')
+                ->orderBy('order')
+                ->get();
+    return view('data-room.index', compact('folders'));
+})->middleware('auth')->name('data-room.index');
+
     /*
     |--------------------------------------------------------------------------
     | Admin Routs (Optional)
