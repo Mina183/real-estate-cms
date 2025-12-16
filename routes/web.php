@@ -60,7 +60,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/data-room', function() {
     $folders = \App\Models\DataRoomFolder::whereNull('parent_folder_id')
-                ->with('children')
+                ->with(['children.documents', 'documents'])
                 ->orderBy('order')
                 ->get();
     return view('data-room.index', compact('folders'));

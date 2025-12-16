@@ -30,4 +30,5 @@ class DataRoomFolder extends Model
     {
         return $this->hasMany(DataRoomDocument::class, 'folder_id');
     }
+    
 }
