@@ -124,16 +124,28 @@ Route::post('/data-room/test-upload', function(Request $request) {
 Route::get('/data-room/download/{document}', function($documentId) {
     $document = DataRoomDocument::findOrFail($documentId);
     
-    // Check if file exists
     if (!Storage::disk('public')->exists($document->file_path)) {
         abort(404, 'File not found');
     }
     
+    // Get proper MIME type based on file extension
+    $mimeTypes = [
+        'pdf' => 'application/pdf',
+        'doc' => 'application/msword',
+        'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'xls' => 'application/vnd.ms-excel',
+        'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'ppt' => 'application/vnd.ms-powerpoint',
+        'pptx' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    ];
+    
+    $mimeType = $mimeTypes[$document->file_type] ?? 'application/octet-stream';
+    
     return Storage::disk('public')->download(
         $document->file_path, 
-        $document->document_name
+        $document->document_name,
+        ['Content-Type' => $mimeType]
     );
-    
 })->middleware('auth')->name('data-room.download');
 
     /*
