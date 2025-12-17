@@ -16,6 +16,10 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\TestEmail;
 use App\Exports\DocumentIndexExport;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Models\DataRoomDocument;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\Request;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -73,6 +77,64 @@ Route::get('/data-room/export-index', function() {
     $fileName = 'Document_Index_' . date('Y-m-d') . '.xlsx';
     return Excel::download(new DocumentIndexExport, $fileName);
 })->middleware('auth')->name('data-room.export-index');
+
+// Test upload route (temporary - for testing Bradley Cooper 😂)
+Route::post('/data-room/test-upload', function(Request $request) {
+    $request->validate([
+        'folder_id' => 'required|exists:data_room_folders,id',
+        'document_name' => 'required|string|max:255',
+        'document' => 'required|file|max:10240', // 10MB max
+        'version' => 'nullable|string',
+        'description' => 'nullable|string',
+    ]);
+
+    // Store file
+    $file = $request->file('document');
+    $folder = \App\Models\DataRoomFolder::findOrFail($request->folder_id);
+    
+    // Create storage path based on folder number
+    $storagePath = 'data-room/' . $folder->folder_number;
+    
+    // Store file with original name
+    $fileName = $file->getClientOriginalName();
+    $filePath = $file->storeAs($storagePath, $fileName, 'public');
+    
+    // Create database record
+    DataRoomDocument::create([
+        'folder_id' => $request->folder_id,
+        'document_name' => $request->document_name,
+        'file_path' => $filePath,
+        'file_type' => $file->getClientOriginalExtension(),
+        'file_size' => $file->getSize(),
+        'version' => $request->version ?? '1.0',
+        'description' => $request->description,
+        'status' => 'approved',
+        'uploaded_by' => auth()->id(),
+        'approved_by' => auth()->id(),
+        'approved_at' => now(),
+    ]);
+
+    return redirect()->route('data-room.index')
+        ->with('upload_success', 'Document uploaded successfully: ' . $request->document_name);
+    
+})->middleware('auth')->name('data-room.test-upload');
+
+
+// Download route
+Route::get('/data-room/download/{document}', function($documentId) {
+    $document = DataRoomDocument::findOrFail($documentId);
+    
+    // Check if file exists
+    if (!Storage::disk('public')->exists($document->file_path)) {
+        abort(404, 'File not found');
+    }
+    
+    return Storage::disk('public')->download(
+        $document->file_path, 
+        $document->document_name
+    );
+    
+})->middleware('auth')->name('data-room.download');
 
     /*
     |--------------------------------------------------------------------------
@@ -150,6 +212,8 @@ Route::get('/data-room/export-index', function() {
     Route::get('/test-role', function () {
         return 'Role middleware works!';
     })->middleware('role:admin,superadmin');
+
+    
 
     /*
     |--------------------------------------------------------------------------

@@ -9,6 +9,76 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                 
+                {{-- ============================================ --}}
+                {{-- NOVI KOD 1: TEST UPLOAD FORM (samo za tebe) --}}
+                {{-- ============================================ --}}
+                @if(auth()->user()->email === 'mk@poseidonhumancapital.com') {{-- PROMENI OVO U SVOJ EMAIL! --}}
+                <div class="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <h4 class="font-semibold text-sm text-gray-700 mb-3">🧪 Test Upload (Admin Only)</h4>
+                    
+                    <form action="{{ route('data-room.test-upload') }}" method="POST" enctype="multipart/form-data" class="space-y-3">
+                        @csrf
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Select Folder:</label>
+                            <select name="folder_id" class="border border-gray-300 rounded px-3 py-2 text-sm w-full max-w-md">
+                                <option value="">-- Select Folder --</option>
+                                @foreach($folders as $folder)
+                                    <option value="{{ $folder->id }}">{{ $folder->folder_number }} - {{ $folder->folder_name }}</option>
+                                    @foreach($folder->children as $child)
+                                        <option value="{{ $child->id }}">  └─ {{ $child->folder_number }} - {{ $child->folder_name }}</option>
+                                    @endforeach
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Document Name:</label>
+                            <input type="text" name="document_name" placeholder="e.g., Bradley Cooper - Chief Compliance Officer.docx" 
+                                   class="border border-gray-300 rounded px-3 py-2 text-sm w-full max-w-md">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Upload File:</label>
+                            <input type="file" name="document" accept=".pdf,.doc,.docx,.xlsx,.pptx" 
+                                   class="border border-gray-300 rounded px-3 py-2 text-sm">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Version:</label>
+                            <input type="text" name="version" value="1.0" 
+                                   class="border border-gray-300 rounded px-3 py-2 text-sm w-32">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Description (optional):</label>
+                            <textarea name="description" rows="2" 
+                                      class="border border-gray-300 rounded px-3 py-2 text-sm w-full max-w-md"
+                                      placeholder="Professional bio of our Chief Compliance Officer"></textarea>
+                        </div>
+
+                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded text-sm font-semibold hover:bg-blue-700">
+                            Upload Test Document
+                        </button>
+                    </form>
+
+                    @if(session('upload_success'))
+                        <div class="mt-3 p-3 bg-green-100 text-green-800 rounded text-sm">
+                            ✅ {{ session('upload_success') }}
+                        </div>
+                    @endif
+
+                    @if($errors->any())
+                        <div class="mt-3 p-3 bg-red-100 text-red-800 rounded text-sm">
+                            ❌ {{ $errors->first() }}
+                        </div>
+                    @endif
+                </div>
+                @endif
+                {{-- ============================================ --}}
+                {{-- KRAJ NOVOG KODA 1 --}}
+                {{-- ============================================ --}}
+                
                 {{-- Header with Download and Read Me buttons --}}
                 <div class="mb-6 flex justify-between items-center">
                     <div>
@@ -41,7 +111,7 @@
                     </div>
                 </div>
                 
-                {{-- Folder Structure (existing code) --}}
+                {{-- Folder Structure --}}
                 @foreach($folders as $folder)
                     <div class="mb-4 border border-gray-200 rounded-lg overflow-hidden">
                         <div class="flex items-center p-4 bg-gray-50">
@@ -73,7 +143,7 @@
                                                 <span class="text-xs text-gray-500 mr-3">
                                                     {{ $child->documents->count() }} docs
                                                 </span>
-                                            @endif
+                            @endif
                                             <span class="ml-auto px-2 py-1 text-xs rounded-full
                                                 @if($child->access_level === 'public') bg-green-50 text-green-700
                                                 @elseif($child->access_level === 'restricted') bg-blue-50 text-blue-700
@@ -84,7 +154,9 @@
                                             </span>
                                         </div>
                                         
-                                        {{-- Show documents in this folder --}}
+                                        {{-- ============================================ --}}
+                                        {{-- NOVI KOD 2: DOKUMENTI SA DOWNLOAD DUGMIĆIMA --}}
+                                        {{-- ============================================ --}}
                                         @if($child->documents->count() > 0)
                                             <div class="ml-20 mb-2">
                                                 @foreach($child->documents as $doc)
@@ -93,22 +165,36 @@
                                                             @if($doc->file_type === 'pdf') 📄
                                                             @elseif($doc->file_type === 'xlsx') 📊
                                                             @elseif($doc->file_type === 'pptx') 📽️
+                                                            @elseif($doc->file_type === 'docx' || $doc->file_type === 'doc') 📝
                                                             @else 📎
                                                             @endif
                                                         </span>
                                                         <span class="flex-1 text-gray-700">{{ $doc->document_name }}</span>
                                                         <span class="text-gray-500 mr-2">v{{ $doc->version }}</span>
-                                                        <span class="px-2 py-1 rounded text-xs
+                                                        <span class="px-2 py-1 rounded text-xs mr-2
                                                             @if($doc->status === 'approved') bg-green-100 text-green-700
                                                             @elseif($doc->status === 'pending_review') bg-yellow-100 text-yellow-700
                                                             @else bg-gray-100 text-gray-600
                                                             @endif">
                                                             {{ ucfirst(str_replace('_', ' ', $doc->status)) }}
                                                         </span>
+                                                        
+                                                        {{-- DOWNLOAD BUTTON --}}
+                                                        <a href="{{ route('data-room.download', $doc->id) }}" 
+                                                           class="inline-flex items-center px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-xs font-semibold transition"
+                                                           title="Download {{ $doc->document_name }}">
+                                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                                            </svg>
+                                                            Download
+                                                        </a>
                                                     </div>
                                                 @endforeach
                                             </div>
                                         @endif
+                                        {{-- ============================================ --}}
+                                        {{-- KRAJ NOVOG KODA 2 --}}
+                                        {{-- ============================================ --}}
                                     </div>
                                 @endforeach
                             </div>
