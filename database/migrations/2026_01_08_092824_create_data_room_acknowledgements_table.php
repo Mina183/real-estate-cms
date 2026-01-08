@@ -11,6 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Check if table already exists from previous failed migration
+        if (Schema::hasTable('data_room_acknowledgements')) {
+            return; // Skip if already exists
+        }
+        
         Schema::create('data_room_acknowledgements', function (Blueprint $table) {
             $table->id();
             
@@ -37,9 +42,9 @@ return new class extends Migration
             
             $table->timestamps();
             
-            // FIXED: Shorter index names (max 64 chars)
-            $table->unique(['user_id', 'acknowledgement_type', 'terms_version'], 'dr_ack_user_type_version_unique');
-            $table->index(['investor_id', 'acknowledgement_type'], 'dr_ack_investor_type_idx');
+            // Shorter index names
+            $table->unique(['user_id', 'acknowledgement_type', 'terms_version'], 'dr_ack_user_type_ver_unq');
+            $table->index(['investor_id', 'acknowledgement_type'], 'dr_ack_inv_type_idx');
         });
     }
 
