@@ -12,27 +12,51 @@ return new class extends Migration
      */
     public function up(): void
     {
-            Schema::table('data_room_documents', function (Blueprint $table) {
+        Schema::table('data_room_documents', function (Blueprint $table) {
             // ============================================
-            // GOVERNANCE (NEW FIELDS)
+            // GOVERNANCE - Only add if they don't exist
             // ============================================
-            $table->foreignId('document_owner_id')->nullable()->after('folder_id')->constrained('users')->nullOnDelete();
-            $table->date('approval_date')->nullable()->after('status');
-            $table->foreignId('approved_by_user_id')->nullable()->after('approval_date')->constrained('users')->nullOnDelete();
-            $table->date('effective_date')->nullable();
-            $table->foreignId('supersedes_document_id')->nullable()->constrained('data_room_documents')->nullOnDelete();
+            if (!Schema::hasColumn('data_room_documents', 'document_owner_id')) {
+                $table->foreignId('document_owner_id')->nullable()->after('folder_id')->constrained('users')->nullOnDelete();
+            }
+            
+            if (!Schema::hasColumn('data_room_documents', 'approval_date')) {
+                $table->date('approval_date')->nullable();
+            }
+            
+            if (!Schema::hasColumn('data_room_documents', 'approved_by_user_id')) {
+                $table->foreignId('approved_by_user_id')->nullable()->constrained('users')->nullOnDelete();
+            }
+            
+            if (!Schema::hasColumn('data_room_documents', 'effective_date')) {
+                $table->date('effective_date')->nullable();
+            }
+            
+            if (!Schema::hasColumn('data_room_documents', 'supersedes_document_id')) {
+                $table->foreignId('supersedes_document_id')->nullable()->constrained('data_room_documents')->nullOnDelete();
+            }
             
             // ============================================
-            // METADATA (NEW FIELDS)
+            // METADATA - Only add if they don't exist
             // ============================================
-            $table->string('security_level')->nullable()->after('access_level');
-            $table->json('tags')->nullable();
-            $table->string('jurisdiction_tag')->nullable();
-            $table->text('change_log')->nullable();
+            if (!Schema::hasColumn('data_room_documents', 'security_level')) {
+                $table->string('security_level')->nullable();
+            }
+            
+            if (!Schema::hasColumn('data_room_documents', 'tags')) {
+                $table->json('tags')->nullable();
+            }
+            
+            if (!Schema::hasColumn('data_room_documents', 'jurisdiction_tag')) {
+                $table->string('jurisdiction_tag')->nullable();
+            }
+            
+            if (!Schema::hasColumn('data_room_documents', 'change_log')) {
+                $table->text('change_log')->nullable();
+            }
         });
         
-        // Update status enum if it exists - add new values
-        // Check if column exists first
+        // Update status enum if needed
         $hasStatusColumn = Schema::hasColumn('data_room_documents', 'status');
         
         if ($hasStatusColumn) {
@@ -53,16 +77,24 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('data_room_documents', function (Blueprint $table) {
-            $table->dropForeign(['document_owner_id']);
-            $table->dropForeign(['approved_by_user_id']);
-            $table->dropForeign(['supersedes_document_id']);
+            if (Schema::hasColumn('data_room_documents', 'document_owner_id')) {
+                $table->dropForeign(['document_owner_id']);
+                $table->dropColumn('document_owner_id');
+            }
+            
+            if (Schema::hasColumn('data_room_documents', 'approved_by_user_id')) {
+                $table->dropForeign(['approved_by_user_id']);
+                $table->dropColumn('approved_by_user_id');
+            }
+            
+            if (Schema::hasColumn('data_room_documents', 'supersedes_document_id')) {
+                $table->dropForeign(['supersedes_document_id']);
+                $table->dropColumn('supersedes_document_id');
+            }
             
             $table->dropColumn([
-                'document_owner_id',
                 'approval_date',
-                'approved_by_user_id',
                 'effective_date',
-                'supersedes_document_id',
                 'security_level',
                 'tags',
                 'jurisdiction_tag',
