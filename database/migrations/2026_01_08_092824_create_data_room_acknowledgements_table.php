@@ -26,20 +26,20 @@ return new class extends Migration
                 'non_distribution_agreement'
             ]);
             
-            $table->text('acknowledgement_text'); // Full text they agreed to
+            $table->text('acknowledgement_text');
             $table->boolean('is_agreed')->default(false);
             $table->timestamp('agreed_at')->nullable();
             
             $table->string('ip_address', 45);
             $table->text('user_agent')->nullable();
             
-            // VERSION CONTROL (if terms change)
             $table->string('terms_version')->default('1.0');
             
             $table->timestamps();
             
-            $table->unique(['user_id', 'acknowledgement_type', 'terms_version'], 'user_ack_version_unique');
-            $table->index(['investor_id', 'acknowledgement_type']);
+            // FIXED: Shorter index names (max 64 chars)
+            $table->unique(['user_id', 'acknowledgement_type', 'terms_version'], 'dr_ack_user_type_version_unique');
+            $table->index(['investor_id', 'acknowledgement_type'], 'dr_ack_investor_type_idx');
         });
     }
 
