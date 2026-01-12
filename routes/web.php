@@ -19,6 +19,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Models\DataRoomDocument;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
+use App\Http\Controllers\InvestorController;
 
 
 /*
@@ -225,7 +226,14 @@ Route::get('/data-room/download/{document}', function($documentId) {
         return 'Role middleware works!';
     })->middleware('role:admin,superadmin');
 
-    
+/*
+|--------------------------------------------------------------------------
+| Investor Management Routes
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth'])->group(function () {
+    Route::resource('investors', App\Http\Controllers\InvestorController::class);
+});
 
     /*
     |--------------------------------------------------------------------------
