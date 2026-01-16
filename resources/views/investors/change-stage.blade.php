@@ -110,7 +110,7 @@
                              <!-- Current Investor Status -->
                             <div class="mt-4 pt-4 mb-6 border-t border-gray-300">
                                 <h5 class="font-semibold text-gray-700 mb-2">Current Investor Status:</h5>
-                                <div class="grid grid-cols-2 gap-2 text-xs">
+                                <div class="grid grid-cols-2 gap-2 text-xs mb-3">
                                     <div class="flex items-center">
                                         <span class="{{ $investor->target_commitment_amount >= 1000000 ? 'text-green-600' : 'text-red-600' }} mr-2">
                                             {{ $investor->target_commitment_amount >= 1000000 ? '✓' : '✗' }}
