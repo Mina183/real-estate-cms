@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Gate;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -31,5 +32,8 @@ public function boot(): void
     if (!file_exists($logPath)) {
         file_put_contents($logPath, '');
     }
+
+    // Register InvestorPolicy
+    Gate::policy(\App\Models\Investor::class, \App\Policies\InvestorPolicy::class);
 }
 }
