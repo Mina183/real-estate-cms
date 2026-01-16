@@ -60,6 +60,14 @@
                             @if(!$errors->has('requirements') && !$errors->has('missing') && !$errors->has('error'))
                                 <p>{{ $errors->first() }}</p>
                             @endif
+
+                            @if(session('missing_requirements'))
+                                <ul class="mt-3 list-disc list-inside space-y-1">
+                                    @foreach (session('missing_requirements', []) as $requirement)
+                                        <li class="text-sm">{{ $requirement }}</li>
+                                    @endforeach
+                                </ul>
+                            @endif
                         </div>
                     @endif
 
@@ -98,6 +106,69 @@
                                     <p class="text-gray-400 italic">Select a stage to see requirements...</p>
                                 </div>
                             </div>
+
+                             <!-- Current Investor Status -->
+                            <div class="mt-4 pt-4 border-t border-gray-300">
+                                <h5 class="font-semibold text-gray-700 mb-2">Current Investor Status:</h5>
+                                <div class="grid grid-cols-2 gap-2 text-xs">
+                                    <div class="flex items-center">
+                                        <span class="{{ $investor->target_commitment_amount >= 1000000 ? 'text-green-600' : 'text-red-600' }} mr-2">
+                                            {{ $investor->target_commitment_amount >= 1000000 ? '✓' : '✗' }}
+                                        </span>
+                                        <span>Target Commitment: {{ $investor->currency }} {{ number_format($investor->target_commitment_amount ?? 0) }}</span>
+                                    </div>
+                                    
+                                    <div class="flex items-center">
+                                        <span class="{{ $investor->is_professional_client ? 'text-green-600' : 'text-red-600' }} mr-2">
+                                            {{ $investor->is_professional_client ? '✓' : '✗' }}
+                                        </span>
+                                        <span>Professional Client</span>
+                                    </div>
+                                    
+                                    <div class="flex items-center">
+                                        <span class="{{ $investor->sanctions_check_passed ? 'text-green-600' : 'text-red-600' }} mr-2">
+                                            {{ $investor->sanctions_check_passed ? '✓' : '✗' }}
+                                        </span>
+                                        <span>Sanctions Check</span>
+                                    </div>
+                                    
+                                    <div class="flex items-center">
+                                        <span class="{{ $investor->ppm_acknowledged_date ? 'text-green-600' : 'text-red-600' }} mr-2">
+                                            {{ $investor->ppm_acknowledged_date ? '✓' : '✗' }}
+                                        </span>
+                                        <span>PPM Acknowledged</span>
+                                    </div>
+                                    
+                                    <div class="flex items-center">
+                                        <span class="{{ $investor->kyc_status === 'complete' ? 'text-green-600' : 'text-red-600' }} mr-2">
+                                            {{ $investor->kyc_status === 'complete' ? '✓' : '✗' }}
+                                        </span>
+                                        <span>KYC Complete</span>
+                                    </div>
+                                    
+                                    <div class="flex items-center">
+                                        <span class="{{ $investor->subscription_signed_date ? 'text-green-600' : 'text-red-600' }} mr-2">
+                                            {{ $investor->subscription_signed_date ? '✓' : '✗' }}
+                                        </span>
+                                        <span>Subscription Signed</span>
+                                    </div>
+                                    
+                                    <div class="flex items-center">
+                                        <span class="{{ $investor->final_commitment_amount > 0 ? 'text-green-600' : 'text-red-600' }} mr-2">
+                                            {{ $investor->final_commitment_amount > 0 ? '✓' : '✗' }}
+                                        </span>
+                                        <span>Final Commitment Set</span>
+                                    </div>
+                                    
+                                    <div class="flex items-center">
+                                        <span class="{{ $investor->bank_account_verified ? 'text-green-600' : 'text-red-600' }} mr-2">
+                                            {{ $investor->bank_account_verified ? '✓' : '✗' }}
+                                        </span>
+                                        <span>Bank Verified</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
                             <!-- Reason for Change -->
                             <div>
