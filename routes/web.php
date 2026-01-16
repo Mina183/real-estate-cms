@@ -236,6 +236,9 @@ Route::middleware(['auth'])->group(function () {
     // Stage management routes
     Route::get('investors/{investor}/change-stage', [App\Http\Controllers\InvestorController::class, 'changeStageForm'])->name('investors.change-stage.form');
     Route::post('investors/{investor}/change-stage', [App\Http\Controllers\InvestorController::class, 'changeStage'])->name('investors.change-stage');
+
+    // Activity log route
+    Route::get('investors/{investor}/activity', [App\Http\Controllers\InvestorController::class, 'activityLog'])->name('investors.activity');
 });
 
     /*

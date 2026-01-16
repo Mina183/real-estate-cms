@@ -118,6 +118,21 @@ class InvestorStageService
             'transitioned_at' => Carbon::now(),
         ]);
 
+        // Log to Data Room activity log
+        app(\App\Services\DataRoomService::class)->logActivity(
+            $investor,
+            null,
+            null,
+            'stage_transition',
+            [
+                'from_stage' => $oldStage,
+                'to_stage' => $newStage,
+                'from_status' => $oldStatus,
+                'to_status' => $investor->status,
+                'reason' => $reason,
+            ]
+        );
+
         // Trigger automation based on stage
         $this->triggerStageAutomation($investor, $newStage);
 

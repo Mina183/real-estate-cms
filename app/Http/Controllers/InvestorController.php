@@ -179,4 +179,24 @@ public function changeStage(Request $request, Investor $investor, InvestorStageS
 
     return back()->withErrors(['error' => 'Failed to change stage. Please try again.']);
 }
+
+/**
+ * Show investor activity log
+ */
+public function activityLog(Investor $investor)
+{
+    $this->authorize('view', $investor);
+
+    $activities = \App\Models\DataRoomActivityLog::where('investor_id', $investor->id)
+        ->with('user')
+        ->orderBy('activity_at', 'desc')
+        ->paginate(50);
+
+    $stageTransitions = $investor->stageTransitions()
+        ->with('changedBy')
+        ->orderBy('transitioned_at', 'desc')
+        ->get();
+
+    return view('investors.activity', compact('investor', 'activities', 'stageTransitions'));
+}
 }
