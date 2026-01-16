@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class DataRoomActivityLog extends Model
 {
     use HasFactory;
+    
+    protected $table = 'data_room_activity_logs';
 
     public $timestamps = false; // Using activity_at instead
 
