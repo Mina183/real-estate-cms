@@ -58,7 +58,8 @@ class InvestorStageService
         $rules = $this->stageRules[$targetStage];
 
         foreach ($rules as $field => $rule) {
-            [$operator, $value] = $rule;
+            $operator = $rule[0];
+            $value = $rule[1] ?? null; // ← FIX
 
             $fieldValue = $investor->$field;
 
@@ -280,7 +281,8 @@ class InvestorStageService
         $rules = $this->stageRules[$targetStage];
 
         foreach ($rules as $field => $rule) {
-            [$operator, $value] = $rule;
+            $operator = $rule[0];
+            $value = $rule[1] ?? null; // ← FIX: Use null if no value
             $fieldValue = $investor->$field;
 
             $isMissing = false;
