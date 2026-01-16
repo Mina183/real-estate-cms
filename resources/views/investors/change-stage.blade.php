@@ -41,16 +41,24 @@
                     <!-- Error Display -->
                     @if ($errors->any())
                         <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
-                            <strong class="font-bold">{{ $errors->first('requirements') }}</strong>
+                            @if($errors->has('requirements'))
+                                <strong class="font-bold">{{ $errors->first('requirements') }}</strong>
+                            @endif
+                            
                             @if($errors->has('missing'))
                                 <ul class="mt-2 list-disc list-inside">
-                                    @foreach ($errors->get('missing')[0] as $requirement)
+                                    @foreach (session('missing_requirements', []) as $requirement)
                                         <li>{{ $requirement }}</li>
                                     @endforeach
                                 </ul>
                             @endif
+                            
                             @if($errors->has('error'))
                                 <p class="mt-2">{{ $errors->first('error') }}</p>
+                            @endif
+                            
+                            @if(!$errors->has('requirements') && !$errors->has('missing') && !$errors->has('error'))
+                                <p>{{ $errors->first() }}</p>
                             @endif
                         </div>
                     @endif

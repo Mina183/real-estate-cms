@@ -159,10 +159,9 @@ public function changeStage(Request $request, Investor $investor, InvestorStageS
     $missingRequirements = $stageService->getMissingRequirements($investor, $validated['new_stage']);
 
     if (!empty($missingRequirements)) {
-        return back()->withErrors([
-            'requirements' => 'Cannot move to this stage. Missing requirements:',
-            'missing' => $missingRequirements,
-        ]);
+        return back()
+            ->withErrors(['requirements' => 'Cannot move to this stage. Missing requirements:'])
+            ->with('missing_requirements', $missingRequirements);
     }
 
     // Perform stage transition
