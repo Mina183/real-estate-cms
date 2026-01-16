@@ -233,6 +233,9 @@ Route::get('/data-room/download/{document}', function($documentId) {
 */
 Route::middleware(['auth'])->group(function () {
     Route::resource('investors', App\Http\Controllers\InvestorController::class);
+    // Stage management routes
+    Route::get('investors/{investor}/change-stage', [App\Http\Controllers\InvestorController::class, 'changeStageForm'])->name('investors.change-stage.form');
+    Route::post('investors/{investor}/change-stage', [App\Http\Controllers\InvestorController::class, 'changeStage'])->name('investors.change-stage');
 });
 
     /*

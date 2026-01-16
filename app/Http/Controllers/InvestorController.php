@@ -6,6 +6,7 @@ use App\Models\Investor;
 use App\Models\Fund;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Services\InvestorStageService;
 
 class InvestorController extends Controller
 {
@@ -119,4 +120,64 @@ class InvestorController extends Controller
         return redirect()->route('investors.index')
             ->with('success', 'Investor archived successfully!');
     }
+
+    /**
+ * Show form to change investor stage
+ */
+public function changeStageForm(Investor $investor)
+{
+    $this->authorize('changeStage', $investor);
+
+    $stages = [
+        'prospect' => 'Prospect',
+        'eligibility_review' => 'Eligibility Review',
+        'ppm_issued' => 'PPM Issued',
+        'kyc_in_progress' => 'KYC In Progress',
+        'subscription_signed' => 'Subscription Signed',
+        'approved' => 'Approved',
+        'funded' => 'Funded',
+        'active' => 'Active',
+        'monitored' => 'Monitored',
+    ];
+
+    return view('investors.change-stage', compact('investor', 'stages'));
+}
+
+/**
+ * Process stage change
+ */
+public function changeStage(Request $request, Investor $investor, InvestorStageService $stageService)
+{
+    $this->authorize('changeStage', $investor);
+
+    $validated = $request->validate([
+        'new_stage' => 'required|in:prospect,eligibility_review,ppm_issued,kyc_in_progress,subscription_signed,approved,funded,active,monitored',
+        'reason' => 'nullable|string|max:500',
+    ]);
+
+    // Check if move is allowed
+    $missingRequirements = $stageService->getMissingRequirements($investor, $validated['new_stage']);
+
+    if (!empty($missingRequirements)) {
+        return back()->withErrors([
+            'requirements' => 'Cannot move to this stage. Missing requirements:',
+            'missing' => $missingRequirements,
+        ]);
+    }
+
+    // Perform stage transition
+    $success = $stageService->moveToStage(
+        $investor,
+        $validated['new_stage'],
+        $validated['reason'] ?? null,
+        auth()->id()
+    );
+
+    if ($success) {
+        return redirect()->route('investors.show', $investor)
+            ->with('success', "Investor moved to stage: " . ucfirst(str_replace('_', ' ', $validated['new_stage'])));
+    }
+
+    return back()->withErrors(['error' => 'Failed to change stage. Please try again.']);
+}
 }

@@ -5,6 +5,13 @@
                 {{ $investor->organization_name ?? $investor->legal_entity_name ?? 'Investor Details' }}
             </h2>
             <div class="flex space-x-2">
+            @can('changeStage', $investor)
+                <a href="{{ route('investors.change-stage.form', $investor) }}" 
+                   class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                    🔄 Change Stage
+                </a>
+            @endcan
+            <div class="flex space-x-2">
                 <a href="{{ route('investors.edit', $investor) }}" 
                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                     Edit
