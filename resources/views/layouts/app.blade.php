@@ -27,7 +27,7 @@
 
             <!-- Page Heading -->
             @isset($header)
-                <header class="bg-gradient-to-br from-brand-accent/70 via-brand-light/40 to-gray-50 shadow-md">
+                <header class="bg-gradient-to-br from-brand-accent-light/70 via-brand-light/40 to-gray-50 shadow-md">
                     <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                         {{ $header }}
                     </div>
