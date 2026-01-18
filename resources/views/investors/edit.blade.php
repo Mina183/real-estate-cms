@@ -243,10 +243,10 @@
                             </div>
 
                             {{-- Additional Compliance Fields --}}
-                            <div class="border-b pb-6 mt-8">
+                            <div class="border-b pb-6 mt-6">
                                 <h3 class="text-lg font-semibold text-gray-900 mb-6 pb-2 border-b-2 border-gray-200">📋 Workflow Progress Fields</h3>
                                 
-                                <div class="space-y-8">
+                                <div class="space-y-6">
                                     {{-- PPM Acknowledged --}}
                                     <div class="flex items-start p-4 bg-gray-50 rounded-lg">
                                         <div class="flex items-center h-5">
