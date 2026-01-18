@@ -242,14 +242,13 @@
 
                             </div>
 
-                            {{-- ====== DODAJ OVO ====== --}}
                             {{-- Additional Compliance Fields --}}
-                            <div class="border-b pb-6">
-                                <h3 class="text-lg font-semibold text-gray-900 mb-4">📋 Workflow Progress Fields</h3>
+                            <div class="border-b pb-6 mt-8">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-6 pb-2 border-b-2 border-gray-200">📋 Workflow Progress Fields</h3>
                                 
-                                <div class="space-y-6">
+                                <div class="space-y-8">
                                     {{-- PPM Acknowledged --}}
-                                    <div class="flex items-start">
+                                    <div class="flex items-start p-4 bg-gray-50 rounded-lg">
                                         <div class="flex items-center h-5">
                                             <input type="checkbox" name="ppm_acknowledged" id="ppm_acknowledged"
                                                    value="1" {{ $investor->ppm_acknowledged_date ? 'checked' : '' }}
@@ -269,7 +268,7 @@
                                     </div>
 
                                     {{-- KYC Status --}}
-                                    <div>
+                                    <div class="p-4 bg-gray-50 rounded-lg">
                                         <label for="kyc_status" class="block text-sm font-medium text-gray-700 mb-2">
                                             KYC Status
                                         </label>
@@ -286,7 +285,7 @@
                                     </div>
 
                                     {{-- Subscription Signed --}}
-                                    <div class="flex items-start">
+                                    <div class="flex items-start p-4 bg-gray-50 rounded-lg">
                                         <div class="flex items-center h-5">
                                             <input type="checkbox" name="subscription_signed" id="subscription_signed"
                                                    value="1" {{ $investor->subscription_signed_date ? 'checked' : '' }}
@@ -306,7 +305,7 @@
                                     </div>
 
                                     {{-- Financial Fields --}}
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-200">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-blue-50 rounded-lg border-t-4 border-blue-300">
                                         <div>
                                             <label for="final_commitment_amount" class="block text-sm font-medium text-gray-700 mb-2">
                                                 Final Commitment Amount
