@@ -138,6 +138,13 @@
                                         </span>
                                         <span>PPM Acknowledged</span>
                                     </div>
+
+                                    <div class="flex items-center">
+                                        <span class="{{ $investor->confidentiality_acknowledged ? 'text-green-600' : 'text-red-600' }} mr-2">
+                                            {{ $investor->confidentiality_acknowledged ? '✓' : '✗' }}
+                                        </span>
+                                        <span>Confidentiality Agreement</span>
+                                    </div>
                                     
                                     <div class="flex items-center">
                                         <span class="{{ $investor->kyc_status === 'complete' ? 'text-green-600' : 'text-red-600' }} mr-2">

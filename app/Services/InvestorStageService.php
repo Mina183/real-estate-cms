@@ -19,6 +19,7 @@ class InvestorStageService
         'ppm_issued' => [
             'is_professional_client' => ['equals', true],
             'sanctions_check_passed' => ['equals', true],
+            'confidentiality_acknowledged' => ['equals', true],
         ],
         'kyc_in_progress' => [
             'ppm_acknowledged_date' => ['not_null'],
