@@ -47,7 +47,7 @@
                     $role = auth()->user()->role;
                 @endphp
 
-                @if($role === $role === 'relationship_manager')
+                @if($role === 'relationship_manager')
                     <a href="{{ route('investors.index') }}" class="bg-brand-darker text-white px-5 py-2 rounded hover:opacity-90 transition w-fit animate-pulse">
                         View Investors
                     </a>
