@@ -1,259 +1,196 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            Dashboard
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            Investment Fund Dashboard
         </h2>
-        <div class="text-sm text-gray-500 dark:text-gray-400">
-            Logged in as: {{ auth()->user()->role }}
+        <div class="text-sm text-gray-500">
+            Logged in as: {{ auth()->user()->name }} ({{ ucfirst(str_replace('_', ' ', auth()->user()->role)) }})
         </div>
     </x-slot>
 
     <div class="min-h-screen bg-gray-100">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 flex min-h-screen">
-            {{-- ========================= CHANNEL PARTNER VIEW ========================= --}}
-            @if(auth()->user()->role === 'channel_partner')
-                <!-- Partner Sidebar -->
-                <aside class="w-72 bg-[#0e2442] text-gray-100 py-8 px-4 space-y-4 rounded-r-lg shadow-md">
-                    <h3 class="text-lg font-bold mb-4">Navigation</h3>
-                    <nav class="flex flex-col gap-2">
-                        <a href="{{ route('lead-sources.index') }}"
-                           class="block bg-white text-[#0e2442] px-4 py-2 rounded hover:bg-gray-200 font-semibold transition">
-                            Register / Review Lead Sources
-                        </a>
-                        <a href="{{ route('clients.index') }}"
-                           class="block bg-white text-[#0e2442] px-4 py-2 rounded hover:bg-gray-200 font-semibold transition">
-                            Register / Review / Edit Clients
-                        </a>
-                        <a href="{{ route('partner.documents.index') }}"
-                           class="relative block bg-white text-[#0e2442] px-4 py-2 rounded hover:bg-gray-200 font-semibold transition">
-                            Documents
-                            @if(!empty($documentRedDot))
-                                <span class="absolute top-1 right-2 inline-block w-3 h-3 bg-red-600 rounded-full animate-pulse"></span>
-                            @endif
-                        </a>
-                        <a href="{{ route('calendar.index') }}"
-                           class="relative block bg-white text-[#0e2442] px-4 py-2 rounded hover:bg-gray-200 font-semibold transition">
-                            📅 Team Calendar
-                            @if(!empty($calendarRedDot))
-                                <span class="absolute top-1 right-2 inline-block w-3 h-3 bg-red-600 rounded-full animate-pulse"></span>
-                            @endif
-                        </a>
-                        <a href="{{ asset('files/PRE-CMS User Manual.pdf') }}" target="_blank"
-                        class="relative block bg-white text-[#0e2442] px-4 py-2 rounded hover:bg-gray-200 font-semibold transition">
-                            📖 User Manual
-                        </a>
-                        <a href="{{ route('demo.video') }}"
-                        class="relative block bg-white text-[#0e2442] px-4 py-2 rounded hover:bg-gray-200 font-semibold transition">
-                            🎥 Demo Video
-                        </a>
-                    </nav>
-                </aside>
+            
+            {{-- ========================= SIDEBAR NAVIGATION ========================= --}}
+            <aside class="w-72 bg-[#0e2442] text-gray-100 py-8 px-4 space-y-4 rounded-r-lg shadow-md">
+                <h3 class="text-lg font-bold mb-4">Navigation</h3>
+                <nav class="flex flex-col gap-2">
+                    <a href="{{ route('dashboard') }}"
+                       class="block bg-white text-[#0e2442] px-4 py-2 rounded hover:bg-gray-200 font-semibold transition">
+                        📊 Dashboard
+                    </a>
+                    <a href="{{ route('investors.index') }}"
+                       class="block bg-white text-[#0e2442] px-4 py-2 rounded hover:bg-gray-200 font-semibold transition">
+                        👥 Investors
+                    </a>
+                    <a href="{{ route('data-room.index') }}"
+                       class="block bg-white text-[#0e2442] px-4 py-2 rounded hover:bg-gray-200 font-semibold transition">
+                        🔒 Data Room
+                    </a>
+                    <a href="#" class="block bg-gray-300 text-gray-500 px-4 py-2 rounded cursor-not-allowed font-semibold">
+                        💰 Capital Calls <span class="text-xs">(Coming Soon)</span>
+                    </a>
+                    <a href="#" class="block bg-gray-300 text-gray-500 px-4 py-2 rounded cursor-not-allowed font-semibold">
+                        📈 Reports <span class="text-xs">(Coming Soon)</span>
+                    </a>
+                </nav>
+            </aside>
 
-                <main class="flex-1 py-6 px-8 bg-gray-100">
-                    <div class="max-w-5xl mx-auto">
-                        <h3 class="text-2xl font-bold text-[#0e2442] mb-4">Welcome, {{ auth()->user()->name }}!</h3>
-                        <p class="text-gray-700">Use the sidebar to access and manage your lead sources and client data.</p><br>
+            {{-- ========================= MAIN DASHBOARD CONTENT ========================= --}}
+            <main class="flex-1 py-6 px-8 bg-gray-100">
+                <div class="max-w-6xl mx-auto">
+                    <h3 class="text-2xl font-bold text-[#0e2442] mb-6">Welcome, {{ auth()->user()->name }}!</h3>
 
-                        {{-- ✅ Pending Meeting Invitations --}}
-                        @if($pendingMeetingInvitations->count())
-                            <div class="mb-6 bg-yellow-100 border-l-4 border-yellow-400 p-4 rounded">
-                                <h4 class="text-lg font-semibold text-yellow-800 mb-2">🕒 Meetings Pending Your Response</h4>
-                                <ul class="list-disc list-inside text-gray-800">
-                                    @foreach($pendingMeetingInvitations as $meeting)
-                                        <li>{{ $meeting->title }} – {{ \Carbon\Carbon::parse($meeting->start_time)->format('M d, H:i') }}</li>
-                                    @endforeach
-                                </ul>
+                    {{-- Stats Cards --}}
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        {{-- Total Investors --}}
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-500 uppercase">Total Investors</p>
+                                    <p class="text-3xl font-bold text-[#0e2442]">{{ $stats['totalInvestors'] ?? 0 }}</p>
+                                </div>
+                                <div class="bg-blue-100 rounded-full p-3">
+                                    <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                    </svg>
+                                </div>
                             </div>
-                        @endif
+                        </div>
 
-                        {{-- ✅ Upcoming Accepted Meetings --}}
-                        @if($upcomingAcceptedMeetings->count())
-                            <div class="mb-6 bg-green-100 border-l-4 border-green-400 p-4 rounded">
-                                <h4 class="text-lg font-semibold text-green-800 mb-2">✅ Upcoming Accepted Meetings</h4>
-                                <ul class="list-disc list-inside text-gray-800">
-                                    @foreach($upcomingAcceptedMeetings as $meeting)
-                                        <li>{{ $meeting->title }} – {{ \Carbon\Carbon::parse($meeting->start_time)->format('M d, H:i') }}</li>
-                                    @endforeach
-                                </ul>
+                        {{-- Active Investors --}}
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-500 uppercase">Active Investors</p>
+                                    <p class="text-3xl font-bold text-green-600">{{ $stats['activeInvestors'] ?? 0 }}</p>
+                                </div>
+                                <div class="bg-green-100 rounded-full p-3">
+                                    <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                </div>
                             </div>
-                        @endif
+                        </div>
+
+                        {{-- Prospects --}}
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-500 uppercase">Prospects</p>
+                                    <p class="text-3xl font-bold text-yellow-600">{{ $stats['prospectInvestors'] ?? 0 }}</p>
+                                </div>
+                                <div class="bg-yellow-100 rounded-full p-3">
+                                    <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Active Stage --}}
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-500 uppercase">Funded Investors</p>
+                                    <p class="text-3xl font-bold text-purple-600">{{ $stats['activeStageInvestors'] ?? 0 }}</p>
+                                </div>
+                                <div class="bg-purple-100 rounded-full p-3">
+                                    <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    @if($partnerTriggeringDocs->isNotEmpty())
-                    <div class="mt-6">
-                        <h4 class="text-lg font-semibold text-blue-800 mb-2">📄 Documents Needing Your Attention</h4>
-                        <ul class="list-disc list-inside text-gray-800 space-y-2">
-                            @foreach($partnerTriggeringDocs as $doc)
-                                <li>
-                                    <strong>{{ $doc->title }}</strong>
-                                    <span class="text-sm text-gray-500">
-                                        — {{ $doc->partner_id ? 'Direct' : 'Shared' }} Document
-                                    </span>
-                                </li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
-                </main>
 
-            {{-- ========================= ADMIN VIEW ========================= --}}
-            @elseif(auth()->user()->role === 'admin' || auth()->user()->role === 'superadmin')
-                <!-- Admin Sidebar -->
-                <aside class="w-72 bg-[#0e2442] text-gray-100 py-8 px-4 space-y-4 rounded-r-lg shadow-md">
-                    <h3 class="text-lg font-bold mb-4">Navigation</h3>
-                    <nav class="flex flex-col gap-2">
-                        <a href="{{ route('admin.clients.index') }}"
-                           class="block bg-white text-[#0e2442] px-4 py-2 rounded hover:bg-gray-200 font-semibold transition">
-                            Review Partners and Clients
-                        </a>
-                        <a href="{{ route('admin.documents.create') }}"
-                           class="relative block bg-white text-[#0e2442] px-4 py-2 rounded hover:bg-gray-200 font-semibold transition">
-                            Manage Partner Documents and Forms
-                            @if(!empty($documentRedDot))
-                                <span class="absolute top-1 right-2 inline-block w-3 h-3 bg-red-600 rounded-full animate-pulse"></span>
-                            @endif
-                        </a>
-                        <a href="{{ route('calendar.index') }}"
-                           class="relative block bg-white text-[#0e2442] px-4 py-2 rounded hover:bg-gray-200 font-semibold transition">
-                            📅 Team Calendar
-                            @if(!empty($calendarRedDot))
-                                <span class="absolute top-1 right-2 inline-block w-3 h-3 bg-red-600 rounded-full animate-pulse"></span>
-                            @endif
-                        </a>
-                        <a href="{{ route('admin.meeting.proposals') }}"
-                            class="relative block bg-white text-[#0e2442] px-4 py-2 rounded hover:bg-gray-200 font-semibold transition">
-                            📋 Meeting Proposals
-                            @if(!empty($proposalsRedDot))
-                                <span class="absolute top-1 right-2 inline-block w-3 h-3 bg-red-600 rounded-full animate-pulse"></span>
-                            @endif
-                        </a>
-                        <a href="{{ asset('files/PRE-CMS User Manual.pdf') }}" target="_blank"
-                        class="relative block bg-white text-[#0e2442] px-4 py-2 rounded hover:bg-gray-200 font-semibold transition">
-                            📖 User Manual
-                        </a>
-                        <a href="{{ route('demo.video') }}"
-                        class="relative block bg-white text-[#0e2442] px-4 py-2 rounded hover:bg-gray-200 font-semibold transition">
-                            🎥 Demo Video
-                        </a>
-                    </nav>
-                </aside>
-
-                <main class="flex-1 py-6 px-8 bg-gray-100">
-                    <div class="max-w-5xl mx-auto">
-                        <h3 class="text-2xl font-bold text-[#0e2442] mb-4">Admin Dashboard</h3>
-
-                        {{-- ✅ Admin Meeting Overview --}}
-                        @if($adminUpcomingMeetings->count())
-                            <div class="mb-6 bg-blue-100 border-l-4 border-blue-400 p-4 rounded">
-                                <h4 class="text-lg font-semibold text-blue-800 mb-2">📅 Upcoming Meetings Overview</h4>
-                                <ul class="list-disc list-inside text-gray-800 space-y-3">
-                                    @foreach($adminUpcomingMeetings as $meeting)
-                                        <li>
-                                            <strong>{{ $meeting->title }}</strong> – {{ \Carbon\Carbon::parse($meeting->start_time)->format('M d, H:i') }}
-                                            @php
-                                               $unanswered = optional($meeting->attendees)->filter(fn($partner) => is_null($partner->pivot->is_accepted)) ?? collect();
-                                            @endphp
-                                            @if($unanswered->isEmpty())
-                                                <div class="text-green-700 ml-6">✅ Accepted by all partners.</div>
-                                            @else
-                                                <div class="text-yellow-800 ml-6">
-                                                    ⚠️ Pending responses from:
-                                                    <ul class="list-disc list-inside ml-4">
-                                                        @foreach($unanswered as $p)
-                                                            <li>{{ $p->name }}</li>
-                                                        @endforeach
-                                                    </ul>
-                                                </div>
-                                            @endif
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        @endif
-
-                        {{-- Pending Meeting Proposals --}}
-                        @if($pendingProposals->count())
-                            <div class="mb-6 bg-purple-100 border-l-4 border-purple-400 p-4 rounded">
-                                <h4 class="text-lg font-semibold text-purple-800 mb-2">📋 Pending Meeting Proposals ({{ $pendingProposals->count() }})</h4>
-                                <ul class="list-disc list-inside text-gray-800 space-y-2">
-                                    @foreach($pendingProposals as $proposal)
-                                        <li>
-                                            <strong>{{ $proposal->title }}</strong> 
-                                            by {{ $proposal->creator->name }} – {{ $proposal->start_time->format('M d, H:i') }}
-                                        </li>
-                                    @endforeach
-                                </ul>
-                                <a href="{{ route('admin.meeting.proposals') }}" class="text-purple-600 hover:underline mt-2 inline-block">
-                                    Review all proposals →
+                    {{-- Recent Investors --}}
+                    <div class="bg-white rounded-lg shadow mb-6">
+                        <div class="p-6 border-b border-gray-200">
+                            <div class="flex justify-between items-center">
+                                <h4 class="text-lg font-semibold text-gray-900">Recent Investors</h4>
+                                <a href="{{ route('investors.index') }}" class="text-blue-600 hover:text-blue-800 text-sm font-semibold">
+                                    View All →
                                 </a>
                             </div>
-                        @endif
+                        </div>
+                        <div class="p-6">
+                            @if($recentInvestors->count() > 0)
+                                <div class="space-y-4">
+                                    @foreach($recentInvestors as $investor)
+                                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                                            <div class="flex-1">
+                                                <h5 class="font-semibold text-gray-900">
+                                                    {{ $investor->organization_name ?? $investor->legal_entity_name }}
+                                                </h5>
+                                                <div class="flex items-center space-x-3 mt-1">
+                                                    <span class="text-sm text-gray-500">{{ $investor->jurisdiction }}</span>
+                                                    <span class="px-2 py-1 text-xs font-semibold rounded
+                                                        @if($investor->stage === 'prospect') bg-gray-100 text-gray-800
+                                                        @elseif($investor->stage === 'active') bg-green-100 text-green-800
+                                                        @else bg-blue-100 text-blue-800
+                                                        @endif">
+                                                        {{ str_replace('_', ' ', ucfirst($investor->stage)) }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="text-right">
+                                                <p class="text-sm font-semibold text-gray-900">
+                                                    {{ $investor->currency }} {{ number_format($investor->target_commitment_amount ?? 0) }}
+                                                </p>
+                                                <a href="{{ route('investors.show', $investor) }}" 
+                                                   class="text-sm text-blue-600 hover:text-blue-800">
+                                                    View Details →
+                                                </a>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @else
+                                <div class="text-center py-8 text-gray-500">
+                                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                    </svg>
+                                    <p class="mt-2">No investors yet</p>
+                                    <a href="{{ route('investors.create') }}" 
+                                       class="mt-4 inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                                        + Add First Investor
+                                    </a>
+                                </div>
+                            @endif
+                        </div>
                     </div>
-                    
-                    @if($adminTriggeringDocs->isNotEmpty())
-                    <div class="mt-6">
-                        <h4 class="text-lg font-semibold text-blue-800 mb-2">📁 Documents Awaiting Partner Actions or Admin Review</h4>
-                        <ul class="list-disc list-inside text-gray-800 space-y-2">
-                            @foreach($adminTriggeringDocs as $doc)
-                                <li>
-                                    <strong>{{ $doc->title }}</strong>
-                                    <span class="text-sm text-gray-500"> — Shared Document</span>
-                                    <a href="{{ route('admin.documents.show', $doc->id) }}" class="text-blue-600 hover:underline ml-2">Review</a>
-                                </li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
-                </main>
-            @endif
+
+                    {{-- My Investors (if Relationship Manager) --}}
+                    @if($myInvestors->count() > 0)
+                        <div class="bg-white rounded-lg shadow">
+                            <div class="p-6 border-b border-gray-200">
+                                <h4 class="text-lg font-semibold text-gray-900">My Assigned Investors</h4>
+                            </div>
+                            <div class="p-6">
+                                <div class="space-y-3">
+                                    @foreach($myInvestors as $investor)
+                                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded hover:bg-gray-100 transition">
+                                            <div>
+                                                <p class="font-semibold text-gray-900">
+                                                    {{ $investor->organization_name ?? $investor->legal_entity_name }}
+                                                </p>
+                                                <p class="text-sm text-gray-500">{{ $investor->fund->fund_name ?? 'No fund assigned' }}</p>
+                                            </div>
+                                            <a href="{{ route('investors.show', $investor) }}" 
+                                               class="text-blue-600 hover:text-blue-800 text-sm font-semibold">
+                                                View →
+                                            </a>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
+                </div>
+            </main>
+
         </div>
     </div>
- @if(false)
-    {{-- Debug Sections --}}
-    @if(auth()->user()->role === 'admin' || auth()->user()->role === 'superadmin')
-        <div class="max-w-6xl mx-auto mt-10 bg-white p-4 border rounded shadow">
-            <h3 class="text-lg font-bold text-red-600 mb-2">Debug: Admin-triggered Red Dot Documents</h3>
-            @if($adminTriggeringDocs->isEmpty())
-                <p class="text-green-600">✅ No documents triggered the red dot.</p>
-            @else
-                <ul class="list-disc list-inside text-sm text-gray-800">
-                    @foreach($adminTriggeringDocs as $doc)
-                        <li>
-                            <strong>{{ $doc->title }}</strong> (Doc ID: {{ $doc->id }})
-                            <ul class="ml-4 list-disc text-gray-700">
-                                @php
-                                    $responses = \App\Models\PartnerDocumentResponse::where('document_id', $doc->id)
-                                        ->whereIn('status', ['waiting_partner_action', 'review_only', null])
-                                        ->with('partner')->get();
-                                @endphp
-                                @forelse($responses as $response)
-                                    <li>
-                                        Partner: {{ $response->partner->name ?? 'Unknown' }},
-                                        Status: <span class="font-semibold">{{ $response->status ?? 'null' }}</span>
-                                    </li>
-                                @empty
-                                    <li>No responses found (or all completed).</li>
-                                @endforelse
-                            </ul>
-                        </li>
-                    @endforeach
-                </ul>
-            @endif
-        </div>
-    @endif
-
-    @if(auth()->user()->role === 'channel_partner')
-        <div class="max-w-6xl mx-auto mt-10 bg-white p-4 border rounded shadow">
-            <h3 class="text-lg font-bold text-red-600 mb-2">Debug: Partner-triggered Red Dot Documents</h3>
-            @if(empty($partnerTriggeringDocs))
-                <p class="text-green-600">✅ No documents triggered the red dot.</p>
-            @else
-                <ul class="list-disc list-inside text-sm text-gray-800">
-                    @foreach($partnerTriggeringDocs as $doc)
-                        <li><strong>{{ $doc->title }}</strong> (status: {{ $doc->status ?? 'null' }})</li>
-                    @endforeach
-                </ul>
-            @endif
-        </div>
-    @endif
-@endif
 </x-app-layout>
