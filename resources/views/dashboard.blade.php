@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-brand-darker leading-tight">
+        <h2 class="font-semibold text-2xl text-brand-darker leading-tight">
             Investment Fund Dashboard
         </h2>
         <div class="text-sm text-brand-dark">
