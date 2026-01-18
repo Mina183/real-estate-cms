@@ -1,9 +1,9 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h2 class="font-semibold text-xl text-brand-darker leading-tight">
             Investment Fund Dashboard
         </h2>
-        <div class="text-sm text-gray-500">
+        <div class="text-sm text-brand-dark">
             Logged in as: {{ auth()->user()->name }} ({{ ucfirst(str_replace('_', ' ', auth()->user()->role)) }})
         </div>
     </x-slot>
