@@ -240,6 +240,102 @@
                                 </div>
                             </div>
 
+                            </div>
+
+                            {{-- ====== DODAJ OVO ====== --}}
+                            {{-- Additional Compliance Fields --}}
+                            <div class="border-b pb-6">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4">📋 Workflow Progress Fields</h3>
+                                
+                                <div class="space-y-6">
+                                    {{-- PPM Acknowledged --}}
+                                    <div class="flex items-start">
+                                        <div class="flex items-center h-5">
+                                            <input type="checkbox" name="ppm_acknowledged" id="ppm_acknowledged"
+                                                   value="1" {{ $investor->ppm_acknowledged_date ? 'checked' : '' }}
+                                                   class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
+                                        </div>
+                                        <div class="ml-3 text-sm">
+                                            <label for="ppm_acknowledged" class="font-medium text-gray-700">
+                                                PPM Acknowledged
+                                            </label>
+                                            <p class="text-gray-500">Investor has acknowledged PPM and confidentiality terms</p>
+                                            @if($investor->ppm_acknowledged_date)
+                                                <p class="text-xs text-green-600 mt-1">
+                                                    ✓ Acknowledged on {{ $investor->ppm_acknowledged_date->format('M d, Y H:i') }}
+                                                </p>
+                                            @endif
+                                        </div>
+                                    </div>
+
+                                    {{-- KYC Status --}}
+                                    <div>
+                                        <label for="kyc_status" class="block text-sm font-medium text-gray-700 mb-2">
+                                            KYC Status
+                                        </label>
+                                        <select name="kyc_status" id="kyc_status"
+                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                            <option value="">-- Not Started --</option>
+                                            <option value="in_progress" {{ $investor->kyc_status === 'in_progress' ? 'selected' : '' }}>In Progress</option>
+                                            <option value="submitted" {{ $investor->kyc_status === 'submitted' ? 'selected' : '' }}>Submitted</option>
+                                            <option value="under_review" {{ $investor->kyc_status === 'under_review' ? 'selected' : '' }}>Under Review</option>
+                                            <option value="complete" {{ $investor->kyc_status === 'complete' ? 'selected' : '' }}>Complete</option>
+                                            <option value="rejected" {{ $investor->kyc_status === 'rejected' ? 'selected' : '' }}>Rejected</option>
+                                        </select>
+                                        <p class="mt-1 text-sm text-gray-500">Current KYC verification status</p>
+                                    </div>
+
+                                    {{-- Subscription Signed --}}
+                                    <div class="flex items-start">
+                                        <div class="flex items-center h-5">
+                                            <input type="checkbox" name="subscription_signed" id="subscription_signed"
+                                                   value="1" {{ $investor->subscription_signed_date ? 'checked' : '' }}
+                                                   class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
+                                        </div>
+                                        <div class="ml-3 text-sm">
+                                            <label for="subscription_signed" class="font-medium text-gray-700">
+                                                Subscription Agreement Signed
+                                            </label>
+                                            <p class="text-gray-500">Investor has signed subscription agreement</p>
+                                            @if($investor->subscription_signed_date)
+                                                <p class="text-xs text-green-600 mt-1">
+                                                    ✓ Signed on {{ $investor->subscription_signed_date->format('M d, Y H:i') }}
+                                                </p>
+                                            @endif
+                                        </div>
+                                    </div>
+
+                                    {{-- Financial Fields --}}
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-200">
+                                        <div>
+                                            <label for="final_commitment_amount" class="block text-sm font-medium text-gray-700 mb-2">
+                                                Final Commitment Amount
+                                            </label>
+                                            <input type="number" step="0.01" name="final_commitment_amount" id="final_commitment_amount"
+                                                   value="{{ old('final_commitment_amount', $investor->final_commitment_amount) }}"
+                                                   placeholder="Final committed amount"
+                                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                            <p class="mt-1 text-sm text-gray-500">Actual committed amount after subscription</p>
+                                        </div>
+
+                                        <div>
+                                            <label for="funded_amount" class="block text-sm font-medium text-gray-700 mb-2">
+                                                Funded Amount
+                                            </label>
+                                            <input type="number" step="0.01" name="funded_amount" id="funded_amount"
+                                                   value="{{ old('funded_amount', $investor->funded_amount) }}"
+                                                   placeholder="Amount actually received"
+                                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                            <p class="mt-1 text-sm text-gray-500">Total amount funded to date</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {{-- ====== KRAJ DODAVANJA ====== --}}
+
+                            {{-- Source & Notes --}}
+                            <div>
+
                             {{-- Source & Notes --}}
                             <div>
                                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Additional Information</h3>
