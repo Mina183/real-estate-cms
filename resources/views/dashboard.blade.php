@@ -12,7 +12,7 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 flex min-h-screen">
             
             {{-- ========================= SIDEBAR NAVIGATION ========================= --}}
-            <aside class="w-72 bg-brand-darker text-white py-8 px-4 space-y-4 rounded-r-lg shadow-md">
+            <aside class="w-72 bg-gradient-to-b from-brand-darker to-brand-dark text-white py-8 px-4 space-y-4 rounded-r-lg shadow-md">
                 <h3 class="text-lg font-bold mb-4">Navigation</h3>
                 <nav class="flex flex-col gap-2">
                     <a href="{{ route('dashboard') }}"
@@ -37,14 +37,14 @@
             </aside>
 
             {{-- ========================= MAIN DASHBOARD CONTENT ========================= --}}
-            <main class="flex-1 py-6 px-8 bg-gray-100">
+            <main class="flex-1 py-6 px-8 bg-gradient-to-br from-brand-light/20 to-gray-100">
                 <div class="max-w-6xl mx-auto">
                     <h3 class="text-2xl font-bold text-brand-darker mb-6">Welcome, {{ auth()->user()->name }}!</h3>
 
                     {{-- Stats Cards --}}
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                         {{-- Total Investors --}}
-                        <div class="bg-white rounded-lg shadow p-6">
+                        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-brand-dark">
                             <div class="flex items-center justify-between">
                                 <div>
                                     <p class="text-sm text-gray-500 uppercase">Total Investors</p>
@@ -74,7 +74,7 @@
                         </div>
 
                         {{-- Prospects --}}
-                        <div class="bg-white rounded-lg shadow p-6">
+                        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-brand-accent">
                             <div class="flex items-center justify-between">
                                 <div>
                                     <p class="text-sm text-gray-500 uppercase">Prospects</p>
@@ -89,7 +89,7 @@
                         </div>
 
                         {{-- Active Stage --}}
-                        <div class="bg-white rounded-lg shadow p-6">
+                        <div class="bg-white rounded-lg shadow p-6 border-l-4 border-brand-accent-light">
                             <div class="flex items-center justify-between">
                                 <div>
                                     <p class="text-sm text-gray-500 uppercase">Funded Investors</p>
