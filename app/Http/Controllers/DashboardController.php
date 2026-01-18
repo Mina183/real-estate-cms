@@ -18,18 +18,36 @@ public function index()
         return redirect()->route('approval.pending');
     }
 
-    // Temporary simplified dashboard for Investment Fund CRM
+    // Investment Fund CRM Dashboard
+    $stats = [
+        'totalInvestors' => \App\Models\Investor::count(),
+        'activeInvestors' => \App\Models\Investor::where('lifecycle_status', 'active')->count(),
+        'prospectInvestors' => \App\Models\Investor::where('stage', 'prospect')->count(),
+        'activeStageInvestors' => \App\Models\Investor::where('stage', 'active')->count(),
+    ];
+
+    // Recent investors
+    $recentInvestors = \App\Models\Investor::with(['fund', 'assignedTo'])
+        ->orderBy('created_at', 'desc')
+        ->limit(5)
+        ->get();
+
+    // User-specific data
+    if ($user->role === 'relationship_manager') {
+        $myInvestors = \App\Models\Investor::where('assigned_to_user_id', $user->id)
+            ->with('fund')
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get();
+    } else {
+        $myInvestors = collect();
+    }
+
     return view('dashboard', [
         'user' => $user,
-        'documentRedDot' => false,
-        'calendarRedDot' => false,
-        'adminTriggeringDocs' => collect(),
-        'partnerTriggeringDocs' => collect(),
-        'upcomingAcceptedMeetings' => collect(),
-        'pendingMeetingInvitations' => collect(),
-        'adminUpcomingMeetings' => collect(),
-        'pendingProposals' => collect(),
-        'proposalsRedDot' => false,
+        'stats' => $stats,
+        'recentInvestors' => $recentInvestors,
+        'myInvestors' => $myInvestors,
     ]);
 }
 }
