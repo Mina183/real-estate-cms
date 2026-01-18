@@ -8,7 +8,7 @@
         </div>
     </x-slot>
 
-    <div class="min-h-screen bg-gray-100">
+    <div class="min-h-screen bg-gradient-to-br from-brand-accent-light/30 to-brand-light/20">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 flex min-h-screen">
             
             {{-- ========================= SIDEBAR NAVIGATION ========================= --}}
@@ -37,7 +37,7 @@
             </aside>
 
             {{-- ========================= MAIN DASHBOARD CONTENT ========================= --}}
-            <main class="flex-1 py-6 px-8 bg-gradient-to-br from-brand-light/20 to-gray-100">
+            <main class="flex-1 py-6 px-8 bg-gradient-to-br from-brand-accent-light/25 via-gray-50 to-brand-light/20">
                 <div class="max-w-6xl mx-auto">
                     <h3 class="text-2xl font-bold text-brand-darker mb-6">Welcome, {{ auth()->user()->name }}!</h3>
 
