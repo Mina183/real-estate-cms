@@ -9,7 +9,7 @@
 <body class="bg-gradient-to-br from-brand-accent-light/20 to-brand-light/30 text-brand-darker min-h-screen flex flex-col lg:flex-row">
 
     <!-- Left column: content -->
-    <div class="w-full md:w-1/2 flex flex-col px-6 sm:px-10 md:px-16 lg:px-24 xl:px-32 py-12 bg-gradient-to-br from-brand-accent-light/20 to-brand-light/30 relative items-center md:items-start text-center md:text-left">
+    <div class="w-full md:w-1/2 flex flex-col px-6 sm:px-10 md:px-16 lg:px-24 xl:px-32 py-12 bg-brand-light relative items-center md:items-start text-center md:text-left">
         
     <!-- Top-left nav (only visible on md+ for better mobile centering) -->
     <div class="absolute top-6 left-6 md:block hidden">
