@@ -13,7 +13,16 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                sans: ['Montserrat', 'Helvetica', ...defaultTheme.fontFamily.sans],
+            },
+            colors: {
+                brand: {
+                    'light': '#b1c1c7',
+                    'dark': '#53666e',
+                    'darker': '#252d30',
+                    'accent': '#40d0cf',
+                    'accent-light': '#8fc6cb',
+                },
             },
         },
     },
