@@ -85,8 +85,10 @@ class PaymentTransaction extends Model
         if (!$parent) {
             return;
         }
-
-        $totalPaid = $parent->payments()->where('status', 'paid')->sum('amount');
+        // Count only 'paid' status, exclude 'reversed'
+        $totalPaid = $parent->payments()
+            ->where('status', 'paid')
+            ->sum('amount');
 
         if ($parent instanceof \App\Models\CapitalCall) {
             $parent->update(['total_received' => $totalPaid]);
@@ -96,6 +98,9 @@ class PaymentTransaction extends Model
                 $parent->update(['status' => 'fully_paid']);
             } elseif ($totalPaid > 0) {
                 $parent->update(['status' => 'partially_paid']);
+            } else {
+                // NEW - When no payments are paid (all reversed/pending)
+                $parent->update(['status' => 'issued']);
             }
         } elseif ($parent instanceof \App\Models\Distribution) {
             $parent->update(['total_distributed' => $totalPaid]);
@@ -105,6 +110,9 @@ class PaymentTransaction extends Model
                 $parent->update(['status' => 'completed']);
             } elseif ($totalPaid > 0) {
                 $parent->update(['status' => 'processing']);
+            } else {
+                // NEW - When no payments distributed (all reversed/pending)
+                $parent->update(['status' => 'approved']);
             }
         }
     }
