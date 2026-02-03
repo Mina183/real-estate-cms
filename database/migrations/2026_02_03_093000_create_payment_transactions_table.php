@@ -11,9 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
+
+        Schema::dropIfExists('payment_transactions');
+        
         Schema::create('payment_transactions', function (Blueprint $table) {
             $table->id();
-            $table->morphs('transactionable'); // Can be capital_call or distribution
+            $table->unsignedBigInteger('transactionable_id');
+            $table->string('transactionable_type');
+            $table->index(['transactionable_type', 'transactionable_id'], 'payment_trans_morph_index'); // Kraći naziv!
             $table->foreignId('investor_id')->constrained('investors')->onDelete('cascade');
             $table->string('transaction_type'); // 'capital_call' or 'distribution'
             $table->decimal('amount', 15, 2);
