@@ -196,4 +196,26 @@ class Investor extends Model
     {
         return $this->hasMany(InvestorStageTransition::class);
     }
+
+    public function paymentTransactions()
+    {
+        return $this->hasMany(PaymentTransaction::class);
+    }
+
+    public function capitalCallPayments()
+    {
+        return $this->hasMany(PaymentTransaction::class)
+                    ->where('transaction_type', 'capital_call');
+    }
+
+    public function distributionPayments()
+    {
+        return $this->hasMany(PaymentTransaction::class)
+                    ->where('transaction_type', 'distribution');
+    }
+
+    public function kycReviewedBy()
+    {
+        return $this->belongsTo(User::class, 'kyc_reviewed_by');
+    }
 }
