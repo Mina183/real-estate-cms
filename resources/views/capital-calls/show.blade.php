@@ -182,7 +182,7 @@
                                         {{ $payment->payment_method_label }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        @if($payment->status === 'pending')
+                                        @if($payment->status === 'pending' || $payment->status === 'reversed')
                                             <button onclick="openMarkPaidModal({{ $payment->id }})" class="text-green-600 hover:text-green-900 mr-2">
                                                 Mark Paid
                                             </button>
