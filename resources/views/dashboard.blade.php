@@ -27,8 +27,13 @@
                        class="block bg-white text-brand-darker px-4 py-2 rounded hover:bg-brand-light/20 font-semibold transition">
                         🔒 Data Room
                     </a>
-                    <a href="#" class="block bg-gray-300 text-gray-500 px-4 py-2 rounded cursor-not-allowed font-semibold">
-                        💰 Capital Calls <span class="text-xs">(Coming Soon)</span>
+                    <a href="{{ route('capital-calls.index') }}"
+                        class="block bg-white text-brand-darker px-4 py-2 rounded hover:bg-brand-light/20 font-semibold transition">
+                        💰 Capital Calls
+                    </a>
+                    <a href="{{ route('distributions.index') }}"
+                        class="block bg-white text-brand-darker px-4 py-2 rounded hover:bg-brand-light/20 font-semibold transition">
+                        📊 Distributions
                     </a>
                     <a href="#" class="block bg-gray-300 text-gray-500 px-4 py-2 rounded cursor-not-allowed font-semibold">
                         📈 Reports <span class="text-xs">(Coming Soon)</span>
