@@ -46,7 +46,7 @@ public function index()
     /**
      * Allow the partner to upload a response to a document.
      */
-    public function uploadResponse(Request $request, $id)
+public function uploadResponse(Request $request, $id)
 {
     $doc = PartnerDocument::findOrFail($id);
 
