@@ -207,22 +207,6 @@
             </div>
         </div>
     </div>
-
-    {{-- Mark as Paid Modal (placeholder - would need Alpine.js or similar) --}}
-    <script>
-        function openMarkPaidModal(paymentId) {
-            // TODO: Implement modal for marking payment as paid
-            if(confirm('Mark this payment as paid?')) {
-                // Submit form
-                alert('Modal implementation needed');
-            }
-        }
-
-        function openReverseModal(paymentId) {
-            if(confirm('Are you sure you want to reverse this payment?')) {
-                // Submit reverse form
-                alert('Modal implementation needed');
-            }
-        }
-    </script>
+@include('components.mark-paid-modal')
+@include('components.reverse-payment-modal')
 </x-app-layout>

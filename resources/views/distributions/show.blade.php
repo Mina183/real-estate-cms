@@ -206,19 +206,6 @@
             </div>
         </div>
     </div>
-
-    {{-- Placeholder for modals --}}
-    <script>
-        function openMarkPaidModal(paymentId) {
-            if(confirm('Mark this payment as paid?')) {
-                alert('Modal implementation needed');
-            }
-        }
-
-        function openReverseModal(paymentId) {
-            if(confirm('Are you sure you want to reverse this payment?')) {
-                alert('Modal implementation needed');
-            }
-        }
-    </script>
+@include('components.mark-paid-modal')
+@include('components.reverse-payment-modal')
 </x-app-layout>

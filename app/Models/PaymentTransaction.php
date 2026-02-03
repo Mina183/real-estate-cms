@@ -59,11 +59,11 @@ class PaymentTransaction extends Model
     /**
      * Mark as paid
      */
-    public function markAsPaid($paymentMethod = null, $referenceNumber = null, $notes = null)
+    public function markAsPaid($paymentMethod, $referenceNumber = null, $paidDate = null, $notes = null)
     {
         $this->update([
             'status' => 'paid',
-            'paid_date' => now(),
+            'paid_date' => $paidDate ?? now(),
             'payment_method' => $paymentMethod,
             'reference_number' => $referenceNumber,
             'notes' => $notes ?? $this->notes,
@@ -71,12 +71,14 @@ class PaymentTransaction extends Model
 
         // Update parent transactionable total
         $this->updateParentTotal();
+        
+        return $this;
     }
 
     /**
-     * Update parent transactionable total amounts
+     * Update parent transactionable total amounts - NOW PUBLIC
      */
-    protected function updateParentTotal()
+    public function updateParentTotal()
     {
         $parent = $this->transactionable;
         
@@ -86,7 +88,7 @@ class PaymentTransaction extends Model
 
         $totalPaid = $parent->payments()->where('status', 'paid')->sum('amount');
 
-        if ($parent instanceof CapitalCall) {
+        if ($parent instanceof \App\Models\CapitalCall) {
             $parent->update(['total_received' => $totalPaid]);
             
             // Update capital call status
@@ -95,7 +97,7 @@ class PaymentTransaction extends Model
             } elseif ($totalPaid > 0) {
                 $parent->update(['status' => 'partially_paid']);
             }
-        } elseif ($parent instanceof Distribution) {
+        } elseif ($parent instanceof \App\Models\Distribution) {
             $parent->update(['total_distributed' => $totalPaid]);
             
             // Update distribution status
@@ -138,7 +140,7 @@ class PaymentTransaction extends Model
      */
     public function scopeCapitalCalls($query)
     {
-        return $query->where('transactionable_type', CapitalCall::class);
+        return $query->where('transactionable_type', \App\Models\CapitalCall::class);
     }
 
     /**
@@ -146,7 +148,7 @@ class PaymentTransaction extends Model
      */
     public function scopeDistributions($query)
     {
-        return $query->where('transactionable_type', Distribution::class);
+        return $query->where('transactionable_type', \App\Models\Distribution::class);
     }
 
     /**
@@ -181,4 +183,3 @@ class PaymentTransaction extends Model
         };
     }
 }
-
