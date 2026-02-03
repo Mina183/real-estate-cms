@@ -20,6 +20,9 @@ use App\Models\DataRoomDocument;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use App\Http\Controllers\InvestorController;
+use App\Http\Controllers\CapitalCallController;
+use App\Http\Controllers\DistributionController;
+use App\Http\Controllers\PaymentTransactionController;
 
 
 /*
@@ -239,6 +242,42 @@ Route::middleware(['auth'])->group(function () {
 
     // Activity log route
     Route::get('investors/{investor}/activity', [App\Http\Controllers\InvestorController::class, 'activityLog'])->name('investors.activity');
+});
+
+// Capital Calls Routes
+Route::middleware(['auth'])->group(function () {
+    
+    // Capital Calls Resource
+    Route::resource('capital-calls', CapitalCallController::class);
+    
+    // Additional Capital Call Actions
+    Route::post('capital-calls/{capitalCall}/issue', [CapitalCallController::class, 'issue'])
+        ->name('capital-calls.issue');
+    
+    // Distributions Resource
+    Route::resource('distributions', DistributionController::class);
+    
+    // Additional Distribution Actions
+    Route::post('distributions/{distribution}/approve', [DistributionController::class, 'approve'])
+        ->name('distributions.approve');
+    Route::post('distributions/{distribution}/process', [DistributionController::class, 'process'])
+        ->name('distributions.process');
+    
+    // Payment Transaction Routes
+    Route::post('payments/{payment}/mark-paid', [PaymentTransactionController::class, 'markAsPaid'])
+        ->name('payments.mark-paid');
+    Route::post('payments/{payment}/mark-failed', [PaymentTransactionController::class, 'markAsFailed'])
+        ->name('payments.mark-failed');
+    Route::post('payments/{payment}/reverse', [PaymentTransactionController::class, 'reverse'])
+        ->name('payments.reverse');
+    Route::put('payments/{payment}', [PaymentTransactionController::class, 'update'])
+        ->name('payments.update');
+    Route::delete('payments/{payment}', [PaymentTransactionController::class, 'destroy'])
+        ->name('payments.destroy');
+    
+    // Bulk Payment Actions
+    Route::post('payments/bulk/mark-paid', [PaymentTransactionController::class, 'bulkMarkAsPaid'])
+        ->name('payments.bulk-mark-paid');
 });
 
     /*
