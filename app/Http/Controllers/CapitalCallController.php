@@ -11,6 +11,23 @@ use Illuminate\Support\Facades\DB;
 class CapitalCallController extends Controller
 {
     /**
+     * Apply Policy authorization to all resource methods
+     * 
+     * Automatically maps:
+     * - index()   → viewAny()
+     * - create()  → create()
+     * - store()   → create()
+     * - show()    → view()
+     * - edit()    → update()
+     * - update()  → update()
+     * - destroy() → delete()
+     */
+    public function __construct()
+    {
+        $this->authorizeResource(CapitalCall::class, 'capital_call');
+    }
+
+    /**
      * Display a listing of capital calls
      */
     public function index()
@@ -191,9 +208,12 @@ class CapitalCallController extends Controller
 
     /**
      * Issue capital call (change status from draft to issued)
+     * Uses explicit authorization check for custom action
      */
     public function issue(CapitalCall $capitalCall)
     {
+        $this->authorize('issue', $capitalCall);
+
         if ($capitalCall->status !== 'draft') {
             return back()->with('error', 'Only draft capital calls can be issued.');
         }
@@ -205,4 +225,3 @@ class CapitalCallController extends Controller
         return back()->with('success', 'Capital Call issued successfully!');
     }
 }
-

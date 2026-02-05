@@ -8,10 +8,22 @@ use Illuminate\Http\Request;
 class PaymentTransactionController extends Controller
 {
     /**
+     * Apply authorization manually since this isn't a standard resource controller
+     * Each method has explicit authorization checks
+     */
+    public function __construct()
+    {
+        // We'll use explicit authorization in each method
+        // since this controller has custom actions instead of standard CRUD
+    }
+
+    /**
      * Mark payment as paid
      */
     public function markAsPaid(Request $request, PaymentTransaction $payment)
     {
+        $this->authorize('markAsPaid', $payment);
+
         $validated = $request->validate([
             'payment_method' => 'required|string',
             'reference_number' => 'nullable|string|max:255',
@@ -38,6 +50,8 @@ class PaymentTransactionController extends Controller
      */
     public function markAsFailed(Request $request, PaymentTransaction $payment)
     {
+        $this->authorize('update', $payment);
+
         $validated = $request->validate([
             'notes' => 'required|string',
         ]);
@@ -55,6 +69,8 @@ class PaymentTransactionController extends Controller
      */
     public function reverse(Request $request, PaymentTransaction $payment)
     {
+        $this->authorize('update', $payment);
+
         if ($payment->status !== 'paid') {
             return back()->with('error', 'Only paid payments can be reversed.');
         }
@@ -79,6 +95,8 @@ class PaymentTransactionController extends Controller
      */
     public function update(Request $request, PaymentTransaction $payment)
     {
+        $this->authorize('update', $payment);
+
         $validated = $request->validate([
             'amount' => 'required|numeric|min:0',
             'due_date' => 'nullable|date',
@@ -95,6 +113,8 @@ class PaymentTransactionController extends Controller
      */
     public function destroy(PaymentTransaction $payment)
     {
+        $this->authorize('delete', $payment);
+
         if ($payment->status === 'paid') {
             return back()->with('error', 'Cannot delete paid transactions.');
         }
@@ -109,6 +129,12 @@ class PaymentTransactionController extends Controller
      */
     public function bulkMarkAsPaid(Request $request)
     {
+        // Check if user can mark payments as paid (using any payment for authorization check)
+        $firstPayment = PaymentTransaction::first();
+        if ($firstPayment) {
+            $this->authorize('markAsPaid', $firstPayment);
+        }
+
         $validated = $request->validate([
             'payment_ids' => 'required|array',
             'payment_ids.*' => 'exists:payment_transactions,id',
@@ -121,15 +147,24 @@ class PaymentTransactionController extends Controller
             ->where('status', 'pending')
             ->get();
 
+        // Verify user can mark each payment as paid
         foreach ($payments as $payment) {
-            $payment->markAsPaid(
-                $validated['payment_method'],
-                null,
-                $validated['notes'] ?? null
-            );
+            if (!auth()->user()->can('markAsPaid', $payment)) {
+                return back()->with('error', 'You do not have permission to mark all selected payments as paid.');
+            }
+        }
+
+        foreach ($payments as $payment) {
+            $payment->update([
+                'status' => 'paid',
+                'paid_date' => $validated['paid_date'],
+                'payment_method' => $validated['payment_method'],
+                'notes' => $validated['notes'] ?? $payment->notes,
+            ]);
+            
+            $payment->updateParentTotal();
         }
 
         return back()->with('success', count($payments) . ' payments marked as paid!');
     }
 }
-

@@ -11,6 +11,23 @@ use Illuminate\Support\Facades\DB;
 class DistributionController extends Controller
 {
     /**
+     * Apply Policy authorization to all resource methods
+     * 
+     * Automatically maps:
+     * - index()   → viewAny()
+     * - create()  → create()
+     * - store()   → create()
+     * - show()    → view()
+     * - edit()    → update()
+     * - update()  → update()
+     * - destroy() → delete()
+     */
+    public function __construct()
+    {
+        $this->authorizeResource(Distribution::class, 'distribution');
+    }
+
+    /**
      * Display a listing of distributions
      */
     public function index()
@@ -187,9 +204,12 @@ class DistributionController extends Controller
 
     /**
      * Approve distribution (change status from draft to approved)
+     * Uses explicit authorization check for custom action
      */
     public function approve(Distribution $distribution)
     {
+        $this->authorize('issue', $distribution);
+
         if ($distribution->status !== 'draft') {
             return back()->with('error', 'Only draft distributions can be approved.');
         }
@@ -201,9 +221,12 @@ class DistributionController extends Controller
 
     /**
      * Start processing distribution
+     * Uses explicit authorization check for custom action
      */
     public function process(Distribution $distribution)
     {
+        $this->authorize('issue', $distribution);
+
         if ($distribution->status !== 'approved') {
             return back()->with('error', 'Only approved distributions can be processed.');
         }
