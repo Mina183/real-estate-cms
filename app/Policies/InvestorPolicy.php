@@ -17,6 +17,8 @@ class InvestorPolicy
             'superadmin',
             'compliance_officer',
             'relationship_manager',
+            'auditor',
+            'operations',
         ]);
     }
 
