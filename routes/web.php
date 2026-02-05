@@ -280,6 +280,47 @@ Route::middleware(['auth'])->group(function () {
         ->name('payments.bulk-mark-paid');
 });
 
+// TEMPORARY TEST ROUTE - Remove after testing
+Route::get('/test-policies', function () {
+    if (!auth()->check()) {
+        return 'Please login first';
+    }
+
+    $user = auth()->user();
+    
+    $tests = [
+        'Current User' => $user->email,
+        'Current Role' => $user->role,
+        '---' => '---',
+        'Can view investors?' => $user->can('viewAny', App\Models\Investor::class) ? '✅ YES' : '❌ NO',
+        'Can create investor?' => $user->can('create', App\Models\Investor::class) ? '✅ YES' : '❌ NO',
+        'Can create capital call?' => $user->can('create', App\Models\CapitalCall::class) ? '✅ YES' : '❌ NO',
+        'Can create distribution?' => $user->can('create', App\Models\Distribution::class) ? '✅ YES' : '❌ NO',
+    ];
+    
+    // Get first investor for specific tests
+    $investor = App\Models\Investor::first();
+    if ($investor) {
+        $tests['Can update investor #' . $investor->id . '?'] = $user->can('update', $investor) ? '✅ YES' : '❌ NO';
+        $tests['Can delete investor #' . $investor->id . '?'] = $user->can('delete', $investor) ? '✅ YES' : '❌ NO';
+    }
+    
+    // Get first capital call for specific tests
+    $capitalCall = App\Models\CapitalCall::first();
+    if ($capitalCall) {
+        $tests['Can issue capital call #' . $capitalCall->id . '?'] = $user->can('issue', $capitalCall) ? '✅ YES' : '❌ NO';
+    }
+    
+    $output = '<h1>Policy Tests</h1>';
+    $output .= '<table border="1" cellpadding="10" style="border-collapse: collapse;">';
+    foreach ($tests as $test => $result) {
+        $output .= '<tr><td><strong>' . $test . '</strong></td><td>' . $result . '</td></tr>';
+    }
+    $output .= '</table>';
+    
+    return $output;
+})->middleware('auth');
+
     /*
     |--------------------------------------------------------------------------
     | Auth Routes (Laravel Breeze or Fortify)
