@@ -220,9 +220,7 @@
         </div>
     </div>
 
-{{-- Only include modals if user has permission to use them --}}
-@canany(['markAsPaid', 'update'], App\Models\PaymentTransaction::class)
-    @include('components.mark-paid-modal')
-    @include('components.reverse-payment-modal')
-@endcanany
+{{-- Include modals for all authenticated users who can see this page --}}
+@include('components.mark-paid-modal')
+@include('components.reverse-payment-modal')
 </x-app-layout>
