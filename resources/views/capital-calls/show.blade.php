@@ -5,9 +5,13 @@
                 {{ $capitalCall->call_number }} - {{ $capitalCall->title }}
             </h2>
             <div class="flex space-x-2">
-                <a href="{{ route('capital-calls.edit', $capitalCall) }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                    Edit
-                </a>
+                {{-- Only authorized users can edit --}}
+                @can('update', $capitalCall)
+                    <a href="{{ route('capital-calls.edit', $capitalCall) }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                        Edit
+                    </a>
+                @endcan
+                
                 <a href="{{ route('capital-calls.index') }}" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
                     Back to List
                 </a>
@@ -113,14 +117,16 @@
 
                     {{-- Action Buttons --}}
                     @if($capitalCall->status === 'draft')
-                        <div class="mt-6">
-                            <form action="{{ route('capital-calls.issue', $capitalCall) }}" method="POST" class="inline">
-                                @csrf
-                                <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded" onclick="return confirm('Issue this capital call to all investors?')">
-                                    Issue Capital Call
-                                </button>
-                            </form>
-                        </div>
+                        @can('issue', $capitalCall)
+                            <div class="mt-6">
+                                <form action="{{ route('capital-calls.issue', $capitalCall) }}" method="POST" class="inline">
+                                    @csrf
+                                    <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded" onclick="return confirm('Issue this capital call to all investors?')">
+                                        Issue Capital Call
+                                    </button>
+                                </form>
+                            </div>
+                        @endcan
                     @endif
                 </div>
             </div>
@@ -182,15 +188,21 @@
                                         {{ $payment->payment_method_label }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        {{-- Only authorized users can mark as paid or reverse --}}
                                         @if($payment->status === 'pending' || $payment->status === 'reversed')
-                                            <button onclick="openMarkPaidModal({{ $payment->id }})" class="text-green-600 hover:text-green-900 mr-2">
-                                                Mark Paid
-                                            </button>
+                                            @can('markAsPaid', $payment)
+                                                <button onclick="openMarkPaidModal({{ $payment->id }})" class="text-green-600 hover:text-green-900 mr-2">
+                                                    Mark Paid
+                                                </button>
+                                            @endcan
                                         @endif
+                                        
                                         @if($payment->status === 'paid')
-                                            <button onclick="openReverseModal({{ $payment->id }})" class="text-red-600 hover:text-red-900">
-                                                Reverse
-                                            </button>
+                                            @can('update', $payment)
+                                                <button onclick="openReverseModal({{ $payment->id }})" class="text-red-600 hover:text-red-900">
+                                                    Reverse
+                                                </button>
+                                            @endcan
                                         @endif
                                     </td>
                                 </tr>
@@ -207,6 +219,10 @@
             </div>
         </div>
     </div>
-@include('components.mark-paid-modal')
-@include('components.reverse-payment-modal')
+
+{{-- Only include modals if user has permission to use them --}}
+@canany(['markAsPaid', 'update'], App\Models\PaymentTransaction::class)
+    @include('components.mark-paid-modal')
+    @include('components.reverse-payment-modal')
+@endcanany
 </x-app-layout>

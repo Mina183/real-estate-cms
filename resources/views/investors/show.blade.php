@@ -5,25 +5,36 @@
                 {{ $investor->organization_name ?? $investor->legal_entity_name ?? 'Investor Details' }}
             </h2>
             <div class="flex space-x-2">
-            @can('changeStage', $investor)
-                <a href="{{ route('investors.change-stage.form', $investor) }}" 
-                   class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-                    🔄 Change Stage
-                </a>
-            @endcan
-                <a href="{{ route('investors.activity', $investor) }}" 
-                    class="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded">
-                        📋 Activity Log
-                </a>
-            <div class="flex space-x-2">
-                <a href="{{ route('investors.edit', $investor) }}" 
-                   class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                    Edit
-                </a>
-                <a href="{{ route('investors.index') }}" 
-                   class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
-                    ← Back
-                </a>
+                {{-- Only authorized users can change stage --}}
+                @can('changeStage', $investor)
+                    <a href="{{ route('investors.change-stage.form', $investor) }}" 
+                       class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                        🔄 Change Stage
+                    </a>
+                @endcan
+                
+                {{-- Everyone who can view can see activity log --}}
+                @can('view', $investor)
+                    <a href="{{ route('investors.activity', $investor) }}" 
+                        class="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded">
+                            📋 Activity Log
+                    </a>
+                @endcan
+                
+                <div class="flex space-x-2">
+                    {{-- Only authorized users can edit --}}
+                    @can('update', $investor)
+                        <a href="{{ route('investors.edit', $investor) }}" 
+                           class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                            Edit
+                        </a>
+                    @endcan
+                    
+                    <a href="{{ route('investors.index') }}" 
+                       class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                        ← Back
+                    </a>
+                </div>
             </div>
         </div>
     </x-slot>
@@ -182,9 +193,12 @@
                 <div class="p-6">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-lg font-semibold text-gray-900">Contacts</h3>
-                        <button class="bg-blue-500 hover:bg-blue-700 text-white text-sm font-bold py-2 px-4 rounded">
-                            + Add Contact
-                        </button>
+                        {{-- Only authorized users can add contacts --}}
+                        @can('update', $investor)
+                            <button class="bg-blue-500 hover:bg-blue-700 text-white text-sm font-bold py-2 px-4 rounded">
+                                + Add Contact
+                            </button>
+                        @endcan
                     </div>
                     
                     @if($investor->contacts->count() > 0)

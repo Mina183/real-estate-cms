@@ -5,9 +5,13 @@
                 {{ $distribution->distribution_number }} - {{ $distribution->title }}
             </h2>
             <div class="flex space-x-2">
-                <a href="{{ route('distributions.edit', $distribution) }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                    Edit
-                </a>
+                {{-- Only authorized users can edit --}}
+                @can('update', $distribution)
+                    <a href="{{ route('distributions.edit', $distribution) }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                        Edit
+                    </a>
+                @endcan
+                
                 <a href="{{ route('distributions.index') }}" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
                     Back to List
                 </a>
@@ -112,19 +116,23 @@
                     {{-- Action Buttons --}}
                     <div class="mt-6 flex space-x-3">
                         @if($distribution->status === 'draft')
-                            <form action="{{ route('distributions.approve', $distribution) }}" method="POST" class="inline">
-                                @csrf
-                                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onclick="return confirm('Approve this distribution?')">
-                                    Approve Distribution
-                                </button>
-                            </form>
+                            @can('issue', $distribution)
+                                <form action="{{ route('distributions.approve', $distribution) }}" method="POST" class="inline">
+                                    @csrf
+                                    <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onclick="return confirm('Approve this distribution?')">
+                                        Approve Distribution
+                                    </button>
+                                </form>
+                            @endcan
                         @elseif($distribution->status === 'approved')
-                            <form action="{{ route('distributions.process', $distribution) }}" method="POST" class="inline">
-                                @csrf
-                                <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded" onclick="return confirm('Start processing payments?')">
-                                    Start Processing
-                                </button>
-                            </form>
+                            @can('issue', $distribution)
+                                <form action="{{ route('distributions.process', $distribution) }}" method="POST" class="inline">
+                                    @csrf
+                                    <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded" onclick="return confirm('Start processing payments?')">
+                                        Start Processing
+                                    </button>
+                                </form>
+                            @endcan
                         @endif
                     </div>
                 </div>
@@ -181,15 +189,21 @@
                                         {{ $payment->payment_method_label }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        {{-- Only authorized users can mark as paid or reverse --}}
                                         @if($payment->status === 'pending')
-                                            <button onclick="openMarkPaidModal({{ $payment->id }})" class="text-green-600 hover:text-green-900 mr-2">
-                                                Mark Paid
-                                            </button>
+                                            @can('markAsPaid', $payment)
+                                                <button onclick="openMarkPaidModal({{ $payment->id }})" class="text-green-600 hover:text-green-900 mr-2">
+                                                    Mark Paid
+                                                </button>
+                                            @endcan
                                         @endif
+                                        
                                         @if($payment->status === 'paid')
-                                            <button onclick="openReverseModal({{ $payment->id }})" class="text-red-600 hover:text-red-900">
-                                                Reverse
-                                            </button>
+                                            @can('update', $payment)
+                                                <button onclick="openReverseModal({{ $payment->id }})" class="text-red-600 hover:text-red-900">
+                                                    Reverse
+                                                </button>
+                                            @endcan
                                         @endif
                                     </td>
                                 </tr>
@@ -206,6 +220,10 @@
             </div>
         </div>
     </div>
-@include('components.mark-paid-modal')
-@include('components.reverse-payment-modal')
+
+{{-- Only include modals if user has permission to use them --}}
+@canany(['markAsPaid', 'update'], App\Models\PaymentTransaction::class)
+    @include('components.mark-paid-modal')
+    @include('components.reverse-payment-modal')
+@endcanany
 </x-app-layout>
