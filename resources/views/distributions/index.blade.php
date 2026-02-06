@@ -4,9 +4,12 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Distributions') }}
             </h2>
-            <a href="{{ route('distributions.create') }}" class="bg-brand-dark hover:bg-brand-darker text-white font-bold py-2 px-4 rounded">
-                + New Distribution
-            </a>
+            {{-- Only users who can create distributions see this button --}}
+            @can('create', App\Models\Distribution::class)
+                <a href="{{ route('distributions.create') }}" class="bg-brand-dark hover:bg-brand-darker text-white font-bold py-2 px-4 rounded">
+                    + New Distribution
+                </a>
+            @endcan
         </div>
     </x-slot>
 
@@ -92,25 +95,42 @@
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <a href="{{ route('distributions.show', $distribution) }}" class="text-brand-dark hover:text-brand-darker mr-3">View</a>
-                                        <a href="{{ route('distributions.edit', $distribution) }}" class="text-blue-600 hover:text-blue-900 mr-3">Edit</a>
+                                        {{-- Everyone who can see the list can view details --}}
+                                        @can('view', $distribution)
+                                            <a href="{{ route('distributions.show', $distribution) }}" class="text-brand-dark hover:text-brand-darker mr-3">View</a>
+                                        @endcan
+                                        
+                                        {{-- Only authorized users can edit --}}
+                                        @can('update', $distribution)
+                                            <a href="{{ route('distributions.edit', $distribution) }}" class="text-blue-600 hover:text-blue-900 mr-3">Edit</a>
+                                        @endcan
+                                        
+                                        {{-- Only authorized users can approve/process --}}
                                         @if($distribution->status === 'draft')
-                                            <form action="{{ route('distributions.approve', $distribution) }}" method="POST" class="inline">
-                                                @csrf
-                                                <button type="submit" class="text-green-600 hover:text-green-900" onclick="return confirm('Approve this distribution?')">Approve</button>
-                                            </form>
+                                            @can('issue', $distribution)
+                                                <form action="{{ route('distributions.approve', $distribution) }}" method="POST" class="inline">
+                                                    @csrf
+                                                    <button type="submit" class="text-green-600 hover:text-green-900" onclick="return confirm('Approve this distribution?')">Approve</button>
+                                                </form>
+                                            @endcan
                                         @elseif($distribution->status === 'approved')
-                                            <form action="{{ route('distributions.process', $distribution) }}" method="POST" class="inline">
-                                                @csrf
-                                                <button type="submit" class="text-blue-600 hover:text-blue-900" onclick="return confirm('Start processing this distribution?')">Process</button>
-                                            </form>
+                                            @can('issue', $distribution)
+                                                <form action="{{ route('distributions.process', $distribution) }}" method="POST" class="inline">
+                                                    @csrf
+                                                    <button type="submit" class="text-blue-600 hover:text-blue-900" onclick="return confirm('Start processing this distribution?')">Process</button>
+                                                </form>
+                                            @endcan
                                         @endif
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
                                     <td colspan="8" class="px-6 py-4 text-center text-gray-500">
-                                        No distributions found. <a href="{{ route('distributions.create') }}" class="text-brand-dark hover:underline">Create your first distribution</a>.
+                                        No distributions found. 
+                                        {{-- Only show create link if user has permission --}}
+                                        @can('create', App\Models\Distribution::class)
+                                            <a href="{{ route('distributions.create') }}" class="text-brand-dark hover:underline">Create your first distribution</a>.
+                                        @endcan
                                     </td>
                                 </tr>
                             @endforelse

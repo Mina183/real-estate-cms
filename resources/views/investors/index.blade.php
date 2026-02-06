@@ -4,10 +4,13 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Investors') }}
             </h2>
-            <a href="{{ route('investors.create') }}" 
-               class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                + New Investor
-            </a>
+            {{-- Only users who can create investors see this button --}}
+            @can('create', App\Models\Investor::class)
+                <a href="{{ route('investors.create') }}" 
+                   class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    + New Investor
+                </a>
+            @endcan
         </div>
     </x-slot>
 
@@ -101,14 +104,21 @@
                                                 {{ $investor->assignedTo->name ?? 'Unassigned' }}
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                <a href="{{ route('investors.show', $investor) }}" 
-                                                   class="text-blue-600 hover:text-blue-900 mr-3">
-                                                    View
-                                                </a>
-                                                <a href="{{ route('investors.edit', $investor) }}" 
-                                                   class="text-indigo-600 hover:text-indigo-900">
-                                                    Edit
-                                                </a>
+                                                {{-- Everyone who can see the list can view details --}}
+                                                @can('view', $investor)
+                                                    <a href="{{ route('investors.show', $investor) }}" 
+                                                       class="text-blue-600 hover:text-blue-900 mr-3">
+                                                        View
+                                                    </a>
+                                                @endcan
+                                                
+                                                {{-- Only authorized users can edit --}}
+                                                @can('update', $investor)
+                                                    <a href="{{ route('investors.edit', $investor) }}" 
+                                                       class="text-indigo-600 hover:text-indigo-900">
+                                                        Edit
+                                                    </a>
+                                                @endcan
                                             </td>
                                         </tr>
                                     @endforeach
@@ -126,12 +136,16 @@
                             </svg>
                             <h3 class="mt-2 text-sm font-medium text-gray-900">No investors</h3>
                             <p class="mt-1 text-sm text-gray-500">Get started by creating a new investor.</p>
-                            <div class="mt-6">
-                                <a href="{{ route('investors.create') }}" 
-                                   class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
-                                    + New Investor
-                                </a>
-                            </div>
+                            
+                            {{-- Only show create button if user has permission --}}
+                            @can('create', App\Models\Investor::class)
+                                <div class="mt-6">
+                                    <a href="{{ route('investors.create') }}" 
+                                       class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                                        + New Investor
+                                    </a>
+                                </div>
+                            @endcan
                         </div>
                     @endif
 

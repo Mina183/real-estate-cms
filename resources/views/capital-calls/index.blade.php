@@ -4,9 +4,12 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Capital Calls') }}
             </h2>
-            <a href="{{ route('capital-calls.create') }}" class="bg-brand-dark hover:bg-brand-darker text-white font-bold py-2 px-4 rounded">
-                + New Capital Call
-            </a>
+            {{-- Only users who can create capital calls see this button --}}
+            @can('create', App\Models\CapitalCall::class)
+                <a href="{{ route('capital-calls.create') }}" class="bg-brand-dark hover:bg-brand-darker text-white font-bold py-2 px-4 rounded">
+                    + New Capital Call
+                </a>
+            @endcan
         </div>
     </x-slot>
 
@@ -100,20 +103,35 @@
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <a href="{{ route('capital-calls.show', $call) }}" class="text-brand-dark hover:text-brand-darker mr-3">View</a>
-                                        <a href="{{ route('capital-calls.edit', $call) }}" class="text-blue-600 hover:text-blue-900 mr-3">Edit</a>
+                                        {{-- Everyone who can see the list can view details --}}
+                                        @can('view', $call)
+                                            <a href="{{ route('capital-calls.show', $call) }}" class="text-brand-dark hover:text-brand-darker mr-3">View</a>
+                                        @endcan
+                                        
+                                        {{-- Only authorized users can edit --}}
+                                        @can('update', $call)
+                                            <a href="{{ route('capital-calls.edit', $call) }}" class="text-blue-600 hover:text-blue-900 mr-3">Edit</a>
+                                        @endcan
+                                        
+                                        {{-- Only authorized users can issue draft capital calls --}}
                                         @if($call->status === 'draft')
-                                            <form action="{{ route('capital-calls.issue', $call) }}" method="POST" class="inline">
-                                                @csrf
-                                                <button type="submit" class="text-green-600 hover:text-green-900" onclick="return confirm('Issue this capital call?')">Issue</button>
-                                            </form>
+                                            @can('issue', $call)
+                                                <form action="{{ route('capital-calls.issue', $call) }}" method="POST" class="inline">
+                                                    @csrf
+                                                    <button type="submit" class="text-green-600 hover:text-green-900" onclick="return confirm('Issue this capital call?')">Issue</button>
+                                                </form>
+                                            @endcan
                                         @endif
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
                                     <td colspan="8" class="px-6 py-4 text-center text-gray-500">
-                                        No capital calls found. <a href="{{ route('capital-calls.create') }}" class="text-brand-dark hover:underline">Create your first capital call</a>.
+                                        No capital calls found. 
+                                        {{-- Only show create link if user has permission --}}
+                                        @can('create', App\Models\CapitalCall::class)
+                                            <a href="{{ route('capital-calls.create') }}" class="text-brand-dark hover:underline">Create your first capital call</a>.
+                                        @endcan
                                     </td>
                                 </tr>
                             @endforelse
