@@ -143,7 +143,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             abort(403, 'Unauthorized to download this document');
         }
 
-        if (!Storage::disk('public')->exists($document->file_path)) {
+        if (!Storage::disk('private')->exists($document->file_path)) {
             abort(404, 'File not found');
         }
 
@@ -159,7 +159,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         $mimeType = $mimeTypes[$document->file_type] ?? 'application/octet-stream';
 
-        return Storage::disk('public')->download(
+        return Storage::disk('private')->download(
             $document->file_path,
             $document->document_name,
             ['Content-Type' => $mimeType]
@@ -183,7 +183,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         $folder  = \App\Models\DataRoomFolder::findOrFail($request->folder_id);
         $storagePath = 'data-room/' . $folder->folder_number;
         $fileName    = $file->getClientOriginalName();
-        $filePath    = $file->storeAs($storagePath, $fileName, 'public');
+        $$filePath = $file->storeAs($storagePath, $fileName, 'private');
 
         DataRoomDocument::create([
             'folder_id'     => $request->folder_id,
