@@ -126,12 +126,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('data-room.index');
 
     Route::get('/data-room/export-index', function () {
+        // Gate check - can user export data?
+        if (!auth()->user()->can('export-data')) {
+            abort(403, 'Unauthorized to export data');
+        }
+        
         $fileName = 'Document_Index_' . date('Y-m-d') . '.xlsx';
         return Excel::download(new DocumentIndexExport, $fileName);
     })->name('data-room.export-index');
 
     Route::get('/data-room/download/{document}', function ($documentId) {
         $document = DataRoomDocument::findOrFail($documentId);
+        
+        // Policy check - can user download this document?
+        if (!auth()->user()->can('download', $document)) {
+            abort(403, 'Unauthorized to download this document');
+        }
 
         if (!Storage::disk('public')->exists($document->file_path)) {
             abort(404, 'File not found');
@@ -156,7 +166,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         );
     })->name('data-room.download');
 
-    Route::post('/data-room/upload', function (Request $request) {
+  Route::post('/data-room/upload', function (Request $request) {
+    // Policy check - can user upload documents?
+    if (!auth()->user()->can('upload', \App\Models\DataRoomDocument::class)) {
+        abort(403, 'Unauthorized to upload documents');
+    }
         $request->validate([
             'folder_id'     => 'required|exists:data_room_folders,id',
             'document_name' => 'required|string|max:255',
