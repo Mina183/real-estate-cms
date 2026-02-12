@@ -15,7 +15,7 @@
                 @if(auth()->user()->email === 'mk@poseidonhumancapital.com') {{-- PROMENI OVO U SVOJ EMAIL! --}}
                 <div class="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                     <h4 class="font-semibold text-sm text-gray-700 mb-3">🧪 Test Upload (Admin Only)</h4>
-                    @can('upload-to-data-room')
+                    @can('upload-documents')
                     <form action="{{ route('data-room.upload') }}" method="POST" enctype="multipart/form-data" class="space-y-3">
                         @csrf
                         
