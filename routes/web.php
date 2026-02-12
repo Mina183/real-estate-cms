@@ -183,7 +183,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         $folder  = \App\Models\DataRoomFolder::findOrFail($request->folder_id);
         $storagePath = 'data-room/' . $folder->folder_number;
         $fileName    = $file->getClientOriginalName();
-        $$filePath = $file->storeAs($storagePath, $fileName, 'private');
+        $filePath = $file->storeAs($storagePath, $fileName, 'private');
 
         DataRoomDocument::create([
             'folder_id'     => $request->folder_id,
