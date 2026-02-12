@@ -9,6 +9,7 @@ use App\Http\Controllers\InvestorController;
 use App\Http\Controllers\CapitalCallController;
 use App\Http\Controllers\DistributionController;
 use App\Http\Controllers\PaymentTransactionController;
+use App\Http\Controllers\DataRoomController;
 use App\Exports\DocumentIndexExport;
 use App\Models\DataRoomDocument;
 use Maatwebsite\Excel\Facades\Excel;
@@ -117,91 +118,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     | Data Room
     |--------------------------------------------------------------------------
     */
-    Route::get('/data-room', function () {
-        $folders = \App\Models\DataRoomFolder::whereNull('parent_folder_id')
-            ->with(['children.documents', 'documents'])
-            ->orderBy('order')
-            ->get();
-        return view('data-room.index', compact('folders'));
-    })->name('data-room.index');
-
-    Route::get('/data-room/export-index', function () {
-        // Gate check - can user export data?
-        if (!auth()->user()->can('export-data')) {
-            abort(403, 'Unauthorized to export data');
-        }
-        
-        $fileName = 'Document_Index_' . date('Y-m-d') . '.xlsx';
-        return Excel::download(new DocumentIndexExport, $fileName);
-    })->name('data-room.export-index');
-
-    Route::get('/data-room/download/{document}', function ($documentId) {
-        $document = DataRoomDocument::findOrFail($documentId);
-        
-        // Policy check - can user download this document?
-        if (!auth()->user()->can('download', $document)) {
-            abort(403, 'Unauthorized to download this document');
-        }
-
-        if (!Storage::disk('private')->exists($document->file_path)) {
-            abort(404, 'File not found');
-        }
-
-        $mimeTypes = [
-            'pdf'  => 'application/pdf',
-            'doc'  => 'application/msword',
-            'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'xls'  => 'application/vnd.ms-excel',
-            'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'ppt'  => 'application/vnd.ms-powerpoint',
-            'pptx' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-        ];
-
-        $mimeType = $mimeTypes[$document->file_type] ?? 'application/octet-stream';
-
-        return Storage::disk('private')->download(
-            $document->file_path,
-            $document->document_name,
-            ['Content-Type' => $mimeType]
-        );
-    })->name('data-room.download');
-
-  Route::post('/data-room/upload', function (Request $request) {
-    // Policy check - can user upload documents?
-    if (!auth()->user()->can('upload', \App\Models\DataRoomDocument::class)) {
-        abort(403, 'Unauthorized to upload documents');
-    }
-        $request->validate([
-            'folder_id'     => 'required|exists:data_room_folders,id',
-            'document_name' => 'required|string|max:255',
-            'document'      => 'required|file|max:10240',
-            'version'       => 'nullable|string',
-            'description'   => 'nullable|string',
-        ]);
-
-        $file    = $request->file('document');
-        $folder  = \App\Models\DataRoomFolder::findOrFail($request->folder_id);
-        $storagePath = 'data-room/' . $folder->folder_number;
-        $fileName    = $file->getClientOriginalName();
-        $filePath = $file->storeAs($storagePath, $fileName, 'private');
-
-        DataRoomDocument::create([
-            'folder_id'     => $request->folder_id,
-            'document_name' => $request->document_name,
-            'file_path'     => $filePath,
-            'file_type'     => $file->getClientOriginalExtension(),
-            'file_size'     => $file->getSize(),
-            'version'       => $request->version ?? '1.0',
-            'description'   => $request->description,
-            'status'        => 'approved',
-            'uploaded_by'   => auth()->id(),
-            'approved_by'   => auth()->id(),
-            'approved_at'   => now(),
-        ]);
-
-        return redirect()->route('data-room.index')
-            ->with('upload_success', 'Document uploaded: ' . $request->document_name);
-    })->name('data-room.upload');
+    Route::controller(DataRoomController::class)->group(function () {
+        Route::get('/data-room', 'index')->name('data-room.index');
+        Route::get('/data-room/export-index', 'exportIndex')->name('data-room.export-index');
+        Route::get('/data-room/download/{document}', 'download')->name('data-room.download');
+        Route::post('/data-room/upload', 'upload')->name('data-room.upload');
+    });
 
     /*
     |--------------------------------------------------------------------------
