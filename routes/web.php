@@ -8,6 +8,7 @@ use App\Http\Controllers\CapitalCallController;
 use App\Http\Controllers\DistributionController;
 use App\Http\Controllers\PaymentTransactionController;
 use App\Http\Controllers\DataRoomController;
+use App\Http\Controllers\InvestorAuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,7 +21,30 @@ Route::get('/', function () {
 
 /*
 |--------------------------------------------------------------------------
-| Authenticated Routes
+| Investor Authentication Routes
+|--------------------------------------------------------------------------
+*/
+Route::prefix('investor')->name('investor.')->group(function () {
+    
+    Route::middleware('guest:investor')->group(function () {
+        Route::get('/login', [InvestorAuthController::class, 'showLoginForm'])
+            ->name('login');
+        Route::post('/login', [InvestorAuthController::class, 'login']);
+    });
+
+    Route::middleware('investor')->group(function () {
+        Route::post('/logout', [InvestorAuthController::class, 'logout'])
+            ->name('logout');
+        
+        Route::get('/dashboard', function() {
+            return 'Investor Dashboard - Coming Soon';
+        })->name('dashboard');
+    });
+});
+
+/*
+|--------------------------------------------------------------------------
+| Authenticated Staff Routes
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'verified'])->group(function () {
