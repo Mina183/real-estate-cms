@@ -130,9 +130,6 @@
 
             <!-- Footer -->
             <div class="mt-6">
-                <p class="text-center text-xs text-gray-500">
-                    Need help? Contact <a href="mailto:support@poseidon-investment.com" class="text-blue-600 hover:text-blue-500">support@poseidon-investment.com</a>
-                </p>
                 <p class="mt-2 text-center text-xs text-gray-400">
                     Staff login? <a href="{{ route('login') }}" class="text-blue-600 hover:text-blue-500">Click here</a>
                 </p>
