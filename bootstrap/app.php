@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'auth' => \Illuminate\Auth\Middleware\Authenticate::class,
             'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
             'role' => \App\Http\Middleware\RoleMiddleware::class,
+            'investor' => \App\Http\Middleware\InvestorAuth::class,
             'data-room' => \App\Http\Middleware\CheckDataRoomAccess::class, // ← DODATO
         ]);
     })
