@@ -218,4 +218,9 @@ class Investor extends Model
     {
         return $this->belongsTo(User::class, 'kyc_reviewed_by');
     }
+
+    public function user()
+{
+    return $this->hasOne(InvestorUser::class);
+}
 }
