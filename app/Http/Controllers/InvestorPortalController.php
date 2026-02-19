@@ -35,6 +35,9 @@ class InvestorPortalController extends Controller
         return redirect()->route('investor.login');
     }
 
+        // TEMPORARY TEST - return simple view without layout
+    return view('investor.test-layout');
+
         // Portfolio stats
         $stats = [
             'commitment' => $investor->final_commitment_amount ?? $investor->target_commitment_amount ?? 0,
