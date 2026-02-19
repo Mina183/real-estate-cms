@@ -1,4 +1,4 @@
-<x-investor-layout>
+<x-layouts.investor-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-2xl text-brand-darker leading-tight">
             Welcome, {{ $investor->organization_name ?? 'Investor' }}
