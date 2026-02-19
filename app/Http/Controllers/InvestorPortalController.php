@@ -31,29 +31,27 @@ class InvestorPortalController extends Controller
             ? round(($stats['funded'] / $stats['commitment']) * 100, 1)
             : 0;
 
-        // Get capital calls for this investor
-        $capitalCalls = CapitalCall::where('investor_id', $investor->id)
-            ->orderBy('due_date', 'desc')
-            ->limit(5)
-            ->get();
+        // TEMPORARY — Capital calls and distributions disabled until we add investor_id to tables
+        $capitalCalls = collect(); // Empty collection
+        $distributions = collect(); // Empty collection
+        $totalCapitalCalled = 0;
+        $totalDistributed = 0;
+        $pendingCapitalCalls = 0;
 
-        // Get distributions for this investor
-        $distributions = Distribution::where('investor_id', $investor->id)
-            ->orderBy('distribution_date', 'desc')
-            ->limit(5)
-            ->get();
-
-        // Calculate totals
-        $totalCapitalCalled = CapitalCall::where('investor_id', $investor->id)
-            ->sum('amount');
-
-        $totalDistributed = Distribution::where('investor_id', $investor->id)
-            ->where('status', 'processed')
-            ->sum('amount');
-
-        $pendingCapitalCalls = CapitalCall::where('investor_id', $investor->id)
-            ->where('status', 'issued')
-            ->sum('amount');
+        // TODO: Re-enable when capital_calls and distributions tables have investor_id column
+        // $capitalCalls = CapitalCall::where('investor_id', $investor->id)
+        //     ->orderBy('due_date', 'desc')
+        //     ->limit(5)
+        //     ->get();
+        // $distributions = Distribution::where('investor_id', $investor->id)
+        //     ->orderBy('distribution_date', 'desc')
+        //     ->limit(5)
+        //     ->get();
+        // $totalCapitalCalled = CapitalCall::where('investor_id', $investor->id)->sum('amount');
+        // $totalDistributed = Distribution::where('investor_id', $investor->id)
+        //     ->where('status', 'processed')->sum('amount');
+        // $pendingCapitalCalls = CapitalCall::where('investor_id', $investor->id)
+        //     ->where('status', 'issued')->sum('amount');
 
         return view('investor.dashboard', compact(
             'investor',
