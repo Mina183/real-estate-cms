@@ -14,30 +14,13 @@ class InvestorPortalController extends Controller
      */
     public function dashboard()
     {
-
-        // DEBUG
-    \Log::info('Dashboard accessed', [
-        'guard' => Auth::guard('investor')->check() ? 'investor authenticated' : 'NOT authenticated',
-        'user_id' => Auth::guard('investor')->id()
-    ]);
-
         $investorUser = Auth::guard('investor')->user();
-
-            if (!$investorUser) {
-        \Log::error('Dashboard: No investor user found!');
-        return redirect()->route('investor.login');
-    }
-
         $investor = $investorUser->investor;
 
-            if (!$investor) {
-        \Log::error('Dashboard: Investor user has no linked investor!', ['user_id' => $investorUser->id]);
-        return redirect()->route('investor.login');
-    }
-
-        // TEMPORARY TEST - return simple view without layout
-    return view('investor.test-layout');
-
+        if (!$investor) {
+            return redirect()->route('investor.login')
+                ->with('error', 'Investor account not found');
+        }
         // Portfolio stats
         $stats = [
             'commitment' => $investor->final_commitment_amount ?? $investor->target_commitment_amount ?? 0,
