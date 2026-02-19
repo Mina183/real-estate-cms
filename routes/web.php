@@ -9,6 +9,7 @@ use App\Http\Controllers\DistributionController;
 use App\Http\Controllers\PaymentTransactionController;
 use App\Http\Controllers\DataRoomController;
 use App\Http\Controllers\InvestorAuthController;
+use App\Http\Controllers\InvestorPortalController;
 
 /*
 |--------------------------------------------------------------------------
@@ -36,9 +37,17 @@ Route::prefix('investor')->name('investor.')->group(function () {
         Route::post('/logout', [InvestorAuthController::class, 'logout'])
             ->name('logout');
         
-        Route::get('/dashboard', function() {
-            return 'Investor Dashboard - Coming Soon';
-        })->name('dashboard');
+        // Dashboard
+        Route::get('/dashboard', [InvestorPortalController::class, 'dashboard'])
+            ->name('dashboard');
+        
+        // Profile (placeholder for later)
+        Route::get('/profile', [InvestorPortalController::class, 'profile'])
+            ->name('profile');
+        
+        // Documents (placeholder for later)
+        Route::get('/documents', [InvestorPortalController::class, 'documents'])
+            ->name('documents');
     });
 });
 
