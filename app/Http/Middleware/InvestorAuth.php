@@ -16,21 +16,32 @@ class InvestorAuth
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Check if investor is authenticated using 'investor' guard
+        \Log::info('InvestorAuth middleware triggered', [
+            'authenticated' => Auth::guard('investor')->check(),
+            'path' => $request->path()
+        ]);
+
         if (!Auth::guard('investor')->check()) {
+            \Log::error('InvestorAuth: Not authenticated, redirecting to login');
             return redirect()->route('investor.login')
                 ->with('error', 'Please log in to access the investor portal.');
         }
 
-        // Check if investor account is active
         $investorUser = Auth::guard('investor')->user();
+        
+        \Log::info('InvestorAuth: User found', [
+            'user_id' => $investorUser->id,
+            'is_active' => $investorUser->is_active
+        ]);
         
         if (!$investorUser->is_active) {
             Auth::guard('investor')->logout();
+            \Log::error('InvestorAuth: Account inactive, logged out');
             return redirect()->route('investor.login')
                 ->with('error', 'Your account has been deactivated. Please contact support.');
         }
 
+        \Log::info('InvestorAuth: Passed, continuing to controller');
         return $next($request);
     }
 }
