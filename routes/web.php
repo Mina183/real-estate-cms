@@ -48,7 +48,11 @@ Route::prefix('investor')->name('investor.')->group(function () {
         // Documents (placeholder for later)
         Route::get('/documents', [InvestorPortalController::class, 'documents'])
             ->name('documents');
-    });
+
+        // Document download
+        Route::get('/documents/download/{document}', [InvestorPortalController::class, 'downloadDocument'])
+        ->name('documents.download');
+     });
 });
 
 /*

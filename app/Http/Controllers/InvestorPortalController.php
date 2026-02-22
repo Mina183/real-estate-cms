@@ -17,10 +17,6 @@ class InvestorPortalController extends Controller
         $investorUser = Auth::guard('investor')->user();
         $investor = $investorUser->investor;
 
-        if (!$investor) {
-            return redirect()->route('investor.login')
-                ->with('error', 'Investor account not found');
-        }
         // Portfolio stats
         $stats = [
             'commitment' => $investor->final_commitment_amount ?? $investor->target_commitment_amount ?? 0,
@@ -87,9 +83,70 @@ class InvestorPortalController extends Controller
         $investorUser = Auth::guard('investor')->user();
         $investor = $investorUser->investor;
 
-        // Get investor-accessible folders based on access level
-        // This will be implemented when we add Data Room investor access
+        // Get investor's access level
+        $accessLevel = $investor->data_room_access_level ?? 'none';
+
+        // Get accessible folders based on access level
+        // For now, show Section 12 (investor-specific) if they have 'subscribed' access
+        $folders = collect();
         
-        return view('investor.documents', compact('investor'));
+        if ($accessLevel === 'subscribed' || $accessLevel === 'qualified') {
+            // Section 12: Investor-Specific Documents
+            $folders = \App\Models\DataRoomFolder::where('folder_number', 'LIKE', '12.%')
+                ->with(['documents' => function($query) {
+                    $query->where('status', 'approved');
+                }])
+                ->orderBy('folder_number')
+                ->get();
+        }
+
+        return view('investor.documents', compact('investor', 'folders', 'accessLevel'));
+    }
+
+    /**
+     * Download a document (investor-specific)
+     */
+    public function downloadDocument($documentId)
+    {
+        $investorUser = Auth::guard('investor')->user();
+        $investor = $investorUser->investor;
+
+        $document = \App\Models\DataRoomDocument::findOrFail($documentId);
+
+        // Check if investor has access to this document's folder
+        $folder = $document->folder;
+        
+        // Only allow Section 12 documents
+        if (!str_starts_with($folder->folder_number, '12.')) {
+            abort(403, 'You do not have access to this document');
+        }
+
+        // Check if file exists
+        if (!\Storage::disk('private')->exists($document->file_path)) {
+            abort(404, 'File not found');
+        }
+
+        // Log document access (for audit trail)
+        \Log::info('Investor document download', [
+            'investor_id' => $investor->id,
+            'document_id' => $document->id,
+            'document_name' => $document->document_name
+        ]);
+
+        $mimeTypes = [
+            'pdf'  => 'application/pdf',
+            'doc'  => 'application/msword',
+            'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'xls'  => 'application/vnd.ms-excel',
+            'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ];
+
+        $mimeType = $mimeTypes[$document->file_type] ?? 'application/octet-stream';
+
+        return \Storage::disk('private')->download(
+            $document->file_path,
+            $document->document_name,
+            ['Content-Type' => $mimeType]
+        );
     }
 }
