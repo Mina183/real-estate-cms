@@ -24,7 +24,7 @@ class CapitalCallController extends Controller
      */
     public function __construct()
     {
-        $this->authorizeResource(CapitalCall::class, 'capital_call');
+        $this->authorizeResource(CapitalCall::class, 'capitalCall');
     }
 
     /**
