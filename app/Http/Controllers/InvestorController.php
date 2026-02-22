@@ -119,6 +119,9 @@ class InvestorController extends Controller
             'source_of_introduction' => 'nullable|in:direct,advisor,placement_agent,referral,event,other',
             'referral_source' => 'nullable|string|max:255',
             'notes' => 'nullable|string',
+
+            // KYC Status - DODAJ OVO!
+            'kyc_status' => 'nullable|in:not_started,in_progress,submitted,under_review,complete,rejected',
             
             // Compliance checkboxes
             'is_professional_client' => 'nullable|boolean',
