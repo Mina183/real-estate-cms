@@ -261,4 +261,23 @@ class InvestorController extends Controller
 
         return view('investors.activity', compact('investor', 'activities', 'stageTransitions'));
     }
+
+    /**
+     * Get automation text for stage
+     */
+    protected function getAutomationText(string $stage): string
+    {
+        return match($stage) {
+            'prospect' => 'No automatic actions',
+            'eligibility_review' => 'Sanctions check timestamp recorded',
+            'ppm_issued' => 'Data Room access granted (PROSPECT level), PPM issue date recorded',
+            'kyc_in_progress' => 'Data Room upgraded to QUALIFIED level',
+            'subscription_signed' => 'Subscription date recorded',
+            'approved' => 'Approval date and approver recorded',
+            'funded' => 'Funding date recorded',
+            'active' => 'Data Room upgraded to SUBSCRIBED level, Investor ID generated, Reporting access granted',
+            'monitored' => 'Ongoing monitoring enabled',
+            default => 'No automatic actions',
+        };
+    }
 }
