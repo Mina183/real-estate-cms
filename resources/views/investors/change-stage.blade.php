@@ -234,72 +234,45 @@
         </div>
     </div>
 
-    <script>
-        // Stage requirements information
-        const stageRequirements = {
-            'prospect': {
-                requirements: ['None - starting stage'],
-                automation: 'No automatic actions'
-            },
-            'eligibility_review': {
-                requirements: ['Target commitment amount ≥ $1M', 'Valid jurisdiction'],
-                automation: 'Sanctions check timestamp will be recorded'
-            },
-            'ppm_issued': {
-                requirements: ['Confirmed as professional client', 'Sanctions check passed'],
-                automation: '✓ Data Room access granted (PROSPECT level)'
-            },
-            'kyc_in_progress': {
-                requirements: ['PPM acknowledged'],
-                automation: '✓ Data Room upgraded to QUALIFIED level'
-            },
-            'subscription_signed': {
-                requirements: ['KYC status = Complete', 'Sanctions check passed'],
-                automation: 'Subscription date recorded'
-            },
-            'approved': {
-                requirements: ['Subscription signed', 'Final commitment amount > 0'],
-                automation: 'Approval date & approver recorded'
-            },
-            'funded': {
-                requirements: ['Approved', 'Bank account verified'],
-                automation: 'Funding date recorded'
-            },
-            'active': {
-                requirements: ['Funded amount > 0'],
-                automation: '✓ Data Room upgraded to SUBSCRIBED level, ✓ Investor ID generated, ✓ Reporting access granted'
-            },
-            'monitored': {
-                requirements: ['Active investor'],
-                automation: 'Ongoing KYC/AML monitoring enabled'
-            }
-        };
+<script>
+    // Dynamic stage requirements from backend
+    const stageRequirements = @json($stageRequirements);
 
-        // Update stage info when selection changes
-        document.getElementById('new_stage').addEventListener('change', function() {
-            const stageValue = this.value;
-            const infoDiv = document.getElementById('stage-info');
+    // Update stage info when selection changes
+    document.getElementById('new_stage').addEventListener('change', function() {
+        const stageValue = this.value;
+        const infoDiv = document.getElementById('stage-info');
+        
+        if (stageValue && stageRequirements[stageValue]) {
+            const info = stageRequirements[stageValue];
             
-            if (stageValue && stageRequirements[stageValue]) {
-                const info = stageRequirements[stageValue];
-                infoDiv.innerHTML = `
-                    <div class="space-y-3">
-                        <div>
-                            <p class="font-semibold text-gray-700 mb-2">Requirements:</p>
-                            <ul class="list-disc list-inside space-y-1 text-gray-600">
-                                ${info.requirements.map(req => `<li>${req}</li>`).join('')}
-                            </ul>
-                        </div>
-                        <div>
-                            <p class="font-semibold text-gray-700 mb-1">Automatic Actions:</p>
-                            <p class="text-gray-600">${info.automation}</p>
-                        </div>
-                    </div>
+            // Build requirements list
+            let requirementsHtml = '<p class="text-sm text-gray-500 italic">All requirements met ✓</p>';
+            
+            if (info.requirements && info.requirements.length > 0) {
+                requirementsHtml = `
+                    <ul class="list-disc list-inside space-y-1 text-red-600">
+                        ${info.requirements.map(req => `<li class="text-sm">${req}</li>`).join('')}
+                    </ul>
                 `;
-            } else {
-                infoDiv.innerHTML = '<p class="text-gray-400 italic">Select a stage to see requirements...</p>';
             }
-        });
-    </script>
+            
+            infoDiv.innerHTML = `
+                <div class="space-y-3">
+                    <div>
+                        <p class="font-semibold text-gray-700 mb-2">Requirements:</p>
+                        ${requirementsHtml}
+                    </div>
+                    <div>
+                        <p class="font-semibold text-gray-700 mb-1">Automatic Actions:</p>
+                        <p class="text-sm text-gray-600">${info.automation || 'None'}</p>
+                    </div>
+                </div>
+            `;
+        } else {
+            infoDiv.innerHTML = '<p class="text-gray-400 italic">Select a stage to see requirements...</p>';
+        }
+    });
+</script>
 
 </x-app-layout>

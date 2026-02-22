@@ -190,7 +190,17 @@ class InvestorController extends Controller
             'monitored' => 'Monitored',
         ];
 
-        return view('investors.change-stage', compact('investor', 'stages'));
+        $stageService = app(\App\Services\InvestorStageService::class);
+        $stageRequirements = [];
+        
+        foreach (array_keys($stages) as $stage) {
+            $stageRequirements[$stage] = [
+                'requirements' => $stageService->getMissingRequirements($investor, $stage),
+                'automation' => $this->getAutomationText($stage)
+            ];
+        }
+
+        return view('investors.change-stage', compact('investor', 'stages', 'stageRequirements'));
     }
 
     /**
