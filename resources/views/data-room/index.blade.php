@@ -10,7 +10,7 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                 
                 {{-- ============================================ --}}
-                {{-- NOVI KOD 1: TEST UPLOAD FORM (samo za tebe) --}}
+                {{-- UPLOAD FORMA: TEST UPLOAD FORM (samo za tebe) --}}
                 {{-- ============================================ --}}
                 @if(auth()->user()->email === 'mk@poseidonhumancapital.com') {{-- PROMENI OVO U SVOJ EMAIL! --}}
                 <div class="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
@@ -21,13 +21,30 @@
                         
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Select Folder:</label>
-                            <select name="folder_id" class="border border-gray-300 rounded px-3 py-2 text-sm w-full max-w-md">
+                            <select name="folder_id" id="folder_id" class="border border-gray-300 rounded px-3 py-2 text-sm w-full max-w-md">
                                 <option value="">-- Select Folder --</option>
                                 @foreach($folders as $folder)
-                                    <option value="{{ $folder->id }}">{{ $folder->folder_number }} - {{ $folder->folder_name }}</option>
+                                    <option value="{{ $folder->id }}" data-folder-number="{{ $folder->folder_number }}">{{ $folder->folder_number }} - {{ $folder->folder_name }}</option>
                                     @foreach($folder->children as $child)
-                                        <option value="{{ $child->id }}">  └─ {{ $child->folder_number }} - {{ $child->folder_name }}</option>
+                                        <option value="{{ $child->id }}" data-folder-number="{{ $child->folder_number }}">  └─ {{ $child->folder_number }} - {{ $child->folder_name }}</option>
                                     @endforeach
+                                @endforeach
+                            </select>
+                        </div>
+
+                        {{-- INVESTOR SELECTION (shows only for Section 12) --}}
+                        <div id="investor-selection" style="display: none;">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Assign to Investor (Section 12 only):
+                                <span class="text-xs text-gray-500">(Leave blank for general documents)</span>
+                            </label>
+                            <select name="investor_id" class="border border-gray-300 rounded px-3 py-2 text-sm w-full max-w-md">
+                                <option value="">-- Available to All Investors --</option>
+                                @php
+                                    $investors = \App\Models\Investor::orderBy('organization_name')->get();
+                                @endphp
+                                @foreach($investors as $investor)
+                                    <option value="{{ $investor->id }}">{{ $investor->organization_name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -61,6 +78,23 @@
                             Upload Test Document
                         </button>
                     </form>
+
+                    {{-- JavaScript to show investor dropdown only for Section 12 --}}
+                    <script>
+                        document.getElementById('folder_id').addEventListener('change', function() {
+                            const selectedOption = this.options[this.selectedIndex];
+                            const folderNumber = selectedOption.getAttribute('data-folder-number');
+                            const investorSelection = document.getElementById('investor-selection');
+                            
+                            // Show investor dropdown only if folder is Section 12
+                            if (folderNumber && folderNumber.startsWith('12')) {
+                                investorSelection.style.display = 'block';
+                            } else {
+                                investorSelection.style.display = 'none';
+                            }
+                        });
+                    </script>
+
                     @endcan
                     @if(session('upload_success'))
                         <div class="mt-3 p-3 bg-green-100 text-green-800 rounded text-sm">
@@ -76,7 +110,7 @@
                 </div>
                 @endif
                 {{-- ============================================ --}}
-                {{-- KRAJ NOVOG KODA 1 --}}
+                {{-- KRAJ UPLOAD FORME --}}
                 {{-- ============================================ --}}
                 
                 {{-- Header with Download and Read Me buttons --}}
