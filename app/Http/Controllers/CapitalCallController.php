@@ -52,9 +52,15 @@ class CapitalCallController extends Controller
      */
     public function create()
     {
-        // Get active investors for payment assignment
-        $investors = Investor::where('stage', 'active')
+        // Get investors ready for capital calls (stage 5+)
+        $investors = Investor::whereIn('stage', [
+                'subscription_signed',
+                'bank_verified', 
+                'final_commitment_set',
+                'active'
+            ])
             ->where('final_commitment_amount', '>', 0)
+            ->orderBy('organization_name')
             ->get();
 
         return view('capital-calls.create', compact('investors'));
