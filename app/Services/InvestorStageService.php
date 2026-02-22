@@ -283,7 +283,7 @@ class InvestorStageService
 
         foreach ($rules as $field => $rule) {
             $operator = $rule[0];
-            $value = $rule[1] ?? null; // ← FIX: Use null if no value
+            $value = $rule[1] ?? null;
             $fieldValue = $investor->$field;
 
             $isMissing = false;
