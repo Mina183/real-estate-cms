@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::table('capital_calls', function (Blueprint $table) {
             // Add investor_id to link capital calls to specific investors
             $table->foreignId('investor_id')
+                ->nullable()
                 ->after('id')
                 ->constrained('investors')
                 ->cascadeOnDelete();
