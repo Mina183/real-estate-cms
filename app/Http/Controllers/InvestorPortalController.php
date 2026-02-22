@@ -13,57 +13,70 @@ class InvestorPortalController extends Controller
      * Display investor dashboard
      */
     public function dashboard()
-    {
-        $investorUser = Auth::guard('investor')->user();
-        $investor = $investorUser->investor;
+        {
+            $investorUser = Auth::guard('investor')->user();
+            $investor = $investorUser->investor;
 
-        // Portfolio stats
-        $stats = [
-            'commitment' => $investor->final_commitment_amount ?? $investor->target_commitment_amount ?? 0,
-            'funded' => $investor->funded_amount ?? 0,
-            'currency' => $investor->currency ?? 'USD',
-            'stage' => $investor->stage,
-            'status' => $investor->status,
-        ];
+            if (!$investor) {
+                return redirect()->route('investor.login')
+                    ->with('error', 'Investor account not found');
+            }
 
-        // Calculate funded percentage
-        $stats['funded_percentage'] = $stats['commitment'] > 0 
-            ? round(($stats['funded'] / $stats['commitment']) * 100, 1)
-            : 0;
+            // Portfolio stats
+            $stats = [
+                'commitment' => $investor->final_commitment_amount ?? $investor->target_commitment_amount ?? 0,
+                'funded' => $investor->funded_amount ?? 0,
+                'currency' => $investor->currency ?? 'USD',
+                'stage' => $investor->stage,
+                'status' => $investor->status,
+            ];
 
-        // TEMPORARY — Capital calls and distributions disabled until we add investor_id to tables
-        $capitalCalls = collect(); // Empty collection
-        $distributions = collect(); // Empty collection
-        $totalCapitalCalled = 0;
-        $totalDistributed = 0;
-        $pendingCapitalCalls = 0;
+            // Calculate funded percentage
+            $stats['funded_percentage'] = $stats['commitment'] > 0 
+                ? round(($stats['funded'] / $stats['commitment']) * 100, 1)
+                : 0;
 
-        // TODO: Re-enable when capital_calls and distributions tables have investor_id column
-        // $capitalCalls = CapitalCall::where('investor_id', $investor->id)
-        //     ->orderBy('due_date', 'desc')
-        //     ->limit(5)
-        //     ->get();
-        // $distributions = Distribution::where('investor_id', $investor->id)
-        //     ->orderBy('distribution_date', 'desc')
-        //     ->limit(5)
-        //     ->get();
-        // $totalCapitalCalled = CapitalCall::where('investor_id', $investor->id)->sum('amount');
-        // $totalDistributed = Distribution::where('investor_id', $investor->id)
-        //     ->where('status', 'processed')->sum('amount');
-        // $pendingCapitalCalls = CapitalCall::where('investor_id', $investor->id)
-        //     ->where('status', 'issued')->sum('amount');
+            // Get payment transactions for this investor (capital calls)
+            $capitalCallPayments = \App\Models\PaymentTransaction::where('investor_id', $investor->id)
+                ->where('transactionable_type', 'App\\Models\\CapitalCall')
+                ->with('transactionable')
+                ->orderBy('created_at', 'desc')
+                ->limit(5)
+                ->get();
 
-        return view('investor.dashboard', compact(
-            'investor',
-            'stats',
-            'capitalCalls',
-            'distributions',
-            'totalCapitalCalled',
-            'totalDistributed',
-            'pendingCapitalCalls'
-        ));
-    }
+            // Get payment transactions for distributions
+            $distributionPayments = \App\Models\PaymentTransaction::where('investor_id', $investor->id)
+                ->where('transactionable_type', 'App\\Models\\Distribution')
+                ->with('transactionable')
+                ->orderBy('created_at', 'desc')
+                ->limit(5)
+                ->get();
 
+            // Calculate totals from payment transactions
+            $totalCapitalCalled = \App\Models\PaymentTransaction::where('investor_id', $investor->id)
+                ->where('transactionable_type', 'App\\Models\\CapitalCall')
+                ->sum('amount');
+
+            $totalDistributed = \App\Models\PaymentTransaction::where('investor_id', $investor->id)
+                ->where('transactionable_type', 'App\\Models\\Distribution')
+                ->where('status', 'paid')
+                ->sum('amount');
+
+            $pendingCapitalCalls = \App\Models\PaymentTransaction::where('investor_id', $investor->id)
+                ->where('transactionable_type', 'App\\Models\\CapitalCall')
+                ->whereIn('status', ['pending', 'issued'])
+                ->sum('amount');
+
+            return view('investor.dashboard', compact(
+                'investor',
+                'stats',
+                'capitalCallPayments',
+                'distributionPayments',
+                'totalCapitalCalled',
+                'totalDistributed',
+                'pendingCapitalCalls'
+            ));
+        }
     /**
      * Display investor profile/account information
      */

@@ -105,5 +105,13 @@ class CapitalCall extends Model
     {
         return $query->whereIn('status', ['issued', 'partially_paid']);
     }
+
+    /**
+     * Relationship: Capital call belongs to an investor
+     */
+    public function investor()
+    {
+        return $this->belongsTo(Investor::class);
+    }
 }
 

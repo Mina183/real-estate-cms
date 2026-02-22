@@ -79,27 +79,33 @@
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Recent Capital Calls</h3>
                 </div>
                 <div class="p-6">
-                    @if($capitalCalls->count() > 0)
+                    @if($capitalCallPayments->count() > 0)
                         <div class="space-y-4">
-                            @foreach($capitalCalls as $call)
-                                <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                                    <div>
-                                        <p class="font-semibold text-gray-900 dark:text-white">{{ $call->reference_number }}</p>
-                                        <p class="text-sm text-gray-600 dark:text-gray-400">Due: {{ $call->due_date->format('M d, Y') }}</p>
-                                    </div>
-                                    <div class="text-right">
-                                        <p class="font-bold text-gray-900 dark:text-white">{{ $call->currency }} {{ number_format($call->amount, 0) }}</p>
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                            @if($call->status === 'issued') bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400
-                                            @elseif($call->status === 'paid') bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400
-                                            @elseif($call->status === 'overdue') bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400
-                                            @else bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300
-                                            @endif">
-                                            {{ ucfirst($call->status) }}
-                                        </span>
-                                    </div>
+                        @foreach($capitalCallPayments as $payment)
+                            <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                <div>
+                                    <p class="font-semibold text-gray-900 dark:text-white">
+                                        {{ $payment->transactionable->title ?? 'Capital Call #' . $payment->transactionable->call_number }}
+                                    </p>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                                        Due: {{ $payment->transactionable->due_date->format('M d, Y') }}
+                                    </p>
                                 </div>
-                            @endforeach
+                                <div class="text-right">
+                                    <p class="font-bold text-gray-900 dark:text-white">
+                                        {{ $payment->currency }} {{ number_format($payment->amount, 0) }}
+                                    </p>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                        @if($payment->status === 'pending') bg-yellow-100 text-yellow-800
+                                        @elseif($payment->status === 'paid') bg-green-100 text-green-800
+                                        @elseif($payment->status === 'overdue') bg-red-100 text-red-800
+                                        @else bg-gray-100 text-gray-800
+                                        @endif">
+                                        {{ ucfirst($payment->status) }}
+                                    </span>
+                                </div>
+                            </div>
+                        @endforeach
                         </div>
                         @if($pendingCapitalCalls > 0)
                             <div class="mt-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
@@ -120,28 +126,36 @@
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Recent Distributions</h3>
                 </div>
                 <div class="p-6">
-                    @if($distributions->count() > 0)
-                        <div class="space-y-4">
-                            @foreach($distributions as $dist)
-                                <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                                    <div>
-                                        <p class="font-semibold text-gray-900 dark:text-white">{{ $dist->reference_number }}</p>
-                                        <p class="text-sm text-gray-600 dark:text-gray-400">{{ $dist->distribution_date->format('M d, Y') }}</p>
-                                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ ucfirst(str_replace('_', ' ', $dist->distribution_type)) }}</p>
-                                    </div>
-                                    <div class="text-right">
-                                        <p class="font-bold text-green-600 dark:text-green-400">{{ $dist->currency }} {{ number_format($dist->amount, 0) }}</p>
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                            @if($dist->status === 'draft') bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300
-                                            @elseif($dist->status === 'approved') bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400
-                                            @elseif($dist->status === 'processed') bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400
-                                            @else bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300
-                                            @endif">
-                                            {{ ucfirst($dist->status) }}
-                                        </span>
-                                    </div>
-                                </div>
-                            @endforeach
+        @if($distributionPayments->count() > 0)
+            <div class="space-y-4">
+                @foreach($distributionPayments as $payment)
+                    <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <div>
+                            <p class="font-semibold text-gray-900 dark:text-white">
+                                {{ $payment->transactionable->reference_number ?? 'Distribution #' . $payment->transactionable->id }}
+                            </p>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">
+                                {{ $payment->transactionable->distribution_date->format('M d, Y') }}
+                            </p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">
+                                {{ ucfirst(str_replace('_', ' ', $payment->transactionable->distribution_type ?? 'distribution')) }}
+                            </p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-green-600 dark:text-green-400">
+                                {{ $payment->currency }} {{ number_format($payment->amount, 0) }}
+                            </p>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                @if($payment->status === 'pending') bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300
+                                @elseif($payment->status === 'approved') bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400
+                                @elseif($payment->status === 'paid') bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400
+                                @else bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300
+                                @endif">
+                                {{ ucfirst($payment->status) }}
+                            </span>
+                        </div>
+                    </div>
+                @endforeach
                         </div>
                     @else
                         <p class="text-gray-500 dark:text-gray-400 text-center py-8">No distributions yet</p>
