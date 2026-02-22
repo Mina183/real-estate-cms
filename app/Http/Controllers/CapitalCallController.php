@@ -63,6 +63,14 @@ class CapitalCallController extends Controller
             ->orderBy('organization_name')
             ->get();
 
+                // DEBUG
+    \Log::info('Capital Call Create', [
+        'investors_count' => $investors->count(),
+        'abc_exists' => Investor::where('organization_name', 'LIKE', '%ABC%')->exists(),
+        'abc_stage' => Investor::where('organization_name', 'LIKE', '%ABC%')->value('stage'),
+        'abc_commitment' => Investor::where('organization_name', 'LIKE', '%ABC%')->value('final_commitment_amount'),
+    ]);
+
         return view('capital-calls.create', compact('investors'));
     }
 
