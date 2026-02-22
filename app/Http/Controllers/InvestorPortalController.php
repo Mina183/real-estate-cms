@@ -93,8 +93,13 @@ class InvestorPortalController extends Controller
         if ($accessLevel === 'subscribed' || $accessLevel === 'qualified') {
             // Section 12: Investor-Specific Documents
             $folders = \App\Models\DataRoomFolder::where('folder_number', 'LIKE', '12%')
-                ->with(['documents' => function($query) {
-                    $query->where('status', 'approved');
+                ->with(['documents' => function($query) use ($investor) {
+                    $query->where('status', 'approved')
+                          ->where(function($q) use ($investor) {
+                          // Show documents assigned to this investor OR general documents (investor_id = NULL)
+                          $q->where('investor_id', $investor->id)
+                              ->orWhereNull('investor_id');
+                           });
                 }])
                 ->orderBy('folder_number')
                 ->get();

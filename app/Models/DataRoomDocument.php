@@ -11,6 +11,7 @@ class DataRoomDocument extends Model
 
     protected $fillable = [
         'folder_id',
+        'investor_id',
         'document_name',
         'file_path',
         'file_type',
@@ -40,5 +41,10 @@ class DataRoomDocument extends Model
     public function approver()
     {
         return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    public function investor()
+    {
+        return $this->belongsTo(Investor::class);
     }
 }
