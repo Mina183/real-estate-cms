@@ -92,7 +92,7 @@ class InvestorPortalController extends Controller
         
         if ($accessLevel === 'subscribed' || $accessLevel === 'qualified') {
             // Section 12: Investor-Specific Documents
-            $folders = \App\Models\DataRoomFolder::where('folder_number', 'LIKE', '12.%')
+            $folders = \App\Models\DataRoomFolder::where('folder_number', 'LIKE', '12%')
                 ->with(['documents' => function($query) {
                     $query->where('status', 'approved');
                 }])
@@ -117,7 +117,7 @@ class InvestorPortalController extends Controller
         $folder = $document->folder;
         
         // Only allow Section 12 documents
-        if (!str_starts_with($folder->folder_number, '12.')) {
+        if (!str_starts_with($folder->folder_number, '12')) {
             abort(403, 'You do not have access to this document');
         }
 
