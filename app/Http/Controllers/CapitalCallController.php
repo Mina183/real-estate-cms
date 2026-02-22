@@ -54,10 +54,9 @@ class CapitalCallController extends Controller
     {
         // Get investors ready for capital calls (stage 5+)
         $investors = Investor::whereIn('stage', [
-                'subscription_signed',
-                'bank_verified', 
-                'final_commitment_set',
-                'active'
+            'approved',   // ← Compliance odobrio
+            'funded',     // ← Uplatio novac
+            'active'      // ← Aktivan investor
             ])
             ->where(function($q) {
                 $q->where('final_commitment_amount', '>', 0)
@@ -171,10 +170,9 @@ class CapitalCallController extends Controller
     public function edit(CapitalCall $capitalCall)
     {
         $investors = Investor::whereIn('stage', [
-                'subscription_signed',
-                'bank_verified', 
-                'final_commitment_set',
-                'active'
+            'approved',   // ← Compliance odobrio
+            'funded',     // ← Uplatio novac
+            'active'      // ← Aktivan investor
             ])
             ->where(function($q) {
                 $q->where('final_commitment_amount', '>', 0)

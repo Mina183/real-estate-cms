@@ -51,9 +51,12 @@ class DistributionController extends Controller
      */
     public function create()
     {
-        // Get active investors eligible for distributions
-        $investors = Investor::where('stage', 'active')
+        $investors = Investor::whereIn('stage', [
+                'funded',
+                'active'
+            ])
             ->where('funded_amount', '>', 0)
+            ->orderBy('organization_name')
             ->get();
 
         return view('distributions.create', compact('investors'));
@@ -156,7 +159,14 @@ class DistributionController extends Controller
      */
     public function edit(Distribution $distribution)
     {
-        $investors = Investor::where('stage', 'active')->get();
+        $investors = Investor::whereIn('stage', [
+                'funded',
+                'active'
+            ])
+            ->where('funded_amount', '>', 0)
+            ->orderBy('organization_name')
+            ->get();
+            
         $distribution->load('payments.investor');
 
         return view('distributions.edit', compact('distribution', 'investors'));
