@@ -81,6 +81,7 @@ class DataRoomController extends Controller
 
         $request->validate([
             'folder_id'     => 'required|exists:data_room_folders,id',
+            'investor_id'   => 'nullable|exists:investors,id', 
             'document_name' => 'required|string|max:255',
             'document'      => 'required|file|max:10240',
             'version'       => 'nullable|string',
@@ -95,6 +96,7 @@ class DataRoomController extends Controller
 
         DataRoomDocument::create([
             'folder_id'     => $request->folder_id,
+            'investor_id'   => $request->investor_id,
             'document_name' => $request->document_name,
             'file_path'     => $filePath,
             'file_type'     => $file->getClientOriginalExtension(),
