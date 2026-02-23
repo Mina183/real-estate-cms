@@ -11,33 +11,56 @@ class InvestorStageService
     /**
      * Stage validation rules
      */
+<?php
+
+// REPLACE $stageRules in InvestorStageService.php (around line 12-48) with:
+
     protected array $stageRules = [
+        // STAGE 2: Eligibility Review
         'eligibility_review' => [
             'target_commitment_amount' => ['min', 1000000], // $1M minimum
-            'jurisdiction' => ['not_in', ['sanctioned_countries']], // Example
+            'is_professional_client' => ['equals', true],   // Professional Client confirmed
+            'sanctions_check_passed' => ['equals', true],   // Sanctions check passed
         ],
+        
+        // STAGE 3: PPM Issued
         'ppm_issued' => [
-            'is_professional_client' => ['equals', true],
-            'sanctions_check_passed' => ['equals', true],
-            'confidentiality_acknowledged' => ['equals', true],
+            'is_professional_client' => ['equals', true],   // Must be confirmed
+            'sanctions_check_passed' => ['equals', true],   // Compliance pre-clearance
+            'agreed_confidentiality' => ['equals', true],   // FIXED: correct field name
         ],
+        
+        // STAGE 4: KYC In Progress
         'kyc_in_progress' => [
-            'ppm_acknowledged_date' => ['not_null'],
+            'ppm_acknowledged_date' => ['not_null'],        // PPM acknowledged
         ],
+        
+        // STAGE 5: Subscription Signed
         'subscription_signed' => [
-            'kyc_status' => ['equals', 'complete'],
-            'sanctions_check_passed' => ['equals', true],
+            'kyc_status' => ['equals', 'complete'],         // KYC complete
+            'sanctions_check_passed' => ['equals', true],   // Sanctions passed
         ],
+        
+        // STAGE 6: Approved
         'approved' => [
-            'subscription_signed_date' => ['not_null'],
-            'final_commitment_amount' => ['greater_than', 0],
+            'subscription_signed_date' => ['not_null'],     // Subscription signed
+            'final_commitment_amount' => ['greater_than', 0], // Final commitment set
         ],
+        
+        // STAGE 7: Funded
         'funded' => [
-            'approved_date' => ['not_null'],
-            'bank_account_verified' => ['equals', true],
+            'approved_date' => ['not_null'],                // Must be approved first
+            'bank_account_verified' => ['equals', true],    // Bank verified
         ],
+        
+        // STAGE 8: Active
         'active' => [
-            'funded_amount' => ['greater_than', 0],
+            'funded_amount' => ['greater_than', 0],         // Funds received
+        ],
+
+        // STAGE 9: Monitored
+        'monitored' => [
+            // No specific requirements - admin decision for ongoing monitoring
         ],
     ];
 

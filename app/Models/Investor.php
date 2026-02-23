@@ -114,6 +114,17 @@ class Investor extends Model
         'notes',
         'metadata',
         'created_by_user_id',
+
+        // NEW FIELDS
+        'investor_experience',
+        'legal_review_complete',
+        'board_approval_required',
+        'board_approval_date',
+        'units_allotted',
+        'welcome_letter_sent_date',
+        'investor_register_updated',
+        'next_action',
+        'next_action_due_date',
     ];
 
     protected $casts = [
@@ -159,6 +170,13 @@ class Investor extends Model
         'data_room_login_count' => 'integer',
         'data_room_documents_viewed' => 'integer',
         'metadata' => 'array',
+        'legal_review_complete' => 'boolean',
+        'board_approval_required' => 'boolean',
+        'investor_register_updated' => 'boolean',
+        'board_approval_date' => 'date',
+        'welcome_letter_sent_date' => 'date',
+        'next_action_due_date' => 'date',
+        'units_allotted' => 'decimal:4',
     ];
 
     // Relationships

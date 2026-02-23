@@ -10,26 +10,11 @@ use App\Services\InvestorStageService;
 
 class InvestorController extends Controller
 {
-    /**
-     * Apply Policy authorization to all resource methods
-     * 
-     * Automatically maps:
-     * - index()   → viewAny()
-     * - create()  → create()
-     * - store()   → create()
-     * - show()    → view()
-     * - edit()    → update()
-     * - update()  → update()
-     * - destroy() → delete()
-     */
     public function __construct()
     {
         $this->authorizeResource(Investor::class, 'investor');
     }
 
-    /**
-     * Display a listing of investors
-     */
     public function index()
     {
         $investors = Investor::with(['fund', 'assignedTo'])
@@ -39,9 +24,6 @@ class InvestorController extends Controller
         return view('investors.index', compact('investors'));
     }
 
-    /**
-     * Show the form for creating a new investor
-     */
     public function create()
     {
         $funds = Fund::where('status', 'active')->get();
@@ -50,9 +32,6 @@ class InvestorController extends Controller
         return view('investors.create', compact('funds', 'users'));
     }
 
-    /**
-     * Store a newly created investor
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -61,8 +40,8 @@ class InvestorController extends Controller
             'legal_entity_name' => 'nullable|string|max:255',
             'jurisdiction' => 'required|string|max:100',
             'fund_id' => 'nullable|exists:funds,id',
-            'assigned_to_user_id' => 'nullable|exists:users,id',
-            'target_commitment_amount' => 'nullable|numeric|min:0',
+            'assigned_to_user_id' => 'required|exists:users,id', // REQUIRED
+            'target_commitment_amount' => 'nullable|numeric|min:1000000', // $1M minimum
             'currency' => 'nullable|string|max:3',
             'source_of_introduction' => 'nullable|in:direct,advisor,placement_agent,referral,event,other',
             'referral_source' => 'nullable|string|max:255',
@@ -81,9 +60,6 @@ class InvestorController extends Controller
             ->with('success', 'Investor created successfully!');
     }
 
-    /**
-     * Display the specified investor
-     */
     public function show(Investor $investor)
     {
         $investor->load(['fund', 'contacts', 'commitments', 'assignedTo', 'createdBy']);
@@ -91,9 +67,6 @@ class InvestorController extends Controller
         return view('investors.show', compact('investor'));
     }
 
-    /**
-     * Show the form for editing the specified investor
-     */
     public function edit(Investor $investor)
     {
         $funds = Fund::where('status', 'active')->get();
@@ -102,9 +75,6 @@ class InvestorController extends Controller
         return view('investors.edit', compact('investor', 'funds', 'users'));
     }
 
-    /**
-     * Update the specified investor
-     */
     public function update(Request $request, Investor $investor)
     {
         $validated = $request->validate([
@@ -113,32 +83,72 @@ class InvestorController extends Controller
             'legal_entity_name' => 'nullable|string|max:255',
             'jurisdiction' => 'required|string|max:100',
             'fund_id' => 'nullable|exists:funds,id',
-            'assigned_to_user_id' => 'nullable|exists:users,id',
-            'target_commitment_amount' => 'nullable|numeric|min:0',
+            'assigned_to_user_id' => 'required|exists:users,id',
+            'target_commitment_amount' => 'nullable|numeric|min:1000000', // $1M minimum
             'currency' => 'nullable|string|max:3',
             'source_of_introduction' => 'nullable|in:direct,advisor,placement_agent,referral,event,other',
             'referral_source' => 'nullable|string|max:255',
             'notes' => 'nullable|string',
-
-            // KYC Status - DODAJ OVO!
-            'kyc_status' => 'nullable|in:not_started,in_progress,submitted,under_review,complete,rejected',
             
-            // Compliance checkboxes
+            // Compliance checkboxes - USING CORRECT FIELD NAMES FROM DATABASE
             'is_professional_client' => 'nullable|boolean',
             'sanctions_check_passed' => 'nullable|boolean',
             'bank_account_verified' => 'nullable|boolean',
-            'confidentiality_acknowledged' => 'nullable|boolean',
+            'agreed_confidentiality' => 'nullable|boolean', // FIXED: was confidentiality_acknowledged
+            'acknowledged_ppm_confidential' => 'nullable|boolean', // ADDED
+            
+            // KYC status
+            'kyc_status' => 'nullable|in:not_started,in_progress,submitted,under_review,complete,rejected,expired',
+            
+            // Stage 2 fields
+            'risk_profile' => 'nullable|in:low,medium,high',
+            'investor_experience' => 'nullable|string',
+            
+            // Stage 4 fields
+            'kyc_risk_rating' => 'nullable|in:low,medium,high',
+            'enhanced_due_diligence_required' => 'nullable|boolean',
+            
+            // Stage 5 fields
+            'side_letter_exists' => 'nullable|boolean',
+            'side_letter_terms' => 'nullable|string',
+            'legal_review_complete' => 'nullable|boolean',
+            
+            // Stage 6 fields
+            'board_approval_required' => 'nullable|boolean',
+            'board_approval_date' => 'nullable|date',
+            'admission_notice_issued_date' => 'nullable|date',
+            
+            // Stage 8 fields
+            'units_allotted' => 'nullable|numeric|min:0',
+            'share_class' => 'nullable|string|max:100',
+            'welcome_letter_sent_date' => 'nullable|date',
+            'investor_register_updated' => 'nullable|boolean',
+            
+            // CRM fields
+            'next_action' => 'nullable|string',
+            'next_action_due_date' => 'nullable|date',
+            
+            // Stage 9 fields
+            'last_kyc_refresh_date' => 'nullable|date',
+            'next_kyc_refresh_due' => 'nullable|date',
+            'last_sanctions_rescreen_date' => 'nullable|date',
         ]);
 
-        // Convert checkbox values (checkboxes send "1" or null)
+        // Convert checkbox values
         $validated['is_professional_client'] = $request->has('is_professional_client');
         $validated['sanctions_check_passed'] = $request->has('sanctions_check_passed');
         $validated['bank_account_verified'] = $request->has('bank_account_verified');
-        $validated['confidentiality_acknowledged'] = $request->has('confidentiality_acknowledged');
+        $validated['agreed_confidentiality'] = $request->has('agreed_confidentiality'); // FIXED
+        $validated['acknowledged_ppm_confidential'] = $request->has('acknowledged_ppm_confidential'); // ADDED
+        $validated['enhanced_due_diligence_required'] = $request->has('enhanced_due_diligence_required');
+        $validated['side_letter_exists'] = $request->has('side_letter_exists');
+        $validated['legal_review_complete'] = $request->has('legal_review_complete');
+        $validated['board_approval_required'] = $request->has('board_approval_required');
+        $validated['investor_register_updated'] = $request->has('investor_register_updated');
 
-        // Set timestamps if checkbox was just checked (and wasn't checked before)
+        // Set timestamps if checkbox was just checked
         if ($validated['is_professional_client'] && !$investor->is_professional_client) {
-            $validated['professional_client_verified_at'] = now();
+            $validated['confirmed_professional_client_at'] = now(); // FIXED: correct timestamp field
         }
 
         if ($validated['sanctions_check_passed'] && !$investor->sanctions_check_passed) {
@@ -146,11 +156,15 @@ class InvestorController extends Controller
         }
 
         if ($validated['bank_account_verified'] && !$investor->bank_account_verified) {
-            $validated['bank_verified_at'] = now();
+            $validated['bank_verified_date'] = now(); // FIXED: correct timestamp field
         }
 
-        if ($validated['confidentiality_acknowledged'] && !$investor->confidentiality_acknowledged) {
-            $validated['confidentiality_acknowledged_at'] = now();
+        if ($validated['agreed_confidentiality'] && !$investor->agreed_confidentiality) {
+            $validated['agreed_confidentiality_at'] = now();
+        }
+
+        if ($validated['acknowledged_ppm_confidential'] && !$investor->acknowledged_ppm_confidential) {
+            $validated['acknowledged_ppm_confidential_at'] = now();
         }
 
         $investor->update($validated);
@@ -159,9 +173,6 @@ class InvestorController extends Controller
             ->with('success', 'Investor updated successfully!');
     }
 
-    /**
-     * Remove the specified investor (soft delete)
-     */
     public function destroy(Investor $investor)
     {
         $investor->delete();
@@ -170,10 +181,6 @@ class InvestorController extends Controller
             ->with('success', 'Investor archived successfully!');
     }
 
-    /**
-     * Show form to change investor stage
-     * Uses explicit authorization check for custom action
-     */
     public function changeStageForm(Investor $investor)
     {
         $this->authorize('changeStage', $investor);
@@ -187,7 +194,7 @@ class InvestorController extends Controller
             'approved' => 'Approved',
             'funded' => 'Funded',
             'active' => 'Active',
-            'monitored' => 'Monitored',
+            'monitored' => 'Monitored', // ADDED Stage 9
         ];
 
         $stageService = app(\App\Services\InvestorStageService::class);
@@ -203,20 +210,15 @@ class InvestorController extends Controller
         return view('investors.change-stage', compact('investor', 'stages', 'stageRequirements'));
     }
 
-    /**
-     * Process stage change
-     * Uses explicit authorization check for custom action
-     */
     public function changeStage(Request $request, Investor $investor, InvestorStageService $stageService)
     {
         $this->authorize('changeStage', $investor);
 
         $validated = $request->validate([
-            'new_stage' => 'required|in:prospect,eligibility_review,ppm_issued,kyc_in_progress,subscription_signed,approved,funded,active,monitored',
+            'new_stage' => 'required|in:prospect,eligibility_review,ppm_issued,kyc_in_progress,subscription_signed,approved,funded,active,monitored', // ADDED monitored
             'reason' => 'nullable|string|max:500',
         ]);
 
-        // Check if move is allowed
         $missingRequirements = $stageService->getMissingRequirements($investor, $validated['new_stage']);
 
         if (!empty($missingRequirements)) {
@@ -225,7 +227,6 @@ class InvestorController extends Controller
                 ->with('missing_requirements', $missingRequirements);
         }
 
-        // Perform stage transition
         $success = $stageService->moveToStage(
             $investor,
             $validated['new_stage'],
@@ -241,10 +242,6 @@ class InvestorController extends Controller
         return back()->withErrors(['error' => 'Failed to change stage. Please try again.']);
     }
 
-    /**
-     * Show investor activity log
-     * Uses explicit authorization check for custom action
-     */
     public function activityLog(Investor $investor)
     {
         $this->authorize('view', $investor);
@@ -262,9 +259,6 @@ class InvestorController extends Controller
         return view('investors.activity', compact('investor', 'activities', 'stageTransitions'));
     }
 
-    /**
-     * Get automation text for stage
-     */
     protected function getAutomationText(string $stage): string
     {
         return match($stage) {
@@ -276,7 +270,7 @@ class InvestorController extends Controller
             'approved' => 'Approval date and approver recorded',
             'funded' => 'Funding date recorded',
             'active' => 'Data Room upgraded to SUBSCRIBED level, Investor ID generated, Reporting access granted',
-            'monitored' => 'Ongoing monitoring enabled',
+            'monitored' => 'Ongoing KYC/AML monitoring enabled', // ADDED
             default => 'No automatic actions',
         };
     }
