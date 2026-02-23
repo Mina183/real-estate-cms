@@ -547,8 +547,6 @@
 
                             {{-- NEW FIELDS - CRM Workflow Discipline --}}
                             <div class="border-b pb-6 mt-6">
-                                <h3 class="text-lg font-semibold text-gray-900 mb-6 pb-2 border-b-2 border-red-300">⚡ CRM Workflow (Non-Negotiable)</h3>
-                                
                                 <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
                                     <p class="text-sm text-red-800">
                                         <strong>MANDATORY:</strong> Next action and due date must always be populated. No investor record should be without a clear next step.
