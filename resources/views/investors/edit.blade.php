@@ -221,25 +221,23 @@
                                     {{-- Confidentiality Acknowledgement --}}
                                     <div class="flex items-start">
                                         <div class="flex items-center h-5">
-                                            <input type="checkbox" name="confidentiality_acknowledged" id="confidentiality_acknowledged"
-                                                   value="1" {{ $investor->confidentiality_acknowledged ? 'checked' : '' }}
+                                            <input type="checkbox" name="agreed_confidentiality" id="agreed_confidentiality"
+                                                value="1" {{ $investor->agreed_confidentiality ? 'checked' : '' }}
                                                    class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
                                         </div>
                                         <div class="ml-3 text-sm">
-                                            <label for="confidentiality_acknowledged" class="font-medium text-gray-700">
+                                            <label for="agreed_confidentiality" class="font-medium text-gray-700">
                                                 Confidentiality Agreement Acknowledged
                                             </label>
                                             <p class="text-gray-500">Investor has agreed to confidentiality terms</p>
-                                            @if($investor->confidentiality_acknowledged_at)
+                                            @if($investor->agreed_confidentiality_at)
                                                 <p class="text-xs text-green-600 mt-1">
-                                                    ✓ Acknowledged on {{ $investor->confidentiality_acknowledged_at->format('M d, Y H:i') }}
+                                                    ✓ Acknowledged on {{ $investor->agreed_confidentiality_at->format('M d, Y H:i') }}
                                                 </p>
                                             @endif
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-
                             </div>
 
                             {{-- Additional Compliance Fields --}}
@@ -330,10 +328,295 @@
                                     </div>
                                 </div>
                             </div>
-                            {{-- ====== KRAJ DODAVANJA ====== --}}
 
-                            {{-- Source & Notes --}}
-                            <div>
+                            {{-- NEW FIELDS - Stage 2: Eligibility & Risk --}}
+                            <div class="border-b pb-6 mt-6">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-6 pb-2 border-b-2 border-gray-200">🎯 Stage 2: Eligibility & Risk Assessment</h3>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {{-- Risk Profile --}}
+                                    <div>
+                                        <label for="risk_profile" class="block text-sm font-medium text-gray-700 mb-2">
+                                            Risk Profile
+                                        </label>
+                                        <select name="risk_profile" id="risk_profile"
+                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                            <option value="">-- Select Risk Profile --</option>
+                                            <option value="low" {{ $investor->risk_profile === 'low' ? 'selected' : '' }}>Low</option>
+                                            <option value="medium" {{ $investor->risk_profile === 'medium' ? 'selected' : '' }}>Medium</option>
+                                            <option value="high" {{ $investor->risk_profile === 'high' ? 'selected' : '' }}>High</option>
+                                        </select>
+                                        <p class="mt-1 text-sm text-gray-500">Investor risk classification</p>
+                                    </div>
+
+                                    {{-- Investor Experience --}}
+                                    <div>
+                                        <label for="investor_experience" class="block text-sm font-medium text-gray-700 mb-2">
+                                            Investor Experience
+                                        </label>
+                                        <textarea name="investor_experience" id="investor_experience" rows="3"
+                                                placeholder="Describe investor's experience with alternative investments..."
+                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">{{ old('investor_experience', $investor->investor_experience) }}</textarea>
+                                        <p class="mt-1 text-sm text-gray-500">Self-certified investment experience</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- NEW FIELDS - Stage 4: KYC/AML --}}
+                            <div class="border-b pb-6 mt-6">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-6 pb-2 border-b-2 border-gray-200">🔍 Stage 4: KYC/AML Details</h3>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {{-- KYC Risk Rating --}}
+                                    <div>
+                                        <label for="kyc_risk_rating" class="block text-sm font-medium text-gray-700 mb-2">
+                                            KYC Risk Rating
+                                        </label>
+                                        <select name="kyc_risk_rating" id="kyc_risk_rating"
+                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                            <option value="">-- Not Rated --</option>
+                                            <option value="low" {{ $investor->kyc_risk_rating === 'low' ? 'selected' : '' }}>Low</option>
+                                            <option value="medium" {{ $investor->kyc_risk_rating === 'medium' ? 'selected' : '' }}>Medium</option>
+                                            <option value="high" {{ $investor->kyc_risk_rating === 'high' ? 'selected' : '' }}>High</option>
+                                        </select>
+                                        <p class="mt-1 text-sm text-gray-500">KYC/AML risk assessment</p>
+                                    </div>
+
+                                    {{-- EDD Required --}}
+                                    <div class="flex items-start p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                                        <div class="flex items-center h-5">
+                                            <input type="checkbox" name="enhanced_due_diligence_required" id="enhanced_due_diligence_required"
+                                                value="1" {{ $investor->enhanced_due_diligence_required ? 'checked' : '' }}
+                                                class="focus:ring-yellow-500 h-4 w-4 text-yellow-600 border-gray-300 rounded">
+                                        </div>
+                                        <div class="ml-3 text-sm">
+                                            <label for="enhanced_due_diligence_required" class="font-medium text-gray-700">
+                                                Enhanced Due Diligence Required
+                                            </label>
+                                            <p class="text-gray-500">High-risk investor requires additional verification</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- NEW FIELDS - Stage 5: Subscription & Legal --}}
+                            <div class="border-b pb-6 mt-6">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-6 pb-2 border-b-2 border-gray-200">📄 Stage 5: Subscription & Legal Review</h3>
+                                
+                                <div class="space-y-4">
+                                    {{-- Side Letter --}}
+                                    <div class="flex items-start p-4 bg-gray-50 rounded-lg">
+                                        <div class="flex items-center h-5">
+                                            <input type="checkbox" name="side_letter_exists" id="side_letter_exists"
+                                                value="1" {{ $investor->side_letter_exists ? 'checked' : '' }}
+                                                class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
+                                                onchange="document.getElementById('side_letter_terms_field').style.display = this.checked ? 'block' : 'none';">
+                                        </div>
+                                        <div class="ml-3 text-sm flex-1">
+                                            <label for="side_letter_exists" class="font-medium text-gray-700">
+                                                Side Letter Exists
+                                            </label>
+                                            <p class="text-gray-500">Investor has negotiated side letter with special terms</p>
+                                            
+                                            <div id="side_letter_terms_field" style="display: {{ $investor->side_letter_exists ? 'block' : 'none' }};" class="mt-3">
+                                                <label for="side_letter_terms" class="block text-sm font-medium text-gray-700 mb-2">
+                                                    Side Letter Key Terms
+                                                </label>
+                                                <textarea name="side_letter_terms" id="side_letter_terms" rows="3"
+                                                        placeholder="Summarize key terms (fees, reporting, governance rights, etc.)"
+                                                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">{{ old('side_letter_terms', $investor->side_letter_terms) }}</textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {{-- Legal Review Complete --}}
+                                    <div class="flex items-start p-4 bg-green-50 rounded-lg border border-green-200">
+                                        <div class="flex items-center h-5">
+                                            <input type="checkbox" name="legal_review_complete" id="legal_review_complete"
+                                                value="1" {{ $investor->legal_review_complete ? 'checked' : '' }}
+                                                class="focus:ring-green-500 h-4 w-4 text-green-600 border-gray-300 rounded">
+                                        </div>
+                                        <div class="ml-3 text-sm">
+                                            <label for="legal_review_complete" class="font-medium text-gray-700">
+                                                Legal Review Complete
+                                            </label>
+                                            <p class="text-gray-500">All documents reviewed and approved by legal team</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- NEW FIELDS - Stage 6: Approval & Governance --}}
+                            <div class="border-b pb-6 mt-6">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-6 pb-2 border-b-2 border-gray-200">✅ Stage 6: Approval & Governance</h3>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {{-- Board Approval Required --}}
+                                    <div class="flex items-start p-4 bg-purple-50 rounded-lg border border-purple-200">
+                                        <div class="flex items-center h-5">
+                                            <input type="checkbox" name="board_approval_required" id="board_approval_required"
+                                                value="1" {{ $investor->board_approval_required ? 'checked' : '' }}
+                                                class="focus:ring-purple-500 h-4 w-4 text-purple-600 border-gray-300 rounded"
+                                                onchange="document.getElementById('board_approval_date_field').style.display = this.checked ? 'block' : 'none';">
+                                        </div>
+                                        <div class="ml-3 text-sm flex-1">
+                                            <label for="board_approval_required" class="font-medium text-gray-700">
+                                                Board Approval Required
+                                            </label>
+                                            <p class="text-gray-500">Large commitment requires board/IC approval</p>
+                                            
+                                            <div id="board_approval_date_field" style="display: {{ $investor->board_approval_required ? 'block' : 'none' }};" class="mt-3">
+                                                <label for="board_approval_date" class="block text-sm font-medium text-gray-700 mb-2">
+                                                    Board Approval Date
+                                                </label>
+                                                <input type="date" name="board_approval_date" id="board_approval_date"
+                                                    value="{{ old('board_approval_date', $investor->board_approval_date?->format('Y-m-d')) }}"
+                                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {{-- Admission Notice --}}
+                                    <div>
+                                        <label for="admission_notice_issued_date" class="block text-sm font-medium text-gray-700 mb-2">
+                                            Admission Notice Issued Date
+                                        </label>
+                                        <input type="date" name="admission_notice_issued_date" id="admission_notice_issued_date"
+                                            value="{{ old('admission_notice_issued_date', $investor->admission_notice_issued_date?->format('Y-m-d')) }}"
+                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                        <p class="mt-1 text-sm text-gray-500">Date investor formally admitted to fund</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- NEW FIELDS - Stage 8: Activation & Units --}}
+                            <div class="border-b pb-6 mt-6">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-6 pb-2 border-b-2 border-gray-200">🚀 Stage 8: Investor Activation</h3>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {{-- Units Allotted --}}
+                                    <div>
+                                        <label for="units_allotted" class="block text-sm font-medium text-gray-700 mb-2">
+                                            Units/Shares Allotted
+                                        </label>
+                                        <input type="number" step="0.0001" name="units_allotted" id="units_allotted"
+                                            value="{{ old('units_allotted', $investor->units_allotted) }}"
+                                            placeholder="Number of units/shares"
+                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                        <p class="mt-1 text-sm text-gray-500">Units assigned to investor</p>
+                                    </div>
+
+                                    {{-- Share Class --}}
+                                    <div>
+                                        <label for="share_class" class="block text-sm font-medium text-gray-700 mb-2">
+                                            Share Class
+                                        </label>
+                                        <input type="text" name="share_class" id="share_class"
+                                            value="{{ old('share_class', $investor->share_class) }}"
+                                            placeholder="e.g., Class A, Class B, Founder"
+                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                        <p class="mt-1 text-sm text-gray-500">Share class designation</p>
+                                    </div>
+
+                                    {{-- Welcome Letter Sent --}}
+                                    <div>
+                                        <label for="welcome_letter_sent_date" class="block text-sm font-medium text-gray-700 mb-2">
+                                            Welcome Letter Sent Date
+                                        </label>
+                                        <input type="date" name="welcome_letter_sent_date" id="welcome_letter_sent_date"
+                                            value="{{ old('welcome_letter_sent_date', $investor->welcome_letter_sent_date?->format('Y-m-d')) }}"
+                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                    </div>
+
+                                    {{-- Investor Register Updated --}}
+                                    <div class="flex items-start p-4 bg-blue-50 rounded-lg border border-blue-200">
+                                        <div class="flex items-center h-5">
+                                            <input type="checkbox" name="investor_register_updated" id="investor_register_updated"
+                                                value="1" {{ $investor->investor_register_updated ? 'checked' : '' }}
+                                                class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
+                                        </div>
+                                        <div class="ml-3 text-sm">
+                                            <label for="investor_register_updated" class="font-medium text-gray-700">
+                                                Investor Register Updated
+                                            </label>
+                                            <p class="text-gray-500">Investor added to official register</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- NEW FIELDS - CRM Workflow Discipline --}}
+                            <div class="border-b pb-6 mt-6">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-6 pb-2 border-b-2 border-red-300">⚡ CRM Workflow (Non-Negotiable)</h3>
+                                
+                                <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                                    <p class="text-sm text-red-800">
+                                        <strong>MANDATORY:</strong> Next action and due date must always be populated. No investor record should be without a clear next step.
+                                    </p>
+                                </div>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {{-- Next Action --}}
+                                    <div>
+                                        <label for="next_action" class="block text-sm font-medium text-gray-700 mb-2">
+                                            Next Action <span class="text-red-500">*</span>
+                                        </label>
+                                        <textarea name="next_action" id="next_action" rows="3"
+                                                placeholder="e.g., Schedule final approval meeting, Send welcome pack, Await capital call payment..."
+                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500">{{ old('next_action', $investor->next_action) }}</textarea>
+                                        <p class="mt-1 text-sm text-gray-500">What is the immediate next step for this investor?</p>
+                                    </div>
+
+                                    {{-- Next Action Due Date --}}
+                                    <div>
+                                        <label for="next_action_due_date" class="block text-sm font-medium text-gray-700 mb-2">
+                                            Next Action Due Date
+                                        </label>
+                                        <input type="date" name="next_action_due_date" id="next_action_due_date"
+                                            value="{{ old('next_action_due_date', $investor->next_action_due_date?->format('Y-m-d')) }}"
+                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500">
+                                        <p class="mt-1 text-sm text-gray-500">When must this action be completed?</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- NEW FIELDS - Stage 9: Ongoing Monitoring --}}
+                            <div class="border-b pb-6 mt-6">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-6 pb-2 border-b-2 border-gray-200">🔄 Stage 9: Ongoing Monitoring</h3>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    {{-- Last KYC Refresh --}}
+                                    <div>
+                                        <label for="last_kyc_refresh_date" class="block text-sm font-medium text-gray-700 mb-2">
+                                            Last KYC Refresh Date
+                                        </label>
+                                        <input type="date" name="last_kyc_refresh_date" id="last_kyc_refresh_date"
+                                            value="{{ old('last_kyc_refresh_date', $investor->last_kyc_refresh_date?->format('Y-m-d')) }}"
+                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                    </div>
+
+                                    {{-- Next KYC Refresh Due --}}
+                                    <div>
+                                        <label for="next_kyc_refresh_due" class="block text-sm font-medium text-gray-700 mb-2">
+                                            Next KYC Refresh Due
+                                        </label>
+                                        <input type="date" name="next_kyc_refresh_due" id="next_kyc_refresh_due"
+                                            value="{{ old('next_kyc_refresh_due', $investor->next_kyc_refresh_due?->format('Y-m-d')) }}"
+                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                    </div>
+
+                                    {{-- Last Sanctions Rescreen --}}
+                                    <div>
+                                        <label for="last_sanctions_rescreen_date" class="block text-sm font-medium text-gray-700 mb-2">
+                                            Last Sanctions Rescreen
+                                        </label>
+                                        <input type="date" name="last_sanctions_rescreen_date" id="last_sanctions_rescreen_date"
+                                            value="{{ old('last_sanctions_rescreen_date', $investor->last_sanctions_rescreen_date?->format('Y-m-d')) }}"
+                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                    </div>
+                                </div>
+                            </div>
+                            {{-- ====== KRAJ DODAVANJA ====== --}}
 
                             {{-- Source & Notes --}}
                             <div>

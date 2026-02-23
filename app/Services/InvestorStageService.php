@@ -11,9 +11,6 @@ class InvestorStageService
     /**
      * Stage validation rules
      */
-<?php
-
-// REPLACE $stageRules in InvestorStageService.php (around line 12-48) with:
 
     protected array $stageRules = [
         // STAGE 2: Eligibility Review
