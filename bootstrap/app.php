@@ -16,7 +16,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
             'role' => \App\Http\Middleware\RoleMiddleware::class,
             'investor' => \App\Http\Middleware\InvestorAuth::class,
-            'data-room' => \App\Http\Middleware\CheckDataRoomAccess::class, // ← DODATO
+            'data-room' => \App\Http\Middleware\CheckDataRoomAccess::class,
+            'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class, // ← DODATO
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
