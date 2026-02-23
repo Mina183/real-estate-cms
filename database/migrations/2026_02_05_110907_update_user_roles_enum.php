@@ -12,27 +12,30 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // First, update any existing channel_partner users to operations
-        DB::table('users')
-            ->where('role', 'channel_partner')
-            ->update(['role' => 'admin']); // Temporarily set to admin (valid value)
-        
-        // Update the ENUM to include new roles and remove channel_partner
-        DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM(
-            'superadmin',
-            'admin',
-            'operations',
-            'compliance_officer',
-            'relationship_manager',
-            'data_room_administrator',
-            'document_owner',
-            'investor_prospect',
-            'investor_qualified',
-            'investor_subscribed',
-            'internal_director',
-            'external_counsel',
-            'auditor'
-        ) DEFAULT 'investor_prospect'");
+        // Skip on SQLite
+        if (DB::connection()->getDriverName() !== 'sqlite') {
+            // First, update any existing channel_partner users to operations
+            DB::table('users')
+                ->where('role', 'channel_partner')
+                ->update(['role' => 'admin']); // Temporarily set to admin (valid value)
+            
+            // Update the ENUM to include new roles and remove channel_partner
+            DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM(
+                'superadmin',
+                'admin',
+                'operations',
+                'compliance_officer',
+                'relationship_manager',
+                'data_room_administrator',
+                'document_owner',
+                'investor_prospect',
+                'investor_qualified',
+                'investor_subscribed',
+                'internal_director',
+                'external_counsel',
+                'auditor'
+            ) DEFAULT 'investor_prospect'");
+        }
     }
 
     /**
@@ -40,20 +43,23 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Restore old ENUM (for rollback)
-        DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM(
-            'superadmin',
-            'admin',
-            'channel_partner',
-            'compliance_officer',
-            'relationship_manager',
-            'data_room_administrator',
-            'document_owner',
-            'investor_prospect',
-            'investor_qualified',
-            'investor_subscribed',
-            'internal_director',
-            'external_counsel'
-        )");
+        // Skip on SQLite
+        if (DB::connection()->getDriverName() !== 'sqlite') {
+            // Restore old ENUM (for rollback)
+            DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM(
+                'superadmin',
+                'admin',
+                'channel_partner',
+                'compliance_officer',
+                'relationship_manager',
+                'data_room_administrator',
+                'document_owner',
+                'investor_prospect',
+                'investor_qualified',
+                'investor_subscribed',
+                'internal_director',
+                'external_counsel'
+            )");
+        }
     }
 };
