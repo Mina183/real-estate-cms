@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -13,7 +14,9 @@ return new class extends Migration
     {
     // Fix capital_calls - make nullable if exists, create if not
     if (Schema::hasColumn('capital_calls', 'investor_id')) {
-        DB::statement('ALTER TABLE capital_calls MODIFY COLUMN investor_id bigint unsigned NULL');
+        if (DB::connection()->getDriverName() !== 'sqlite') {
+            DB::statement('ALTER TABLE capital_calls MODIFY COLUMN investor_id bigint unsigned NULL');
+        }
     } else {
         Schema::table('capital_calls', function (Blueprint $table) {
             $table->foreignId('investor_id')->nullable()->after('id')->constrained('investors')->cascadeOnDelete();

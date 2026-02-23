@@ -59,16 +59,16 @@ return new class extends Migration
         // Update status enum if needed
         $hasStatusColumn = Schema::hasColumn('data_room_documents', 'status');
         
-        if ($hasStatusColumn) {
-            DB::statement("ALTER TABLE data_room_documents MODIFY COLUMN status ENUM(
-                'draft',
-                'under_review',
-                'approved',
-                'superseded',
-                'archived',
-                'pending_review'
-            ) DEFAULT 'draft'");
-        }
+            if ($hasStatusColumn && DB::connection()->getDriverName() !== 'sqlite') {
+                DB::statement("ALTER TABLE data_room_documents MODIFY COLUMN status ENUM(
+                    'draft',
+                    'under_review',
+                    'approved',
+                    'superseded',
+                    'archived',
+                    'pending_review'
+                ) DEFAULT 'draft'");
+            }
     }
 
     /**

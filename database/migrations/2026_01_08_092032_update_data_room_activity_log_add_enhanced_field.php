@@ -54,24 +54,24 @@ return new class extends Migration
             }
         });
         
-        // Update activity_type enum to include new actions
-        DB::statement("ALTER TABLE data_room_activity_log MODIFY COLUMN activity_type ENUM(
-            'view',
-            'download',
-            'login',
-            'logout',
-            'print',
-            'upload',
-            'edit',
-            'delete',
-            'share',
-            'permission_granted',
-            'permission_revoked',
-            'acknowledgement_signed',
-            'failed_login',
-            'failed_access'
-        )");
-        
+        if (DB::connection()->getDriverName() !== 'sqlite') {
+            DB::statement("ALTER TABLE data_room_activity_log MODIFY COLUMN activity_type ENUM(
+                'view',
+                'download',
+                'login',
+                'logout',
+                'print',
+                'upload',
+                'edit',
+                'delete',
+                'share',
+                'permission_granted',
+                'permission_revoked',
+                'acknowledgement_signed',
+                'failed_login',
+                'failed_access'
+            )");
+        }
         // Add new indexes
         Schema::table('data_room_activity_log', function (Blueprint $table) {
             $table->index(['investor_id', 'activity_at']);
