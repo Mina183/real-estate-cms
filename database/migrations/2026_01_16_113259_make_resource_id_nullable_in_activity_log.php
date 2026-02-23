@@ -12,9 +12,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Make resource_id and resource_type nullable
-        DB::statement('ALTER TABLE data_room_activity_log MODIFY resource_id BIGINT UNSIGNED NULL');
-        DB::statement('ALTER TABLE data_room_activity_log MODIFY resource_type VARCHAR(255) NULL');
+        // Make resource_id and resource_type nullable (skip on SQLite)
+        if (DB::connection()->getDriverName() !== 'sqlite') {
+            DB::statement('ALTER TABLE data_room_activity_log MODIFY resource_id BIGINT UNSIGNED NULL');
+            DB::statement('ALTER TABLE data_room_activity_log MODIFY resource_type VARCHAR(255) NULL');
+        }
     }
 
     /**
@@ -22,8 +24,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Revert back to NOT NULL (if needed)
-        DB::statement('ALTER TABLE data_room_activity_log MODIFY resource_id BIGINT UNSIGNED NOT NULL');
-        DB::statement('ALTER TABLE data_room_activity_log MODIFY resource_type VARCHAR(255) NOT NULL');
+        // Revert back to NOT NULL (skip on SQLite)
+        if (DB::connection()->getDriverName() !== 'sqlite') {
+            DB::statement('ALTER TABLE data_room_activity_log MODIFY resource_id BIGINT UNSIGNED NOT NULL');
+            DB::statement('ALTER TABLE data_room_activity_log MODIFY resource_type VARCHAR(255) NOT NULL');
+        }
     }
 };
