@@ -559,7 +559,7 @@
                                         <label for="next_action" class="block text-sm font-medium text-gray-700 mb-2">
                                             Next Action <span class="text-red-500">*</span>
                                         </label>
-                                        <textarea name="next_action" id="next_action" rows="3"
+                                        <textarea name="next_action" id="next_action" rows="3" required
                                                 placeholder="e.g., Schedule final approval meeting, Send welcome pack, Await capital call payment..."
                                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500">{{ old('next_action', $investor->next_action) }}</textarea>
                                         <p class="mt-1 text-sm text-gray-500">What is the immediate next step for this investor?</p>
@@ -568,9 +568,9 @@
                                     {{-- Next Action Due Date --}}
                                     <div>
                                         <label for="next_action_due_date" class="block text-sm font-medium text-gray-700 mb-2">
-                                            Next Action Due Date
+                                            Next Action Due Date <span class="text-red-500">*</span>
                                         </label>
-                                        <input type="date" name="next_action_due_date" id="next_action_due_date"
+                                        <input type="date" name="next_action_due_date" id="next_action_due_date" required
                                             value="{{ old('next_action_due_date', $investor->next_action_due_date?->format('Y-m-d')) }}"
                                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500">
                                         <p class="mt-1 text-sm text-gray-500">When must this action be completed?</p>
