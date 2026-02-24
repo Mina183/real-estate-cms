@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->call([
-            DataStructureSeeder::class,
+            DataRoomStructureSeeder::class,
             UserRolesSeeder::class,
             FundSeeder::class,
             SampleDocumentsSeeder::class,
