@@ -76,102 +76,122 @@ class InvestorController extends Controller
     }
 
     public function update(Request $request, Investor $investor)
-    {
-        $validated = $request->validate([
-            'investor_type' => 'required|in:individual,corporate,family_office,spv,fund',
-            'organization_name' => 'nullable|string|max:255',
-            'legal_entity_name' => 'nullable|string|max:255',
-            'jurisdiction' => 'required|string|max:100',
-            'fund_id' => 'nullable|exists:funds,id',
-            'assigned_to_user_id' => 'required|exists:users,id',
-            'target_commitment_amount' => 'nullable|numeric|min:1000000', // $1M minimum
-            'currency' => 'nullable|string|max:3',
-            'source_of_introduction' => 'nullable|in:direct,advisor,placement_agent,referral,event,other',
-            'referral_source' => 'nullable|string|max:255',
-            'notes' => 'nullable|string',
-            
-            // Compliance checkboxes - USING CORRECT FIELD NAMES FROM DATABASE
-            'is_professional_client' => 'nullable|boolean',
-            'sanctions_check_passed' => 'nullable|boolean',
-            'bank_account_verified' => 'nullable|boolean',
-            'agreed_confidentiality' => 'nullable|boolean', // FIXED: was confidentiality_acknowledged
-            'acknowledged_ppm_confidential' => 'nullable|boolean', // ADDED
-            
-            // KYC status
-            'kyc_status' => 'nullable|in:not_started,in_progress,submitted,under_review,complete,rejected,expired',
-            
-            // Stage 2 fields
-            'risk_profile' => 'nullable|in:low,medium,high',
-            'investor_experience' => 'nullable|string',
-            
-            // Stage 4 fields
-            'kyc_risk_rating' => 'nullable|in:low,medium,high',
-            'enhanced_due_diligence_required' => 'nullable|boolean',
-            
-            // Stage 5 fields
-            'side_letter_exists' => 'nullable|boolean',
-            'side_letter_terms' => 'nullable|string',
-            'legal_review_complete' => 'nullable|boolean',
-            
-            // Stage 6 fields
-            'board_approval_required' => 'nullable|boolean',
-            'board_approval_date' => 'nullable|date',
-            'admission_notice_issued_date' => 'nullable|date',
-            
-            // Stage 8 fields
-            'units_allotted' => 'nullable|numeric|min:0',
-            'share_class' => 'nullable|string|max:100',
-            'welcome_letter_sent_date' => 'nullable|date',
-            'investor_register_updated' => 'nullable|boolean',
-            
-            // CRM fields
-            'next_action' => 'nullable|string',
-            'next_action_due_date' => 'nullable|date',
-            
-            // Stage 9 fields
-            'last_kyc_refresh_date' => 'nullable|date',
-            'next_kyc_refresh_due' => 'nullable|date',
-            'last_sanctions_rescreen_date' => 'nullable|date',
-        ]);
+{
+    $validated = $request->validate([
+        'investor_type' => 'required|in:individual,corporate,family_office,spv,fund',
+        'organization_name' => 'nullable|string|max:255',
+        'legal_entity_name' => 'nullable|string|max:255',
+        'jurisdiction' => 'required|string|max:100',
+        'fund_id' => 'nullable|exists:funds,id',
+        'assigned_to_user_id' => 'required|exists:users,id',
+        'target_commitment_amount' => 'nullable|numeric|min:1000000',
+        'final_commitment_amount' => 'nullable|numeric',
+        'funded_amount' => 'nullable|numeric',
+        'currency' => 'nullable|string|max:3',
+        'source_of_introduction' => 'nullable|in:direct,advisor,placement_agent,referral,event,other',
+        'referral_source' => 'nullable|string|max:255',
+        'notes' => 'nullable|string',
 
-        // Convert checkbox values
-        $validated['is_professional_client'] = $request->has('is_professional_client');
-        $validated['sanctions_check_passed'] = $request->has('sanctions_check_passed');
-        $validated['bank_account_verified'] = $request->has('bank_account_verified');
-        $validated['agreed_confidentiality'] = $request->has('agreed_confidentiality'); // FIXED
-        $validated['acknowledged_ppm_confidential'] = $request->has('acknowledged_ppm_confidential'); // ADDED
-        $validated['enhanced_due_diligence_required'] = $request->has('enhanced_due_diligence_required');
-        $validated['side_letter_exists'] = $request->has('side_letter_exists');
-        $validated['legal_review_complete'] = $request->has('legal_review_complete');
-        $validated['board_approval_required'] = $request->has('board_approval_required');
-        $validated['investor_register_updated'] = $request->has('investor_register_updated');
+        // Compliance checkboxes
+        'is_professional_client' => 'nullable|boolean',
+        'sanctions_check_passed' => 'nullable|boolean',
+        'bank_account_verified' => 'nullable|boolean',
+        'agreed_confidentiality' => 'nullable|boolean',
+        'acknowledged_ppm_confidential' => 'nullable|boolean',
 
-        // Set timestamps if checkbox was just checked
-        if ($validated['is_professional_client'] && !$investor->is_professional_client) {
-            $validated['confirmed_professional_client_at'] = now(); // FIXED: correct timestamp field
-        }
+        // PPM & Subscription (checkbox → date)
+        'ppm_acknowledged' => 'nullable|boolean',
+        'subscription_signed' => 'nullable|boolean',
 
-        if ($validated['sanctions_check_passed'] && !$investor->sanctions_check_passed) {
-            $validated['sanctions_checked_at'] = now();
-        }
+        // KYC
+        'kyc_status' => 'nullable|in:not_started,in_progress,submitted,under_review,complete,rejected,expired',
 
-        if ($validated['bank_account_verified'] && !$investor->bank_account_verified) {
-            $validated['bank_verified_date'] = now(); // FIXED: correct timestamp field
-        }
+        // Stage 2
+        'risk_profile' => 'nullable|in:low,medium,high',
+        'investor_experience' => 'nullable|string',
 
-        if ($validated['agreed_confidentiality'] && !$investor->agreed_confidentiality) {
-            $validated['agreed_confidentiality_at'] = now();
-        }
+        // Stage 4
+        'kyc_risk_rating' => 'nullable|in:low,medium,high',
+        'enhanced_due_diligence_required' => 'nullable|boolean',
 
-        if ($validated['acknowledged_ppm_confidential'] && !$investor->acknowledged_ppm_confidential) {
-            $validated['acknowledged_ppm_confidential_at'] = now();
-        }
+        // Stage 5
+        'side_letter_exists' => 'nullable|boolean',
+        'side_letter_terms' => 'nullable|string',
+        'legal_review_complete' => 'nullable|boolean',
+        'share_class' => 'nullable|string|max:100',
 
-        $investor->update($validated);
+        // Stage 6
+        'board_approval_required' => 'nullable|boolean',
+        'board_approval_date' => 'nullable|date',
+        'admission_notice_issued_date' => 'nullable|date',
 
-        return redirect()->route('investors.show', $investor)
-            ->with('success', 'Investor updated successfully!');
+        // Stage 8
+        'units_allotted' => 'nullable|numeric|min:0',
+        'welcome_letter_sent_date' => 'nullable|date',
+        'investor_register_updated' => 'nullable|boolean',
+
+        // CRM
+        'next_action' => 'nullable|string',
+        'next_action_due_date' => 'nullable|date',
+
+        // Stage 9
+        'last_kyc_refresh_date' => 'nullable|date',
+        'next_kyc_refresh_due' => 'nullable|date',
+        'last_sanctions_rescreen_date' => 'nullable|date',
+    ]);
+
+    // Convert checkboxes to boolean
+    $validated['is_professional_client'] = $request->has('is_professional_client');
+    $validated['sanctions_check_passed'] = $request->has('sanctions_check_passed');
+    $validated['bank_account_verified'] = $request->has('bank_account_verified');
+    $validated['agreed_confidentiality'] = $request->has('agreed_confidentiality');
+    $validated['acknowledged_ppm_confidential'] = $request->has('acknowledged_ppm_confidential');
+    $validated['enhanced_due_diligence_required'] = $request->has('enhanced_due_diligence_required');
+    $validated['side_letter_exists'] = $request->has('side_letter_exists');
+    $validated['legal_review_complete'] = $request->has('legal_review_complete');
+    $validated['board_approval_required'] = $request->has('board_approval_required');
+    $validated['investor_register_updated'] = $request->has('investor_register_updated');
+
+    // Timestamps za boolean polja
+    if ($validated['is_professional_client'] && !$investor->is_professional_client) {
+        $validated['confirmed_professional_client_at'] = now();
     }
+    if ($validated['sanctions_check_passed'] && !$investor->sanctions_check_passed) {
+        $validated['sanctions_checked_at'] = now();
+    }
+    if ($validated['bank_account_verified'] && !$investor->bank_account_verified) {
+        $validated['bank_verified_date'] = now();
+    }
+    if ($validated['agreed_confidentiality'] && !$investor->agreed_confidentiality) {
+        $validated['agreed_confidentiality_at'] = now();
+    }
+    if ($validated['acknowledged_ppm_confidential'] && !$investor->acknowledged_ppm_confidential) {
+        $validated['acknowledged_ppm_confidential_at'] = now();
+    }
+
+    // PPM acknowledged - checkbox setuje datum
+    if ($request->has('ppm_acknowledged') && !$investor->ppm_acknowledged_date) {
+        $validated['ppm_acknowledged_date'] = now();
+    } elseif (!$request->has('ppm_acknowledged')) {
+        $validated['ppm_acknowledged_date'] = null;
+    }
+
+    // Subscription signed - checkbox setuje datum
+    if ($request->has('subscription_signed') && !$investor->subscription_signed_date) {
+        $validated['subscription_signed_date'] = now();
+    } elseif (!$request->has('subscription_signed')) {
+        $validated['subscription_signed_date'] = null;
+    }
+
+    // Ukloni checkbox polja koja ne postoje kao kolone u bazi
+    unset($validated['ppm_acknowledged']);
+    unset($validated['subscription_signed']);
+
+    $investor->update($validated);
+
+    return redirect()->route('investors.show', $investor)
+        ->with('success', 'Investor updated successfully!');
+}
 
     public function destroy(Investor $investor)
     {
