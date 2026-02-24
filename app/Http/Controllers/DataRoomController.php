@@ -64,9 +64,16 @@ class DataRoomController extends Controller
 
         $mimeType = $mimeTypes[$document->file_type] ?? 'application/octet-stream';
 
+        $downloadName = $document->document_name;
+
+        // Dodaj ekstenziju ako je nema
+        if ($document->file_type && !str_ends_with(strtolower($downloadName), '.' . $document->file_type)) {
+            $downloadName = $downloadName . '.' . $document->file_type;
+        }
+
         return Storage::disk('private')->download(
             $document->file_path,
-            $document->document_name,
+            $downloadName,
             ['Content-Type' => $mimeType]
         );
     }
