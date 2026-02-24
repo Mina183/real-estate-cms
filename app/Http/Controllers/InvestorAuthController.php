@@ -31,28 +31,16 @@ class InvestorAuthController extends Controller
     $credentials = $request->only('email', 'password');
     $remember = $request->filled('remember');
 
-    // DEBUG
-    \Log::info('Investor login attempt', ['email' => $credentials['email']]);
-
     if (Auth::guard('investor')->attempt($credentials, $remember)) {
         $request->session()->regenerate();
 
         $investorUser = Auth::guard('investor')->user();
         
-        // DEBUG
-        \Log::info('Investor login SUCCESS', [
-            'user_id' => $investorUser->id,
-            'investor_id' => $investorUser->investor_id
-        ]);
-
         $investorUser->updateLastLogin($request->ip());
 
         return redirect()->intended(route('investor.dashboard'))
             ->with('success', 'Welcome back, ' . $investorUser->name . '!');
     }
-
-    // DEBUG
-    \Log::error('Investor login FAILED', ['email' => $credentials['email']]);
 
     throw ValidationException::withMessages([
         'email' => 'The provided credentials do not match our records.',
