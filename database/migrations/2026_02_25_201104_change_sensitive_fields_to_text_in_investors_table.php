@@ -1,0 +1,26 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::table('investors', function (Blueprint $table) {
+            $table->text('tax_id')->nullable()->change();
+            $table->text('passport_number')->nullable()->change();
+            $table->text('national_id')->nullable()->change();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::table('investors', function (Blueprint $table) {
+            $table->string('tax_id')->nullable()->change();
+            $table->string('passport_number')->nullable()->change();
+            $table->string('national_id')->nullable()->change();
+        });
+    }
+};

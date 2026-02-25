@@ -177,6 +177,9 @@ class Investor extends Model
         'welcome_letter_sent_date' => 'date',
         'next_action_due_date' => 'date',
         'units_allotted' => 'decimal:4',
+        'tax_id' => 'encrypted',
+        'passport_number' => 'encrypted',
+        'national_id' => 'encrypted',
     ];
 
     // Relationships
