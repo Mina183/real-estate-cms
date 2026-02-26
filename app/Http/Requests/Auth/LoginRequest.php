@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\AuthLog;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -45,6 +46,15 @@ class LoginRequest extends FormRequest
 
         if (! $user || ! \Hash::check($this->input('password'), $user->password)) {
             RateLimiter::hit($this->throttleKey());
+
+        AuthLog::create([
+            'guard' => 'web',
+            'user_id' => null,
+            'email' => $this->input('email'),
+            'event' => 'login_failed',
+            'ip_address' => $this->ip(),
+            'user_agent' => $this->userAgent(),
+        ]);
 
             throw ValidationException::withMessages([
                 'email' => trans('auth.failed'),

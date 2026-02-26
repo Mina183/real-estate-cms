@@ -29,6 +29,15 @@ class AuthenticatedSessionController extends Controller
 
     $user = $request->user();
 
+    AuthLog::create([
+        'guard' => 'web',
+        'user_id' => $user->id,
+        'email' => $user->email,
+        'event' => 'login_success',
+        'ip_address' => $request->ip(),
+        'user_agent' => $request->userAgent(),
+    ]);
+
     if (! $user->is_approved) {
         Auth::logout();
 
@@ -46,10 +55,21 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+
+        $user = Auth::guard('web')->user();
+        
+        if ($user) {
+            AuthLog::create([
+                'guard' => 'web',
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'event' => 'logout',
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ]);
+        }
         Auth::guard('web')->logout();
-
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
 
         return redirect('/');

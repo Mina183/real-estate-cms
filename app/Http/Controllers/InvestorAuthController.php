@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\InvestorUser;
+use App\Models\AuthLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -50,11 +51,29 @@ public function login(Request $request)
         $investorUser = Auth::guard('investor')->user();
         $investorUser->updateLastLogin($request->ip());
 
+        AuthLog::create([
+            'guard' => 'investor',
+            'user_id' => $investorUser->id,
+            'email' => $investorUser->email,
+            'event' => 'login_success',
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+
         return redirect()->intended(route('investor.dashboard'))
             ->with('success', 'Welcome back, ' . $investorUser->name . '!');
     }
 
     RateLimiter::hit($key);
+
+        AuthLog::create([
+            'guard' => 'investor',
+            'user_id' => null,
+            'email' => $request->input('email'),
+            'event' => 'login_failed',
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
 
     throw ValidationException::withMessages([
         'email' => 'The provided credentials do not match our records.',
@@ -66,8 +85,20 @@ public function login(Request $request)
      */
     public function logout(Request $request)
     {
-        Auth::guard('investor')->logout();
 
+    $investorUser = Auth::guard('investor')->user();
+    
+    if ($investorUser) {
+        AuthLog::create([
+            'guard' => 'investor',
+            'user_id' => $investorUser->id,
+            'email' => $investorUser->email,
+            'event' => 'logout',
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+    }
+        Auth::guard('investor')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
