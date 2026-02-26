@@ -19,8 +19,12 @@ class AuthLog extends Model
         'created_at',
     ];
 
-    protected $casts = [
-        'metadata' => 'array',
-        'created_at' => 'datetime',
-    ];
+    protected static function boot()
+    {
+        parent::boot();
+        
+        static::creating(function ($model) {
+            $model->created_at = now();
+        });
+    }
 }
