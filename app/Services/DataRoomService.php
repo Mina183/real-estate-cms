@@ -197,7 +197,7 @@ class DataRoomService
         ?array $metadata = null
     ): void {
         DataRoomActivityLog::create([
-            'user_id' => auth()->id(),
+            'user_id' => auth()->id() ?? auth('investor')->id() ?? null,
             'investor_id' => $investor?->id,
             'document_id' => $documentId,
             'folder_id' => $folderId,
