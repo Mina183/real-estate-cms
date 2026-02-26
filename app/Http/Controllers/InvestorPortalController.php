@@ -145,11 +145,11 @@ class InvestorPortalController extends Controller
         }
 
         app(\App\Services\DataRoomService::class)->logActivity(
-            null,
-            $document->folder,
-            $document,
+            $investor,
+            $folder->id,
+            $document->id,
             'download',
-            ['downloaded_by' => auth()->id()]
+            ['downloaded_by' => $investorUser->id]
         );
 
         $mimeTypes = [
