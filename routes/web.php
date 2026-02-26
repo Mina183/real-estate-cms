@@ -11,6 +11,7 @@ use App\Http\Controllers\DataRoomController;
 use App\Http\Controllers\InvestorAuthController;
 use App\Http\Controllers\InvestorPortalController;
 use App\Http\Controllers\TwoFactorController;
+use App\Http\Controllers\InvestorTwoFactorController;
 
 /*
 |--------------------------------------------------------------------------
@@ -37,6 +38,12 @@ Route::prefix('investor')->name('investor.')->group(function () {
     Route::middleware('investor')->group(function () {
         Route::post('/logout', [InvestorAuthController::class, 'logout'])
             ->name('logout');
+
+        // 2FA
+        Route::get('/2fa/setup', [InvestorTwoFactorController::class, 'setup'])->name('2fa.setup');
+        Route::post('/2fa/enable', [InvestorTwoFactorController::class, 'enable'])->name('2fa.enable');
+        Route::get('/2fa/verify', [InvestorTwoFactorController::class, 'verify'])->name('2fa.verify');
+        Route::post('/2fa/check', [InvestorTwoFactorController::class, 'check'])->name('2fa.check');    
         
         // Dashboard
         Route::get('/dashboard', [InvestorPortalController::class, 'dashboard'])

@@ -9,39 +9,36 @@ use Illuminate\Support\Facades\Auth;
 
 class InvestorAuth
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
     public function handle(Request $request, Closure $next): Response
     {
-        \Log::info('InvestorAuth middleware triggered', [
-            'authenticated' => Auth::guard('investor')->check(),
-            'path' => $request->path()
-        ]);
-
         if (!Auth::guard('investor')->check()) {
-            \Log::error('InvestorAuth: Not authenticated, redirecting to login');
             return redirect()->route('investor.login')
                 ->with('error', 'Please log in to access the investor portal.');
         }
 
         $investorUser = Auth::guard('investor')->user();
         
-        \Log::info('InvestorAuth: User found', [
-            'user_id' => $investorUser->id,
-            'is_active' => $investorUser->is_active
-        ]);
-        
         if (!$investorUser->is_active) {
             Auth::guard('investor')->logout();
-            \Log::error('InvestorAuth: Account inactive, logged out');
             return redirect()->route('investor.login')
                 ->with('error', 'Your account has been deactivated. Please contact support.');
         }
 
-        \Log::info('InvestorAuth: Passed, continuing to controller');
+        // 2FA provjera
+        if (!$investorUser->two_factor_enabled) {
+            if (!$request->routeIs('investor.2fa.setup') && !$request->routeIs('investor.2fa.enable')) {
+                return redirect()->route('investor.2fa.setup');
+            }
+            return $next($request);
+        }
+
+        if (!$request->session()->get('investor_2fa_verified')) {
+            if (!$request->routeIs('investor.2fa.verify') && !$request->routeIs('investor.2fa.check')) {
+                return redirect()->route('investor.2fa.verify');
+            }
+            return $next($request);
+        }
+
         return $next($request);
     }
 }

@@ -27,6 +27,9 @@ class InvestorUser extends Authenticatable
         'last_login_at',
         'last_login_ip',
         'is_active',
+        'two_factor_secret',
+        'two_factor_enabled',
+        'two_factor_enabled_at',
     ];
 
     /**
@@ -44,6 +47,8 @@ class InvestorUser extends Authenticatable
         'email_verified_at' => 'datetime',
         'last_login_at' => 'datetime',
         'is_active' => 'boolean',
+        'two_factor_enabled' => 'boolean',
+        'two_factor_enabled_at' => 'datetime',
     ];
 
     /**
