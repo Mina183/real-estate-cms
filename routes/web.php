@@ -12,6 +12,7 @@ use App\Http\Controllers\InvestorAuthController;
 use App\Http\Controllers\InvestorPortalController;
 use App\Http\Controllers\TwoFactorController;
 use App\Http\Controllers\InvestorTwoFactorController;
+use App\Http\Controllers\InvestorPasswordResetController;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,6 +34,16 @@ Route::prefix('investor')->name('investor.')->group(function () {
         Route::get('/login', [InvestorAuthController::class, 'showLoginForm'])
             ->name('login');
         Route::post('/login', [InvestorAuthController::class, 'login']);
+
+            // Password Reset
+    Route::get('/forgot-password', [InvestorPasswordResetController::class, 'showForgotForm'])
+        ->name('password.request');
+    Route::post('/forgot-password', [InvestorPasswordResetController::class, 'sendResetLink'])
+        ->name('password.email');
+    Route::get('/reset-password/{token}', [InvestorPasswordResetController::class, 'showResetForm'])
+        ->name('password.reset');
+    Route::post('/reset-password', [InvestorPasswordResetController::class, 'resetPassword'])
+        ->name('password.update');
     });
 
     Route::middleware('investor')->group(function () {
