@@ -31,6 +31,9 @@ class User extends Authenticatable
         'role',
         'requested_role',
         'supervisor_id',
+        'two_factor_secret',
+        'two_factor_enabled',
+        'two_factor_enabled_at',
     ];
 
 
@@ -76,11 +79,8 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'two_factor_enabled' => 'boolean',
+            'two_factor_enabled_at' => 'datetime',
         ];
     }
-
-    public function meetings()
-{
-    return $this->belongsToMany(Meeting::class)->withPivot('is_accepted', 'accepted_at')->withTimestamps();
-}
 }

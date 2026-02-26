@@ -19,7 +19,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'investor' => \App\Http\Middleware\InvestorAuth::class,
             'data-room' => \App\Http\Middleware\CheckDataRoomAccess::class,
             'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class, // ← DODATO
+            '2fa' => \App\Http\Middleware\TwoFactorAuth::class, // ← DODATO
         ]);
+        $middleware->appendToGroup('web', \App\Http\Middleware\TwoFactorAuth::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

@@ -10,6 +10,7 @@ use App\Http\Controllers\PaymentTransactionController;
 use App\Http\Controllers\DataRoomController;
 use App\Http\Controllers\InvestorAuthController;
 use App\Http\Controllers\InvestorPortalController;
+use App\Http\Controllers\TwoFactorController;
 
 /*
 |--------------------------------------------------------------------------
@@ -171,6 +172,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/upload', 'upload')->name('data-room.upload');
         Route::get('/download/{document}', 'download')->name('data-room.download');
         Route::get('/export-index', 'exportIndex')->name('data-room.export-index');
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Two Factor Authentication
+    |--------------------------------------------------------------------------
+    */
+    Route::prefix('2fa')->name('2fa.')->group(function () {
+        Route::get('/setup', [TwoFactorController::class, 'setup'])->name('setup');
+        Route::post('/enable', [TwoFactorController::class, 'enable'])->name('enable');
+        Route::get('/verify', [TwoFactorController::class, 'verify'])->name('verify');
+        Route::post('/check', [TwoFactorController::class, 'check'])->name('check');
+        Route::post('/disable', [TwoFactorController::class, 'disable'])->name('disable');
     });
 
 });
