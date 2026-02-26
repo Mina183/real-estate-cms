@@ -194,14 +194,18 @@ class InvestorStageService
                 break;
 
             case 'ppm_issued':
-                // Grant Data Room access (PROSPECT level)
+                
                 $investor->update([
                     'ppm_issued_date' => Carbon::now(),
                     'data_room_access_level' => 'prospect',
                     'data_room_access_granted' => true,
                     'data_room_access_granted_at' => Carbon::now(),
                 ]);
-                // TODO: Call DataRoomService to grant folder permissions
+                app(\App\Services\DataRoomService::class)->grantAccess(
+                    $investor, 
+                    'prospect',
+                    'Auto-granted on PPM issued'
+                );
                 break;
 
             case 'kyc_in_progress':
@@ -209,7 +213,11 @@ class InvestorStageService
                 $investor->update([
                     'data_room_access_level' => 'qualified',
                 ]);
-                // TODO: Call DataRoomService to upgrade permissions
+                app(\App\Services\DataRoomService::class)->upgradeAccess(
+                    $investor,
+                    'qualified',
+                    'Auto-upgraded on KYC started'
+                );
                 break;
 
             case 'approved':
@@ -232,7 +240,11 @@ class InvestorStageService
                     'data_room_access_level' => 'subscribed',
                     'reporting_access_granted' => true,
                 ]);
-                
+                app(\App\Services\DataRoomService::class)->upgradeAccess(
+                    $investor,
+                    'subscribed',
+                    'Auto-upgraded on activation'
+                );
                 // Generate investor ID if not exists
                 if (!$investor->investor_id_number) {
                     $investor->update([
