@@ -196,13 +196,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 });
 
-Route::get('/test-mail', function () {
-    Mail::raw('Test email from Triton Platform', function($msg) {
-        $msg->to('mk@poseidonhumancapital.com')->subject('Test - Triton Platform');
-    });
-    return 'Mail sent!';
-})->middleware('auth');
-
 /*
 |--------------------------------------------------------------------------
 | Auth Routes
