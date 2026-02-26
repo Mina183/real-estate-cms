@@ -6,6 +6,8 @@ use App\Models\InvestorUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class InvestorAuthController extends Controller
@@ -21,26 +23,38 @@ class InvestorAuthController extends Controller
     /**
      * Handle investor login
      */
-    public function login(Request $request)
+public function login(Request $request)
 {
     $request->validate([
         'email' => 'required|email',
         'password' => 'required',
     ]);
 
+    // Rate limiting
+    $key = Str::transliterate(Str::lower($request->input('email')).'|'.$request->ip());
+    
+    if (RateLimiter::tooManyAttempts($key, 5)) {
+        $seconds = RateLimiter::availableIn($key);
+        throw ValidationException::withMessages([
+            'email' => 'Too many login attempts. Please try again in ' . ceil($seconds / 60) . ' minutes.',
+        ]);
+    }
+
     $credentials = $request->only('email', 'password');
     $remember = $request->filled('remember');
 
     if (Auth::guard('investor')->attempt($credentials, $remember)) {
+        RateLimiter::clear($key);
         $request->session()->regenerate();
 
         $investorUser = Auth::guard('investor')->user();
-        
         $investorUser->updateLastLogin($request->ip());
 
         return redirect()->intended(route('investor.dashboard'))
             ->with('success', 'Welcome back, ' . $investorUser->name . '!');
     }
+
+    RateLimiter::hit($key);
 
     throw ValidationException::withMessages([
         'email' => 'The provided credentials do not match our records.',
