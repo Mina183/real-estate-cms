@@ -26,5 +26,13 @@ class AuthLog extends Model
         static::creating(function ($model) {
             $model->created_at = now();
         });
+
+        static::updating(function () {
+        throw new \Exception('Auth logs are append-only and cannot be modified.');
+    });
+    
+        static::deleting(function () {
+            throw new \Exception('Auth logs are append-only and cannot be deleted.');
+        });
     }
 }

@@ -56,4 +56,17 @@ class DataRoomActivityLog extends Model
     {
         return $this->belongsTo(DataRoomFolder::class, 'folder_id');
     }
+
+    protected static function boot()
+    {
+        parent::boot();
+        
+        static::updating(function () {
+            throw new \Exception('Activity logs are append-only and cannot be modified.');
+        });
+        
+        static::deleting(function () {
+            throw new \Exception('Activity logs are append-only and cannot be deleted.');
+        });
+    }
 }
