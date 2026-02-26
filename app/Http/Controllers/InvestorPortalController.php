@@ -146,8 +146,8 @@ class InvestorPortalController extends Controller
 
         app(\App\Services\DataRoomService::class)->logActivity(
             $investor,
-            $folder->id,
             $document->id,
+            $folder->id,
             'download',
             ['downloaded_by' => $investorUser->id]
         );
