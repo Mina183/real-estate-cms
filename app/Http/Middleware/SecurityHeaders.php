@@ -20,8 +20,8 @@ class SecurityHeaders
         $response->headers->set(
             'Content-Security-Policy',
             "default-src 'self'; " .
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com; " .
-            "style-src 'self' 'unsafe-inline' https://fonts.bunny.net; " .
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdn.jsdelivr.net; " .
+            "style-src 'self' 'unsafe-inline' https://fonts.bunny.net https://cdn.jsdelivr.net; " .
             "font-src 'self' https://fonts.bunny.net; " .
             "img-src 'self' data: blob:; " .
             "connect-src 'self'; " .
