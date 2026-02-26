@@ -144,12 +144,13 @@ class InvestorPortalController extends Controller
             abort(404, 'File not found');
         }
 
-        // Log document access (for audit trail)
-        \Log::info('Investor document download', [
-            'investor_id' => $investor->id,
-            'document_id' => $document->id,
-            'document_name' => $document->document_name
-        ]);
+        app(\App\Services\DataRoomService::class)->logActivity(
+            null,
+            $document->folder,
+            $document,
+            'download',
+            ['downloaded_by' => auth()->id()]
+        );
 
         $mimeTypes = [
             'pdf'  => 'application/pdf',

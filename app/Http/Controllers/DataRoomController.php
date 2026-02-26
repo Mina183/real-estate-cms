@@ -48,6 +48,14 @@ class DataRoomController extends Controller
         // Policy check - can user download this document?
         $this->authorize('download', $document);
 
+        app(\App\Services\DataRoomService::class)->logActivity(
+            null,
+            $document->folder,
+            $document,
+            'download',
+            ['downloaded_by' => auth()->id()]
+        );
+
         if (!Storage::disk('private')->exists($document->file_path)) {
             abort(404, 'File not found');
         }
