@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Auth\Notifications\ResetPassword;
 
 class InvestorUser extends Authenticatable
 {
@@ -92,5 +93,15 @@ class InvestorUser extends Authenticatable
             'last_login_at' => now(),
             'last_login_ip' => $ip,
         ]);
+    }
+
+    public function sendPasswordResetNotification($token)
+    {
+        $url = url(route('investor.password.reset', [
+            'token' => $token,
+            'email' => $this->email,
+        ], false));
+
+        $this->notify(new ResetPassword($token));
     }
 }
