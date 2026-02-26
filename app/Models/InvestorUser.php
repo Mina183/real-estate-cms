@@ -95,13 +95,13 @@ class InvestorUser extends Authenticatable
         ]);
     }
 
-    public function sendPasswordResetNotification($token)
+    public function sendPasswordResetNotification($token): void
     {
-        $url = url(route('investor.password.reset', [
+        $url = route('investor.password.reset', [
             'token' => $token,
             'email' => $this->email,
-        ], false));
+        ]);
 
-        $this->notify(new ResetPassword($token));
+        $this->notify(new \App\Notifications\InvestorResetPasswordNotification($token, $url));
     }
 }
