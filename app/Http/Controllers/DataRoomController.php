@@ -50,8 +50,8 @@ class DataRoomController extends Controller
 
         app(\App\Services\DataRoomService::class)->logActivity(
             null,
-            $document->folder,
-            $document,
+            $document->id,
+            $document->folder_id,
             'download',
             ['downloaded_by' => auth()->id()]
         );
