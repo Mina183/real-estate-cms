@@ -223,6 +223,8 @@ class InvestorEmailController extends Controller
                 'senderTitle' => auth()->user()->title ?? 'Investor Relations',
                 'senderEmail' => auth()->user()->email,
                 'senderPhone' => auth()->user()->phone ?? '',
+                'acknowledgementUrl' => '#preview-only',
+                'customBody' => null,
             ]);
         }
 
