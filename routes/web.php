@@ -13,6 +13,7 @@ use App\Http\Controllers\InvestorPortalController;
 use App\Http\Controllers\TwoFactorController;
 use App\Http\Controllers\InvestorTwoFactorController;
 use App\Http\Controllers\InvestorPasswordResetController;
+use App\Http\Controllers\InvestorEmailController;
 
 /*
 |--------------------------------------------------------------------------
@@ -121,6 +122,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Activity log
         Route::get('/{investor}/activity', 'activityLog')
             ->name('investors.activity');
+
+        // Email sending
+        Route::get('/{investor}/send-email', [InvestorEmailController::class, 'compose'])->name('investors.send-email.form');
+        Route::post('/send-email', [InvestorEmailController::class, 'send'])->name('investors.send-email');
+        Route::get('/send-email/bulk', [InvestorEmailController::class, 'composeBulk'])->name('investors.send-email.bulk');
     });
 
     /*

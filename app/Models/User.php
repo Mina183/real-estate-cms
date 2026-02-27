@@ -15,8 +15,6 @@ class User extends Authenticatable
     // ✅ Add your custom constants here
     public const ROLE_SUPERADMIN = 'superadmin';
     public const ROLE_ADMIN = 'admin';
-    public const ROLE_CHANNEL_PARTNER = 'channel_partner';
-    public const ROLE_GUEST = 'guest';
 
     /**
      * The attributes that are mass assignable.
@@ -34,6 +32,8 @@ class User extends Authenticatable
         'two_factor_secret',
         'two_factor_enabled',
         'two_factor_enabled_at',
+        'title',
+        'phone',
     ];
 
 
@@ -47,16 +47,6 @@ class User extends Authenticatable
     public function isAdmin()
     {
         return $this->role === self::ROLE_ADMIN;
-    }
-
-    public function isChannelPartner()
-    {
-        return $this->role === self::ROLE_CHANNEL_PARTNER;
-    }
-
-    public function isGuest()
-    {
-        return $this->role === self::ROLE_GUEST;
     }
 
     /**
