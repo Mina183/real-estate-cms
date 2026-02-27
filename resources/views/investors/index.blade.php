@@ -4,13 +4,18 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Investors') }}
             </h2>
-            {{-- Only users who can create investors see this button --}}
-            @can('create', App\Models\Investor::class)
-                <a href="{{ route('investors.create') }}" 
-                   class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                    + New Investor
-                </a>
-            @endcan
+            <div class="flex space-x-2">
+                @can('create', App\Models\Investor::class)
+                    <a href="{{ route('investors.send-email.bulk') }}" 
+                    class="bg-teal-500 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded">
+                        ✉️ Bulk Send Email
+                    </a>
+                    <a href="{{ route('investors.create') }}" 
+                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                        + New Investor
+                    </a>
+                @endcan
+            </div>
         </div>
     </x-slot>
 

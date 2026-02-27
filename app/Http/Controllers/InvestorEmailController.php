@@ -144,10 +144,13 @@ class InvestorEmailController extends Controller
                         'contact' => $primaryContact,
                         'documents' => $documents,
                         'senderName' => auth()->user()->name,
+                        'senderTitle' => auth()->user()->title ?? 'Investor Relations',
+                        'senderEmail' => auth()->user()->email,
+                        'senderPhone' => auth()->user()->phone ?? '',
                     ],
                     function ($message) use ($primaryContact, $template, $documents) {
                         $message->to($primaryContact->email, $primaryContact->full_name)
-                            ->subject($template['subject']);
+                            ->subject($template['subject'] . ' | ' . $primaryContact->full_name);
 
                         // Attach documents
                         foreach ($documents as $doc) {

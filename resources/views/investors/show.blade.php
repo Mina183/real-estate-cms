@@ -12,7 +12,7 @@
                         🔄 Change Stage
                     </a>
                 @endcan
-                
+
                 {{-- Everyone who can view can see activity log --}}
                 @can('view', $investor)
                     <a href="{{ route('investors.activity', $investor) }}" 
@@ -22,11 +22,18 @@
                 @endcan
                 
                 <div class="flex space-x-2">
-                    {{-- Only authorized users can edit --}}
+                    {{-- Only authorized users can edit and email --}}
                     @can('update', $investor)
                         <a href="{{ route('investors.edit', $investor) }}" 
                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                             Edit
+                        </a>
+                    @endcan
+
+                    @can('update', $investor)
+                        <a href="{{ route('investors.send-email.form', $investor) }}" 
+                        class="bg-teal-500 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded">
+                            ✉️ Send Email
                         </a>
                     @endcan
                     
