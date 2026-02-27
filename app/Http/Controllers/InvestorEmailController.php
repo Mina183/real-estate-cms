@@ -210,6 +210,10 @@ class InvestorEmailController extends Controller
 
         public function preview(Request $request)
         {
+
+         dd($request->all());
+
+         
             $templateKey = $request->input('template', 'teaser');
             $fakeContact = (object) ['full_name' => 'John Smith'];
 
