@@ -210,10 +210,6 @@ class InvestorEmailController extends Controller
 
         public function preview(Request $request)
         {
-
-         dd($request->all());
-
-         
             $templateKey = $request->input('template', 'teaser');
             $fakeContact = (object) ['full_name' => 'John Smith'];
 
@@ -227,8 +223,8 @@ class InvestorEmailController extends Controller
                     'senderEmail' => auth()->user()->email,
                     'senderPhone' => auth()->user()->phone ?? '',
                     'acknowledgementUrl' => '#preview-only',
-                    'customBody' => $request->input('custom_body', '(No body provided)'),
-                    'customSubject' => $request->input('custom_subject', '(No subject)'),
+                    'customBody' => $request->input('custom_body') ?: 'No body provided',
+                    'customSubject' => $request->input('custom_subject') ?: 'No subject',
                 ]);
             }
 
