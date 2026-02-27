@@ -25,6 +25,10 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
+// Public acknowledgement route (no auth required)
+Route::get('/acknowledge/{token}', [InvestorEmailController::class, 'acknowledge'])
+    ->name('email.acknowledge');
+
 /*
 |--------------------------------------------------------------------------
 | Investor Authentication Routes

@@ -8,12 +8,13 @@
         .header { background-color: #1a3a4a; color: white; padding: 20px; text-align: center; }
         .content { padding: 20px; background: #f9f9f9; }
         .disclaimer { padding: 15px; background: #f0f0f0; border-top: 2px solid #1a3a4a; font-size: 11px; color: #555; margin-top: 20px; }
+        .header img { max-height: 60px; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>Triton Real Estate Fund</h1>
+            <img src="{{ url('/images/logo.png') }}" alt="Triton Real Estate Fund" style="max-height: 60px;">
         </div>
         <div class="content">
             <p>Dear {{ $contact->full_name }},</p>
@@ -35,6 +36,15 @@
             <p>If you are unsure whether you qualify as a Professional Client under DFSA rules, we would recommend seeking independent legal or financial advice. We are also happy to assist with any questions you may have regarding the form itself.</p>
 
             <p>Please do not hesitate to reach out should you require any clarification or assistance.</p>
+
+            @if($acknowledgementUrl)
+                <p style="margin-top: 30px;">
+                    <a href="{{ $acknowledgementUrl }}" style="display: inline-block; padding: 12px 24px; background-color: #1a7a4a; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">
+                        ✓ Confirm Receipt of Materials
+                    </a>
+                </p>
+                <p style="font-size: 12px; color: #999;">By clicking the button above, you confirm that you have received and reviewed the attached materials.</p>
+            @endif
 
             <p>Kind regards,<br><br>
             {{ $senderName }}<br>

@@ -64,26 +64,53 @@
                 </div>
                 @endif
 
-                <!-- Template Selection -->
-                <div class="bg-white shadow sm:rounded-lg p-6 mb-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Email Template</h3>
-                    
-                    <div class="space-y-3">
-                        @foreach($templates as $key => $template)
-                        <label class="flex items-start p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-                            <input type="radio" name="template" value="{{ $key }}" class="mt-1 mr-3">
-                            <div>
-                                <p class="font-medium text-gray-900">{{ $template['name'] }}</p>
-                                <p class="text-sm text-gray-500">Subject: {{ $template['subject'] }}</p>
-                                <p class="text-xs text-gray-400">Stages: {{ implode(', ', $template['stages']) }}</p>
-                            </div>
-                        </label>
-                        @endforeach
+        <!-- Template Selection -->
+        <div class="bg-white shadow sm:rounded-lg p-6 mb-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Email Template</h3>
+            
+            <div class="space-y-3">
+                @foreach($templates as $key => $template)
+                <label class="flex items-start p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                    <input type="radio" name="template" value="{{ $key }}" class="mt-1 mr-3">
+                    <div>
+                        <p class="font-medium text-gray-900">{{ $template['name'] }}</p>
+                        <p class="text-sm text-gray-500">Subject: {{ $template['subject'] }}</p>
+                        <p class="text-xs text-gray-400">Stages: {{ implode(', ', $template['stages']) }}</p>
                     </div>
-                    @error('template')
-                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
+                </label>
+                @endforeach
+
+                <!-- Custom Template -->
+                <label class="flex items-start p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                    <input type="radio" name="template" value="custom" class="mt-1 mr-3" id="custom_radio">
+                    <div>
+                        <p class="font-medium text-gray-900">Custom Email</p>
+                        <p class="text-sm text-gray-500">Write your own email subject and body</p>
+                    </div>
+                </label>
+
+                <div id="custom_fields" class="hidden mt-4 space-y-4 p-4 border rounded-lg bg-gray-50">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Subject *</label>
+                        <input type="text" name="custom_subject" class="block w-full border-gray-300 rounded-md shadow-sm text-sm" placeholder="Email subject...">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Message *</label>
+                        <textarea name="custom_body" rows="8" class="block w-full border-gray-300 rounded-md shadow-sm text-sm" placeholder="Write your message here..."></textarea>
+                    </div>
+                    <div>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="requires_acknowledgement" value="1" class="mr-2">
+                            <span class="text-sm text-gray-700">Request confirmation of receipt from investor</span>
+                        </label>
+                    </div>
                 </div>
+            </div>
+
+            @error('template')
+                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+            @enderror
+        </div>
 
                 <!-- Document Selection -->
                 <div class="bg-white shadow sm:rounded-lg p-6 mb-6">
@@ -158,5 +185,13 @@
             }
             window.open('{{ route("investors.send-email.preview") }}?template=' + template, '_blank');
         });
+
+        // Show/hide custom fields
+            document.querySelectorAll('input[name="template"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const customFields = document.getElementById('custom_fields');
+                    customFields.classList.toggle('hidden', this.value !== 'custom');
+                });
+            });
     </script>
 </x-app-layout>

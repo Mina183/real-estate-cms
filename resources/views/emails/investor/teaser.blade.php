@@ -9,13 +9,14 @@
         .content { padding: 20px; background: #f9f9f9; }
         .disclaimer { padding: 15px; background: #f0f0f0; border-top: 2px solid #1a3a4a; font-size: 11px; color: #555; margin-top: 20px; }
         .footer { padding: 20px; text-align: center; font-size: 12px; color: #666; }
+        .header img { max-height: 60px; }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>Triton Real Estate Fund</h1>
-        </div>
+    <div class="header">
+        <img src="{{ url('/images/logo.png') }}" alt="Triton Real Estate Fund" style="max-height: 60px;">
+    </div>
         <div class="content">
             <p>Dear {{ $contact->full_name }},</p>
 
@@ -28,6 +29,15 @@
             <p>Should you wish to explore the opportunity in more detail, I would be happy to arrange a call or meeting at your convenience and share further materials including our Executive Summary, Term Sheet and Investor Presentation, subject to eligibility confirmation.</p>
 
             <p>Please do not hesitate to reach out with any questions.</p>
+
+            @if($acknowledgementUrl)
+                <p style="margin-top: 30px;">
+                    <a href="{{ $acknowledgementUrl }}" style="display: inline-block; padding: 12px 24px; background-color: #1a7a4a; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">
+                        ✓ Confirm Receipt of Materials
+                    </a>
+                </p>
+                <p style="font-size: 12px; color: #999;">By clicking the button above, you confirm that you have received and reviewed the attached materials.</p>
+            @endif
 
             <p>Kind regards,<br><br>
             {{ $senderName }}<br>
