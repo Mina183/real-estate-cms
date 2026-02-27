@@ -51,4 +51,9 @@ class DataRoomPolicy
             'admin',
         ]);
     }
+
+    public function approve(User $user, DataRoomDocument $document): bool
+    {
+        return in_array($user->role, ['superadmin', 'admin', 'compliance_officer']);
+    }
 }

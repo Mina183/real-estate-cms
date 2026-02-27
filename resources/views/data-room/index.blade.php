@@ -152,6 +152,10 @@
             justify-content: center;
             flex-shrink: 0;
         }
+
+        .badge-under_review { background: #dbeafe; color: #1e40af; }
+        .badge-superseded   { background: #f3e8ff; color: #6b21a8; }
+        .badge-archived     { background: #f1f5f9; color: #94a3b8; }
     </style>
 
     <div class="py-8">
@@ -576,5 +580,49 @@
     @if($errors->any() || session('upload_success'))
         showUploadModal();
     @endif
+
+    function showRejectModal(docId) {
+    document.getElementById('rejectForm').action = '/data-room/documents/' + docId + '/reject';
+    document.getElementById('rejectModal').classList.remove('hidden');
+}
+    function closeRejectModal() {
+        document.getElementById('rejectModal').classList.add('hidden');
+    }
+    document.getElementById('rejectModal')?.addEventListener('click', function(e) {
+        if (e.target === this) this.classList.add('hidden');
+    });
     </script>
+
+    {{-- Reject Modal --}}
+<div id="rejectModal" class="hidden fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-md">
+        <div class="flex items-center justify-between p-5 border-b border-gray-100">
+            <h3 class="font-semibold text-gray-800">Request Revision</h3>
+            <button onclick="closeRejectModal()" class="text-gray-400 hover:text-gray-600">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+        <form id="rejectForm" method="POST" class="p-5 space-y-4">
+            @csrf
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Reason for revision *</label>
+                <textarea name="rejection_reason" rows="3" required
+                          placeholder="Explain what needs to be changed..."
+                          class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-red-500 resize-none"></textarea>
+            </div>
+            <div class="flex justify-end gap-2">
+                <button type="button" onclick="closeRejectModal()"
+                        class="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 font-medium">
+                    Cancel
+                </button>
+                <button type="submit"
+                        class="px-5 py-2 text-sm text-white bg-red-600 rounded-lg hover:bg-red-700 font-semibold">
+                    Request Revision
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 </x-app-layout>

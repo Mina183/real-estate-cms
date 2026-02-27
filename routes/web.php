@@ -206,6 +206,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/upload', 'upload')->name('data-room.upload');
         Route::get('/download/{document}', 'download')->name('data-room.download');
         Route::get('/export-index', 'exportIndex')->name('data-room.export-index');
+        Route::post('/documents/{document}/submit', [DataRoomController::class, 'submitForReview'])->name('data-room.submit');
+        Route::post('/documents/{document}/approve', [DataRoomController::class, 'approve'])->name('data-room.approve');
+        Route::post('/documents/{document}/reject', [DataRoomController::class, 'reject'])->name('data-room.reject');
+        Route::post('/documents/{document}/archive', [DataRoomController::class, 'archive'])->name('data-room.archive');
     });
 
     /*

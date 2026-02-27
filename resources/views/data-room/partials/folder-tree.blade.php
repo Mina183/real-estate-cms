@@ -34,27 +34,70 @@
 
         {{-- Direct Documents in Parent --}}
         @foreach($folder->documents as $doc)
-            <div class="doc-row" style="padding-left: 1.25rem;">
-                <span class="file-icon">
-                    @if($doc->file_type === 'pdf') 📄
-                    @elseif(in_array($doc->file_type, ['xlsx','xls'])) 📊
-                    @elseif(in_array($doc->file_type, ['pptx','ppt'])) 📽️
-                    @elseif(in_array($doc->file_type, ['docx','doc'])) 📝
-                    @else 📎
+        <div class="doc-row" style="padding-left: 1.25rem;">
+            <span class="file-icon">
+                @if($doc->file_type === 'pdf') 📄
+                @elseif(in_array($doc->file_type, ['xlsx','xls'])) 📊
+                @elseif(in_array($doc->file_type, ['pptx','ppt'])) 📽️
+                @elseif(in_array($doc->file_type, ['docx','doc'])) 📝
+                @else 📎
+                @endif
+            </span>
+            <span class="text-sm text-gray-700 truncate" title="{{ $doc->document_name }}">{{ $doc->document_name }}</span>
+            <span class="text-xs text-gray-400">v{{ $doc->version }}</span>
+
+            <span class="badge badge-{{ $doc->status }}">
+                {{ ucfirst(str_replace('_', ' ', $doc->status)) }}
+            </span>
+
+            <div class="flex items-center gap-1" onclick="event.stopPropagation()">
+                {{-- Workflow actions --}}
+                @can('upload', \App\Models\DataRoomDocument::class)
+                    @if($doc->status === 'draft')
+                        <form method="POST" action="{{ route('data-room.submit', $doc->id) }}">
+                            @csrf
+                            <button type="submit" class="download-btn" style="background:#d97706;">
+                                Submit
+                            </button>
+                        </form>
                     @endif
-                </span>
-                <span class="text-sm text-gray-700 truncate" title="{{ $doc->document_name }}">{{ $doc->document_name }}</span>
-                <span class="text-xs text-gray-400">v{{ $doc->version }}</span>
-                <span class="badge {{ $doc->status === 'approved' ? 'badge-approved' : ($doc->status === 'pending_review' ? 'badge-pending' : 'badge-draft') }}">
-                    {{ $doc->status === 'pending_review' ? 'Pending' : ucfirst($doc->status) }}
-                </span>
-                <a href="{{ route('data-room.download', $doc->id) }}" class="download-btn" onclick="event.stopPropagation()">
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-                    </svg>
-                    Download
-                </a>
+                @endcan
+
+                @can('approve', $doc)
+                    @if($doc->status === 'under_review')
+                        <form method="POST" action="{{ route('data-room.approve', $doc->id) }}">
+                            @csrf
+                            <button type="submit" class="download-btn" style="background:#16a34a;">
+                                Approve
+                            </button>
+                        </form>
+                        <button onclick="showRejectModal({{ $doc->id }})" class="download-btn" style="background:#dc2626;">
+                            Reject
+                        </button>
+                    @endif
+
+                    @if($doc->status === 'approved')
+                        <form method="POST" action="{{ route('data-room.archive', $doc->id) }}">
+                            @csrf
+                            <button type="submit" class="download-btn" style="background:#64748b;"
+                                    onclick="return confirm('Archive this document?')">
+                                Archive
+                            </button>
+                        </form>
+                    @endif
+                @endcan
+
+                {{-- Download samo za approved --}}
+                @if($doc->status === 'approved')
+                    <a href="{{ route('data-room.download', $doc->id) }}" class="download-btn">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                        </svg>
+                        Download
+                    </a>
+                @endif
             </div>
+        </div>
         @endforeach
 
         {{-- Subfolders --}}
@@ -88,27 +131,70 @@
                 @if($child->documents->count())
                     <div id="folder-{{ $child->id }}" class="collapsible hidden ml-4 border-l border-gray-100 pl-2 mt-0.5">
                         @foreach($child->documents as $doc)
-                            <div class="doc-row" style="padding-left: 1.25rem;">
-                                <span class="file-icon">
-                                    @if($doc->file_type === 'pdf') 📄
-                                    @elseif(in_array($doc->file_type, ['xlsx','xls'])) 📊
-                                    @elseif(in_array($doc->file_type, ['pptx','ppt'])) 📽️
-                                    @elseif(in_array($doc->file_type, ['docx','doc'])) 📝
-                                    @else 📎
-                                    @endif
-                                </span>
-                                <span class="text-sm text-gray-700 truncate" title="{{ $doc->document_name }}">{{ $doc->document_name }}</span>
-                                <span class="text-xs text-gray-400">v{{ $doc->version }}</span>
-                                <span class="badge {{ $doc->status === 'approved' ? 'badge-approved' : ($doc->status === 'pending_review' ? 'badge-pending' : 'badge-draft') }}">
-                                    {{ $doc->status === 'pending_review' ? 'Pending' : ucfirst($doc->status) }}
-                                </span>
-                                <a href="{{ route('data-room.download', $doc->id) }}" class="download-btn" onclick="event.stopPropagation()">
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-                                    </svg>
-                                    Download
-                                </a>
-                            </div>
+                <div class="doc-row" style="padding-left: 1.25rem;">
+                    <span class="file-icon">
+                        @if($doc->file_type === 'pdf') 📄
+                        @elseif(in_array($doc->file_type, ['xlsx','xls'])) 📊
+                        @elseif(in_array($doc->file_type, ['pptx','ppt'])) 📽️
+                        @elseif(in_array($doc->file_type, ['docx','doc'])) 📝
+                        @else 📎
+                        @endif
+                    </span>
+                    <span class="text-sm text-gray-700 truncate" title="{{ $doc->document_name }}">{{ $doc->document_name }}</span>
+                    <span class="text-xs text-gray-400">v{{ $doc->version }}</span>
+
+                    <span class="badge badge-{{ $doc->status }}">
+                        {{ ucfirst(str_replace('_', ' ', $doc->status)) }}
+                    </span>
+
+                    <div class="flex items-center gap-1" onclick="event.stopPropagation()">
+                        {{-- Workflow actions --}}
+                        @can('upload', \App\Models\DataRoomDocument::class)
+                            @if($doc->status === 'draft')
+                                <form method="POST" action="{{ route('data-room.submit', $doc->id) }}">
+                                    @csrf
+                                    <button type="submit" class="download-btn" style="background:#d97706;">
+                                        Submit
+                                    </button>
+                                </form>
+                            @endif
+                        @endcan
+
+                        @can('approve', $doc)
+                            @if($doc->status === 'under_review')
+                                <form method="POST" action="{{ route('data-room.approve', $doc->id) }}">
+                                    @csrf
+                                    <button type="submit" class="download-btn" style="background:#16a34a;">
+                                        Approve
+                                    </button>
+                                </form>
+                                <button onclick="showRejectModal({{ $doc->id }})" class="download-btn" style="background:#dc2626;">
+                                    Reject
+                                </button>
+                            @endif
+
+                            @if($doc->status === 'approved')
+                                <form method="POST" action="{{ route('data-room.archive', $doc->id) }}">
+                                    @csrf
+                                    <button type="submit" class="download-btn" style="background:#64748b;"
+                                            onclick="return confirm('Archive this document?')">
+                                        Archive
+                                    </button>
+                                </form>
+                            @endif
+                        @endcan
+
+                        {{-- Download samo za approved --}}
+                        @if($doc->status === 'approved')
+                            <a href="{{ route('data-room.download', $doc->id) }}" class="download-btn">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                </svg>
+                                Download
+                            </a>
+                        @endif
+                    </div>
+                </div>
                         @endforeach
                     </div>
                 @endif

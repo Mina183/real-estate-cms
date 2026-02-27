@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\DataRoomFolder;
 use App\Models\DataRoomDocument;
+use App\Models\DocumentApprovalWorkflow;
 use App\Exports\DocumentIndexExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -29,7 +30,6 @@ class DataRoomController extends Controller
      */
     public function exportIndex()
     {
-        // Gate check - can user export data?
         if (!auth()->user()->can('export-data')) {
             abort(403, 'Unauthorized to export data');
         }
@@ -45,7 +45,6 @@ class DataRoomController extends Controller
     {
         $document = DataRoomDocument::findOrFail($documentId);
 
-        // Policy check - can user download this document?
         $this->authorize('download', $document);
 
         app(\App\Services\DataRoomService::class)->logActivity(
@@ -74,7 +73,6 @@ class DataRoomController extends Controller
 
         $downloadName = $document->document_name;
 
-        // Dodaj ekstenziju ako je nema
         if ($document->file_type && !str_ends_with(strtolower($downloadName), '.' . $document->file_type)) {
             $downloadName = $downloadName . '.' . $document->file_type;
         }
@@ -91,12 +89,11 @@ class DataRoomController extends Controller
      */
     public function upload(Request $request)
     {
-        // Policy check - can user upload documents?
         $this->authorize('upload', DataRoomDocument::class);
 
         $request->validate([
             'folder_id'     => 'required|exists:data_room_folders,id',
-            'investor_id'   => 'nullable|exists:investors,id', 
+            'investor_id'   => 'nullable|exists:investors,id',
             'document_name' => 'required|string|max:255',
             'document'      => 'required|file|max:10240',
             'version'       => 'nullable|string',
@@ -118,13 +115,91 @@ class DataRoomController extends Controller
             'file_size'     => $file->getSize(),
             'version'       => $request->version ?? '1.0',
             'description'   => $request->description,
-            'status'        => 'approved',
+            'status'        => 'draft',
             'uploaded_by'   => auth()->id(),
-            'approved_by'   => auth()->id(),
-            'approved_at'   => now(),
         ]);
 
         return redirect()->route('data-room.index')
             ->with('upload_success', 'Document uploaded: ' . $request->document_name);
+    }
+
+    /**
+     * Submit document for review
+     */
+    public function submitForReview(DataRoomDocument $document)
+    {
+        $this->authorize('upload', DataRoomDocument::class);
+
+        $document->update(['status' => 'under_review']);
+
+        DocumentApprovalWorkflow::create([
+            'document_id'          => $document->id,
+            'workflow_status'      => 'under_review',
+            'submitted_by_user_id' => auth()->id(),
+            'submitted_at'         => now(),
+        ]);
+
+        return back()->with('success', 'Document submitted for review.');
+    }
+
+    /**
+     * Approve document
+     */
+    public function approve(DataRoomDocument $document)
+    {
+        $this->authorize('approve', $document);
+
+        $document->update([
+            'status'      => 'approved',
+            'approved_by' => auth()->id(),
+            'approved_at' => now(),
+        ]);
+
+        DocumentApprovalWorkflow::where('document_id', $document->id)
+            ->whereIn('workflow_status', ['pending', 'under_review'])
+            ->update([
+                'workflow_status'  => 'approved',
+                'approver_user_id' => auth()->id(),
+                'approved_at'      => now(),
+            ]);
+
+        return back()->with('success', 'Document approved.');
+    }
+
+    /**
+     * Reject / request revision
+     */
+    public function reject(Request $request, DataRoomDocument $document)
+    {
+        $this->authorize('approve', $document);
+
+        $request->validate([
+            'rejection_reason' => 'required|string|max:1000',
+        ]);
+
+        $document->update(['status' => 'draft']);
+
+        DocumentApprovalWorkflow::where('document_id', $document->id)
+            ->whereIn('workflow_status', ['pending', 'under_review'])
+            ->update([
+                'workflow_status'  => 'revision_requested',
+                'reviewer_user_id' => auth()->id(),
+                'reviewed_at'      => now(),
+                'rejection_reason' => $request->rejection_reason,
+            ]);
+
+        return back()->with('success', 'Revision requested.');
+    }
+
+    /**
+     * Archive document
+     */
+    public function archive(DataRoomDocument $document)
+    {
+        $this->authorize('approve', $document);
+
+        $document->update(['status' => 'archived']);
+
+        return back()->with('success', 'Document archived.');
     }
 }
