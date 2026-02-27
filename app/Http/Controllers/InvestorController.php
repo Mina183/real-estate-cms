@@ -63,8 +63,12 @@ class InvestorController extends Controller
     public function show(Investor $investor)
     {
         $investor->load(['fund', 'contacts', 'commitments', 'assignedTo', 'createdBy']);
+        
+        $emailLogs = \App\Models\DocumentSendLog::where('investor_id', $investor->id)
+            ->orderBy('sent_at', 'desc')
+            ->get();
 
-        return view('investors.show', compact('investor'));
+        return view('investors.show', compact('investor', 'emailLogs'));
     }
 
     public function edit(Investor $investor)

@@ -321,6 +321,67 @@
                 </div>
             </div>
 
+            <!-- Sent Emails -->
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Sent Emails</h3>
+
+                    @if($emailLogs->count() > 0)
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200 text-sm">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Subject</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Template</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Document</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Sent By</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Acknowledgement</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    @foreach($emailLogs as $log)
+                                    <tr>
+                                        <td class="px-4 py-3 text-gray-900 whitespace-nowrap">
+                                            {{ \Carbon\Carbon::parse($log->sent_at)->format('M d, Y H:i') }}
+                                        </td>
+                                        <td class="px-4 py-3 text-gray-900">{{ $log->email_subject }}</td>
+                                        <td class="px-4 py-3 text-gray-500">{{ ucfirst(str_replace('_', ' ', $log->template)) }}</td>
+                                        <td class="px-4 py-3 text-gray-500">
+                                            @if($log->document_name)
+                                                {{ $log->document_name }}
+                                                @if($log->document_version)
+                                                    <span class="text-xs text-gray-400">v{{ $log->document_version }}</span>
+                                                @endif
+                                            @else
+                                                <span class="text-gray-400">—</span>
+                                            @endif
+                                        </td>
+                                        <td class="px-4 py-3 text-gray-500">{{ $log->sentBy->name ?? '—' }}</td>
+                                        <td class="px-4 py-3">
+                                            @if(!$log->requires_acknowledgement)
+                                                <span class="text-gray-400 text-xs">Not required</span>
+                                            @elseif($log->acknowledged_at)
+                                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                                    ✓ {{ \Carbon\Carbon::parse($log->acknowledged_at)->format('M d, Y H:i') }}
+                                                </span>
+                                            @else
+                                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                                    Pending
+                                                </span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <p class="text-sm text-gray-500">No emails sent yet.</p>
+                    @endif
+                </div>
+            </div>
+
             <!-- Source & Notes Card -->
             @if($investor->source_of_introduction || $investor->notes)
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
