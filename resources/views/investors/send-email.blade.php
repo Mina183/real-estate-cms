@@ -118,6 +118,10 @@
                         <p class="text-sm text-gray-500">
                             Email will be sent from: <strong>{{ auth()->user()->email }}</strong>
                         </p>
+                        <a href="#" id="preview_btn" target="_blank"
+                        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                            👁 Preview
+                        </a>
                         <button type="submit" 
                                 class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-6 rounded">
                             Send Email
@@ -143,6 +147,16 @@
                 const name = item.querySelector('.doc-name').textContent.toLowerCase();
                 item.style.display = name.includes(search) ? '' : 'none';
             });
+        });
+
+        document.getElementById('preview_btn')?.addEventListener('click', function(e) {
+            e.preventDefault();
+            const template = document.querySelector('input[name="template"]:checked')?.value;
+            if (!template) {
+                alert('Please select a template first.');
+                return;
+            }
+            window.open('{{ route("investors.send-email.preview") }}?template=' + template, '_blank');
         });
     </script>
 </x-app-layout>

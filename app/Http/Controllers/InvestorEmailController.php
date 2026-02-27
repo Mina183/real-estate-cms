@@ -190,4 +190,22 @@ class InvestorEmailController extends Controller
         return redirect()->route('investors.index')
             ->with('success', "Email sent to {$sent} investor(s)." . ($failed > 0 ? " {$failed} failed." : ''));
     }
+
+        public function preview(Request $request)
+    {
+        $templateKey = $request->get('template', 'teaser');
+        $template = $this->templates[$templateKey] ?? $this->templates['teaser'];
+
+        $fakeContact = (object) ['full_name' => 'John Smith'];
+
+        return view('emails.investor.' . $templateKey, [
+            'investor' => null,
+            'contact' => $fakeContact,
+            'documents' => collect(),
+            'senderName' => auth()->user()->name,
+            'senderTitle' => auth()->user()->title ?? 'Investor Relations',
+            'senderEmail' => auth()->user()->email,
+            'senderPhone' => auth()->user()->phone ?? '',
+        ]);
+    }
 }
