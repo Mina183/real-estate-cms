@@ -200,43 +200,124 @@
                 <div class="p-6">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-lg font-semibold text-gray-900">Contacts</h3>
-                        {{-- Only authorized users can add contacts --}}
-                        @can('update', $investor)
-                            <button class="bg-blue-500 hover:bg-blue-700 text-white text-sm font-bold py-2 px-4 rounded">
-                                + Add Contact
-                            </button>
-                        @endcan
                     </div>
                     
                     @if($investor->contacts->count() > 0)
-                        <div class="space-y-3">
+                        <div class="space-y-3 mb-6">
                             @foreach($investor->contacts as $contact)
                                 <div class="border border-gray-200 rounded p-4">
                                     <div class="flex justify-between items-start">
                                         <div>
-                                            <p class="font-semibold text-gray-900">{{ $contact->full_name }}</p>
+                                            <p class="font-semibold text-gray-900">
+                                                {{ $contact->title }} {{ $contact->full_name }}
+                                                @if($contact->is_primary)
+                                                    <span class="ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Primary</span>
+                                                @endif
+                                            </p>
                                             <p class="text-sm text-gray-600">{{ ucfirst(str_replace('_', ' ', $contact->role)) }}</p>
-                                            @if($contact->is_primary)
-                                                <span class="mt-1 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                                    Primary Contact
-                                                </span>
-                                            @endif
-                                        </div>
-                                        <div class="text-right text-sm text-gray-600">
                                             @if($contact->email)
-                                                <p>{{ $contact->email }}</p>
+                                                <p class="text-sm text-gray-600">{{ $contact->email }}</p>
                                             @endif
                                             @if($contact->phone)
-                                                <p>{{ $contact->phone }}</p>
+                                                <p class="text-sm text-gray-600">{{ $contact->phone }}</p>
                                             @endif
                                         </div>
+                                        @can('update', $investor)
+                                            <form method="POST" action="{{ route('investors.contacts.destroy', [$investor, $contact]) }}">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="text-red-600 hover:text-red-800 text-sm" 
+                                                        onclick="return confirm('Remove this contact?')">
+                                                    Remove
+                                                </button>
+                                            </form>
+                                        @endcan
                                     </div>
                                 </div>
                             @endforeach
                         </div>
                     @else
-                        <p class="text-sm text-gray-500">No contacts added yet.</p>
+                        <p class="text-sm text-gray-500 mb-6">No contacts added yet.</p>
                     @endif
+
+                    @can('update', $investor)
+                    <div class="border-t pt-4">
+                        <h4 class="text-md font-semibold text-gray-700 mb-3">Add Contact</h4>
+                        <form method="POST" action="{{ route('investors.contacts.store', $investor) }}">
+                            @csrf
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                                    <select name="title" class="block w-full border-gray-300 rounded-md shadow-sm text-sm">
+                                        <option value="">--</option>
+                                        <option value="Mr.">Mr.</option>
+                                        <option value="Mrs.">Mrs.</option>
+                                        <option value="Ms.">Ms.</option>
+                                        <option value="Dr.">Dr.</option>
+                                        <option value="Prof.">Prof.</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                                    <select name="role" class="block w-full border-gray-300 rounded-md shadow-sm text-sm">
+                                        <option value="primary_contact">Primary Contact</option>
+                                        <option value="legal_counsel">Legal Counsel</option>
+                                        <option value="financial_officer">Financial Officer</option>
+                                        <option value="authorized_signatory">Authorized Signatory</option>
+                                        <option value="compliance_officer">Compliance Officer</option>
+                                        <option value="beneficial_owner">Beneficial Owner</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">First Name *</label>
+                                    <input type="text" name="first_name" required class="block w-full border-gray-300 rounded-md shadow-sm text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Last Name *</label>
+                                    <input type="text" name="last_name" required class="block w-full border-gray-300 rounded-md shadow-sm text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                    <input type="email" name="email" class="block w-full border-gray-300 rounded-md shadow-sm text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                                    <input type="text" name="phone" class="block w-full border-gray-300 rounded-md shadow-sm text-sm">
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="is_primary" value="1" class="mr-2">
+                                        <span class="text-sm text-gray-700">Set as Primary Contact</span>
+                                    </label>
+                                </div>
+                                <div class="md:col-span-2 flex space-x-4 text-sm text-gray-700">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="can_sign_documents" value="1" class="mr-2">
+                                        Can Sign Documents
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="receives_capital_calls" value="1" class="mr-2">
+                                        Receives Capital Calls
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="receives_distributions" value="1" class="mr-2">
+                                        Receives Distributions
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="receives_reports" value="1" class="mr-2">
+                                        Receives Reports
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <button type="submit" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded text-sm">
+                                    Add Contact
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    @endcan
                 </div>
             </div>
 
