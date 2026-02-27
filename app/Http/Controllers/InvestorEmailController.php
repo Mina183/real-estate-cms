@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Investor;
 use App\Models\DataRoomDocument;
+use App\Models\DocumentSendLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
@@ -58,7 +59,7 @@ class InvestorEmailController extends Controller
         $stage = $request->get('stage');
 
         $investorsQuery = Investor::with('contacts');
-        
+
         if ($stage) {
             $investorsQuery->where('stage', $stage);
         }
@@ -71,8 +72,8 @@ class InvestorEmailController extends Controller
             ->get();
 
         $stages = [
-            'prospect', 'eligibility_review', 'ppm_issued', 
-            'kyc_in_progress', 'subscription_signed', 'approved', 
+            'prospect', 'eligibility_review', 'ppm_issued',
+            'kyc_in_progress', 'subscription_signed', 'approved',
             'funded', 'active', 'monitored'
         ];
 
@@ -99,7 +100,6 @@ class InvestorEmailController extends Controller
             'recipient_type' => 'required|in:single,stage,all',
             'investor_id' => 'required_if:recipient_type,single|exists:investors,id',
             'stage' => 'required_if:recipient_type,stage',
-            // Custom template fields
             'custom_subject' => 'required_if:template,custom|nullable|string|max:255',
             'custom_body' => 'required_if:template,custom|nullable|string',
             'requires_acknowledgement' => 'boolean',
@@ -139,13 +139,12 @@ class InvestorEmailController extends Controller
                 continue;
             }
 
-            // Generate acknowledgement token
             $token = \Str::uuid()->toString();
             $acknowledgementUrl = route('email.acknowledge', $token);
             $requiresAck = $request->boolean('requires_acknowledgement', !$isCustom);
 
-            $subject = $isCustom 
-                ? $request->custom_subject 
+            $subject = $isCustom
+                ? $request->custom_subject
                 : $template['subject'] . ' | ' . $primaryContact->full_name;
 
             $viewData = [
@@ -179,19 +178,18 @@ class InvestorEmailController extends Controller
                     }
                 );
 
-                // Log send - one record per investor
-                $logId = \DB::table('document_send_logs')->insertGetId([
-                    'investor_id' => $investor->id,
-                    'document_id' => $documents->first()?->id,
-                    'document_name' => $documents->pluck('document_name')->implode(', '),
-                    'template' => $request->template,
-                    'email_subject' => $subject,
-                    'sent_by_user_id' => auth()->id(),
-                    'sent_to_email' => $primaryContact->email,
-                    'document_version' => $documents->first()?->version,
-                    'acknowledgement_token' => $requiresAck ? $token : null,
+                DocumentSendLog::create([
+                    'investor_id'              => $investor->id,
+                    'document_id'              => $documents->first()?->id,
+                    'document_name'            => $documents->pluck('document_name')->implode(', '),
+                    'template'                 => $request->template,
+                    'email_subject'            => $subject,
+                    'sent_by_user_id'          => auth()->id(),
+                    'sent_to_email'            => $primaryContact->email,
+                    'document_version'         => $documents->first()?->version,
+                    'acknowledgement_token'    => $requiresAck ? $token : null,
                     'requires_acknowledgement' => $requiresAck,
-                    'sent_at' => now(),
+                    'sent_at'                  => now(),
                 ]);
 
                 $sent++;
@@ -208,29 +206,16 @@ class InvestorEmailController extends Controller
             ->with('success', "Email sent to {$sent} investor(s)." . ($failed > 0 ? " {$failed} failed." : ''));
     }
 
-        public function preview(Request $request)
-        {
-            $templateKey = $request->input('template', 'teaser');
-            $fakeContact = (object) ['full_name' => 'John Smith'];
+    /**
+     * Preview email template
+     */
+    public function preview(Request $request)
+    {
+        $templateKey = $request->input('template', 'teaser');
+        $fakeContact = (object) ['full_name' => 'John Smith'];
 
-            if ($templateKey === 'custom') {
-                return view('emails.investor.custom', [
-                    'investor' => null,
-                    'contact' => $fakeContact,
-                    'documents' => collect(),
-                    'senderName' => auth()->user()->name,
-                    'senderTitle' => auth()->user()->title ?? 'Investor Relations',
-                    'senderEmail' => auth()->user()->email,
-                    'senderPhone' => auth()->user()->phone ?? '',
-                    'acknowledgementUrl' => '#preview-only',
-                    'customBody' => $request->input('custom_body') ?: 'No body provided',
-                    'customSubject' => $request->input('custom_subject') ?: 'No subject',
-                ]);
-            }
-
-            $template = $this->templates[$templateKey] ?? $this->templates['teaser'];
-
-            return view('emails.investor.' . $templateKey, [
+        if ($templateKey === 'custom') {
+            return view('emails.investor.custom', [
                 'investor' => null,
                 'contact' => $fakeContact,
                 'documents' => collect(),
@@ -239,28 +224,43 @@ class InvestorEmailController extends Controller
                 'senderEmail' => auth()->user()->email,
                 'senderPhone' => auth()->user()->phone ?? '',
                 'acknowledgementUrl' => '#preview-only',
-                'customBody' => null,
+                'customBody' => $request->input('custom_body') ?: 'No body provided',
+                'customSubject' => $request->input('custom_subject') ?: 'No subject',
             ]);
         }
 
-        public function acknowledge(string $token)
-        {
-            $log = \DB::table('document_send_logs')
-                ->where('acknowledgement_token', $token)
-                ->first();
+        $template = $this->templates[$templateKey] ?? $this->templates['teaser'];
 
-            if (!$log) {
-                abort(404, 'Invalid acknowledgement link.');
-            }
+        return view('emails.investor.' . $templateKey, [
+            'investor' => null,
+            'contact' => $fakeContact,
+            'documents' => collect(),
+            'senderName' => auth()->user()->name,
+            'senderTitle' => auth()->user()->title ?? 'Investor Relations',
+            'senderEmail' => auth()->user()->email,
+            'senderPhone' => auth()->user()->phone ?? '',
+            'acknowledgementUrl' => '#preview-only',
+            'customBody' => null,
+        ]);
+    }
 
-            if ($log->acknowledged_at) {
-                return view('emails.acknowledged', ['alreadyAcknowledged' => true]);
-            }
+    /**
+     * Acknowledge email receipt
+     */
+    public function acknowledge(string $token)
+    {
+        $log = DocumentSendLog::where('acknowledgement_token', $token)->first();
 
-            \DB::table('document_send_logs')
-                ->where('acknowledgement_token', $token)
-                ->update(['acknowledged_at' => now()]);
-
-            return view('emails.acknowledged', ['alreadyAcknowledged' => false]);
+        if (!$log) {
+            abort(404, 'Invalid acknowledgement link.');
         }
+
+        if ($log->acknowledged_at) {
+            return view('emails.acknowledged', ['alreadyAcknowledged' => true]);
+        }
+
+        $log->update(['acknowledged_at' => now()]);
+
+        return view('emails.acknowledged', ['alreadyAcknowledged' => false]);
+    }
 }
