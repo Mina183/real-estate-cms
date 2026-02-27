@@ -176,15 +176,44 @@
             });
         });
 
-        document.getElementById('preview_btn')?.addEventListener('click', function(e) {
-            e.preventDefault();
-            const template = document.querySelector('input[name="template"]:checked')?.value;
-            if (!template) {
-                alert('Please select a template first.');
-                return;
-            }
-            window.open('{{ route("investors.send-email.preview") }}?template=' + template, '_blank');
-        });
+            document.getElementById('preview_btn')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                const template = document.querySelector('input[name="template"]:checked')?.value;
+                if (!template) {
+                    alert('Please select a template first.');
+                    return;
+                }
+
+                if (template === 'custom') {
+                    const subject = document.querySelector('input[name="custom_subject"]')?.value || '';
+                    const body = document.querySelector('textarea[name="custom_body"]')?.value || '';
+
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = '{{ route("investors.send-email.preview") }}';
+                    form.target = '_blank';
+
+                    const csrf = document.createElement('input');
+                    csrf.type = 'hidden';
+                    csrf.name = '_token';
+                    csrf.value = '{{ csrf_token() }}';
+                    form.appendChild(csrf);
+
+                    [['template', template], ['custom_subject', subject], ['custom_body', body]].forEach(([name, value]) => {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = name;
+                        input.value = value;
+                        form.appendChild(input);
+                    });
+
+                    document.body.appendChild(form);
+                    form.submit();
+                    document.body.removeChild(form);
+                } else {
+                    window.open('{{ route("investors.send-email.preview") }}?template=' + template, '_blank');
+                }
+            });
 
         // Show/hide custom fields
             document.querySelectorAll('input[name="template"]').forEach(radio => {

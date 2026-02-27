@@ -133,6 +133,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/send-email', [InvestorEmailController::class, 'send'])->name('investors.send-email');
         Route::get('/send-email/bulk', [InvestorEmailController::class, 'composeBulk'])->name('investors.send-email.bulk');
         Route::get('/investors/send-email/preview', [InvestorEmailController::class, 'preview'])->name('investors.send-email.preview');
+        Route::post('/investors/send-email/preview', [InvestorEmailController::class, 'preview'])->name('investors.send-email.preview');
 
         Route::post('/{investor}/contacts', [ContactController::class, 'store'])->name('investors.contacts.store');
         Route::delete('/{investor}/contacts/{contact}', [ContactController::class, 'destroy'])->name('investors.contacts.destroy');

@@ -210,10 +210,25 @@ class InvestorEmailController extends Controller
 
         public function preview(Request $request)
         {
-            $templateKey = $request->get('template', 'teaser');
-            $template = $this->templates[$templateKey] ?? $this->templates['teaser'];
-
+            $templateKey = $request->input('template', 'teaser');
             $fakeContact = (object) ['full_name' => 'John Smith'];
+
+            if ($templateKey === 'custom') {
+                return view('emails.investor.custom', [
+                    'investor' => null,
+                    'contact' => $fakeContact,
+                    'documents' => collect(),
+                    'senderName' => auth()->user()->name,
+                    'senderTitle' => auth()->user()->title ?? 'Investor Relations',
+                    'senderEmail' => auth()->user()->email,
+                    'senderPhone' => auth()->user()->phone ?? '',
+                    'acknowledgementUrl' => '#preview-only',
+                    'customBody' => $request->input('custom_body', '(No body provided)'),
+                    'customSubject' => $request->input('custom_subject', '(No subject)'),
+                ]);
+            }
+
+            $template = $this->templates[$templateKey] ?? $this->templates['teaser'];
 
             return view('emails.investor.' . $templateKey, [
                 'investor' => null,
