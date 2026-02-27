@@ -331,7 +331,7 @@
                             <table class="min-w-full divide-y divide-gray-200 text-sm">
                                 <thead class="bg-gray-50">
                                     <tr>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date <span class="normal-case font-normal">(GST)</span></th>
                                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Subject</th>
                                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Template</th>
                                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Document</th>
@@ -343,7 +343,7 @@
                                     @foreach($emailLogs as $log)
                                     <tr>
                                         <td class="px-4 py-3 text-gray-900 whitespace-nowrap">
-                                            {{ \Carbon\Carbon::parse($log->sent_at)->format('M d, Y H:i') }}
+                                            {{ \Carbon\Carbon::parse($log->sent_at)->timezone('Asia/Dubai')->format('M d, Y H:i') }} <span class="text-xs text-gray-400">GST</span>
                                         </td>
                                         <td class="px-4 py-3 text-gray-900">{{ $log->email_subject }}</td>
                                         <td class="px-4 py-3 text-gray-500">{{ ucfirst(str_replace('_', ' ', $log->template)) }}</td>
@@ -363,7 +363,7 @@
                                                 <span class="text-gray-400 text-xs">Not required</span>
                                             @elseif($log->acknowledged_at)
                                                 <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                                                    ✓ {{ \Carbon\Carbon::parse($log->acknowledged_at)->format('M d, Y H:i') }}
+                                                    ✓ {{ \Carbon\Carbon::parse($log->acknowledged_at)->timezone('Asia/Dubai')->format('M d, Y H:i') }} <span class="text-xs text-gray-400">GST</span>
                                                 </span>
                                             @else
                                                 <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
