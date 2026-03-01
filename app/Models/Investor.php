@@ -244,4 +244,9 @@ class Investor extends Model
 {
     return $this->hasOne(InvestorUser::class);
 }
+
+public function investorUser()
+{
+    return $this->hasOne(InvestorUser::class);
+}
 }

@@ -137,6 +137,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::post('/{investor}/contacts', [ContactController::class, 'store'])->name('investors.contacts.store');
         Route::delete('/{investor}/contacts/{contact}', [ContactController::class, 'destroy'])->name('investors.contacts.destroy');
+
+        // Portal Access
+        Route::post('/{investor}/create-portal-access', [InvestorController::class, 'createPortalAccess'])->name('investors.create-portal-access');
     });
 
     /*

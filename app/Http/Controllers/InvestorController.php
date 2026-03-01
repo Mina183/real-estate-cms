@@ -7,6 +7,10 @@ use App\Models\Fund;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Services\InvestorStageService;
+use App\Models\InvestorUser;
+use App\Notifications\InvestorPortalAccessNotification;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 
 class InvestorController extends Controller
 {
@@ -62,7 +66,7 @@ class InvestorController extends Controller
 
     public function show(Investor $investor)
     {
-        $investor->load(['fund', 'contacts', 'commitments', 'assignedTo', 'createdBy']);
+        $investor->load(['fund', 'contacts', 'commitments', 'assignedTo', 'createdBy', 'investorUser']);
         
         $emailLogs = \App\Models\DocumentSendLog::where('investor_id', $investor->id)
             ->orderBy('sent_at', 'desc')
@@ -298,4 +302,49 @@ class InvestorController extends Controller
             default => 'No automatic actions',
         };
     }
+
+    public function createPortalAccess(Investor $investor)
+{
+    $this->authorize('update', $investor);
+
+    // Provjeri da li već ima portal access
+    if ($investor->investorUser) {
+        return back()->with('error', 'Portal access already exists for this investor.');
+    }
+
+    // Provjeri stage
+    $allowedStages = ['ppm_issued', 'kyc_in_progress', 'subscription_signed', 'approved', 'funded', 'active'];
+    if (!in_array($investor->stage, $allowedStages)) {
+        return back()->with('error', 'Portal access can only be created from PPM Issued stage onwards.');
+    }
+
+    // Uzmi primary contact
+    $primaryContact = $investor->contacts->where('is_primary', true)->first()
+        ?? $investor->contacts->first();
+
+    if (!$primaryContact || !$primaryContact->email) {
+        return back()->with('error', 'Investor must have a primary contact with an email address.');
+    }
+
+    // Generiši privremenu lozinku
+    $tempPassword = Str::random(12);
+
+    // Kreiraj investor_users nalog
+    $investorUser = InvestorUser::create([
+        'investor_id' => $investor->id,
+        'name'        => $primaryContact->full_name,
+        'email'       => $primaryContact->email,
+        'password'    => Hash::make($tempPassword),
+        'is_active'   => true,
+    ]);
+
+    // Pošalji kredencijale
+    $investorUser->notify(new InvestorPortalAccessNotification(
+        email: $primaryContact->email,
+        password: $tempPassword,
+        loginUrl: route('investor.login')
+    ));
+
+    return back()->with('success', 'Portal access created and credentials sent to ' . $primaryContact->email);
+}
 }

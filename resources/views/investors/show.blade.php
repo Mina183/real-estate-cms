@@ -36,7 +36,33 @@
                             ✉️ Send Email
                         </a>
                     @endcan
-                    
+
+                    @can('update', $investor)
+                    @php
+                        $portalAllowed = in_array($investor->stage, ['ppm_issued', 'kyc_in_progress', 'subscription_signed', 'approved', 'funded', 'active']);
+                        $portalExists = $investor->investorUser !== null;
+                    @endphp
+
+                    @if($portalExists)
+                        <span class="bg-gray-300 text-gray-600 font-bold py-2 px-4 rounded cursor-not-allowed">
+                            ✅ Portal Active
+                        </span>
+                    @elseif($portalAllowed)
+                        <form method="POST" action="{{ route('investors.create-portal-access', $investor) }}" class="inline">
+                            @csrf
+                            <button type="submit" 
+                                    class="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded"
+                                    onclick="return confirm('Create portal access and send credentials to primary contact?')">
+                                🔐 Create Portal Access
+                            </button>
+                        </form>
+                    @else
+                        <span class="bg-gray-200 text-gray-400 font-bold py-2 px-4 rounded cursor-not-allowed" 
+                            title="Available from PPM Issued stage">
+                            🔐 Portal Access
+                        </span>
+                    @endif
+                @endcan
                     <a href="{{ route('investors.index') }}" 
                        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
                         ← Back
