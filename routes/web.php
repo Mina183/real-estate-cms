@@ -66,11 +66,15 @@ Route::prefix('investor')->name('investor.')->group(function () {
         Route::get('/dashboard', [InvestorPortalController::class, 'dashboard'])
             ->name('dashboard');
         
-        // Profile (placeholder for later)
+        // Profile
         Route::get('/profile', [InvestorPortalController::class, 'profile'])
             ->name('profile');
+
+        // Compliance Gate
+        Route::get('/compliance-gate', [InvestorPortalController::class, 'complianceGate'])->name('compliance-gate');
+        Route::post('/compliance-gate', [InvestorPortalController::class, 'complianceGateSubmit'])->name('compliance-gate.submit');
         
-        // Documents (placeholder for later)
+        // Documents
         Route::get('/documents', [InvestorPortalController::class, 'documents'])
             ->name('documents');
 
