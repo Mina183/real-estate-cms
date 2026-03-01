@@ -96,26 +96,60 @@ class InvestorPortalController extends Controller
         $investorUser = Auth::guard('investor')->user();
         $investor = $investorUser->investor;
 
-        // Get investor's access level
         $accessLevel = $investor->data_room_access_level ?? 'none';
 
-        // Get accessible folders based on access level
-        // For now, show Section 12 (investor-specific) if they have 'subscribed' access
+        $allowedFolderLevels = match($accessLevel) {
+            'prospect'   => ['public'],
+            'qualified'  => ['public', 'restricted'],
+            'subscribed' => ['public', 'restricted', 'confidential'],
+            default      => [],
+        };
+
         $folders = collect();
-        
-        if ($accessLevel === 'subscribed' || $accessLevel === 'qualified') {
-            // Section 12: Investor-Specific Documents
-            $folders = \App\Models\DataRoomFolder::where('folder_number', 'LIKE', '12%')
-                ->with(['documents' => function($query) use ($investor) {
-                    $query->where('status', 'approved')
-                          ->where(function($q) use ($investor) {
-                          // Show documents assigned to this investor OR general documents (investor_id = NULL)
-                          $q->where('investor_id', $investor->id)
-                              ->orWhereNull('investor_id');
-                           });
+
+        if (!empty($allowedFolderLevels)) {
+            $folders = \App\Models\DataRoomFolder::whereNull('parent_folder_id')
+                ->whereIn('access_level', $allowedFolderLevels)
+                ->where('is_active', true)
+                ->with(['children' => function($q) use ($allowedFolderLevels, $investor) {
+                    $q->whereIn('access_level', $allowedFolderLevels)
+                    ->where('is_active', true)
+                    ->with(['documents' => function($q) use ($investor) {
+                        $q->where('status', 'approved')
+                            ->whereNull('investor_id'); // subfolder dokumenti nikad investor-specific
+                    }]);
                 }])
-                ->orderBy('folder_number')
+                ->with(['documents' => function($q) use ($investor) {
+                    $q->where('status', 'approved')
+                    ->whereNull('investor_id');
+                }])
+                ->orderBy('display_order')
                 ->get();
+
+            // Dodaj Folder 12 za subscribed - samo njihovi dokumenti
+            if ($accessLevel === 'subscribed') {
+                $folder12 = \App\Models\DataRoomFolder::where('folder_number', '12')
+                    ->with(['documents' => function($q) use ($investor) {
+                        $q->where('status', 'approved')
+                        ->where(function($q) use ($investor) {
+                            $q->where('investor_id', $investor->id)
+                                ->orWhereNull('investor_id');
+                        });
+                    }, 'children' => function($q) use ($investor) {
+                        $q->with(['documents' => function($q) use ($investor) {
+                            $q->where('status', 'approved')
+                            ->where(function($q) use ($investor) {
+                                $q->where('investor_id', $investor->id)
+                                    ->orWhereNull('investor_id');
+                            });
+                        }]);
+                    }])
+                    ->first();
+
+                if ($folder12) {
+                    $folders->push($folder12);
+                }
+            }
         }
 
         return view('investor.documents', compact('investor', 'folders', 'accessLevel'));
