@@ -123,7 +123,7 @@ class InvestorPortalController extends Controller
                     $q->where('status', 'approved')
                     ->whereNull('investor_id');
                 }])
-                ->orderBy('display_order')
+                ->orderBy('folder_number')
                 ->get();
 
             // Dodaj Folder 12 za subscribed - samo njihovi dokumenti
