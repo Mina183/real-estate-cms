@@ -23,7 +23,6 @@ class DatabaseSeeder extends Seeder
             DataRoomStructureSeeder::class,
             UserRolesSeeder::class,
             FundSeeder::class,
-            SampleDocumentsSeeder::class,
             Phase4Seeder::class,
             InvestorUserSeeder::class,
         ]);
