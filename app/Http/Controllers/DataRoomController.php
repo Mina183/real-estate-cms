@@ -115,7 +115,7 @@ class DataRoomController extends Controller
             'file_size'     => $file->getSize(),
             'version'       => $request->version ?? '1.0',
             'description'   => $request->description,
-            'status'        => 'draft',
+            'status' => 'approved',
             'uploaded_by'   => auth()->id(),
         ]);
 

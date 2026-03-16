@@ -28,6 +28,10 @@ class DataRoomDocument extends Model
         'approved_at' => 'datetime',
     ];
 
+    protected $attributes = [
+        'status' => 'approved',
+    ];
+
     public function folder()
     {
         return $this->belongsTo(DataRoomFolder::class, 'folder_id');
