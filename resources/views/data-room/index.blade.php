@@ -13,14 +13,8 @@
     </x-slot>
 
     <style>
-        .dr-sidebar {
-            width: 220px;
-            flex-shrink: 0;
-        }
-        .dr-main {
-            flex: 1;
-            min-width: 0;
-        }
+        .dr-sidebar { width: 220px; flex-shrink: 0; }
+        .dr-main { flex: 1; min-width: 0; }
         .folder-row {
             display: grid;
             grid-template-columns: 20px 1fr auto auto;
@@ -63,13 +57,16 @@
             letter-spacing: 0.03em;
             text-transform: uppercase;
         }
-        .badge-public    { background: #dcfce7; color: #166534; }
-        .badge-restricted { background: #dbeafe; color: #1e40af; }
-        .badge-confidential { background: #ffedd5; color: #9a3412; }
-        .badge-highly_confidential { background: #fee2e2; color: #991b1b; }
-        .badge-approved  { background: #dcfce7; color: #166534; }
-        .badge-pending   { background: #fef9c3; color: #854d0e; }
-        .badge-draft     { background: #f1f5f9; color: #475569; }
+        .badge-public             { background: #dcfce7; color: #166534; }
+        .badge-restricted         { background: #dbeafe; color: #1e40af; }
+        .badge-confidential       { background: #ffedd5; color: #9a3412; }
+        .badge-highly_confidential{ background: #fee2e2; color: #991b1b; }
+        .badge-approved           { background: #dcfce7; color: #166534; }
+        .badge-pending            { background: #fef9c3; color: #854d0e; }
+        .badge-draft              { background: #f1f5f9; color: #475569; }
+        .badge-under_review       { background: #dbeafe; color: #1e40af; }
+        .badge-superseded         { background: #f3e8ff; color: #6b21a8; }
+        .badge-archived           { background: #f1f5f9; color: #94a3b8; }
         .tab-btn {
             padding: 0.5rem 1rem;
             font-size: 0.8125rem;
@@ -86,22 +83,10 @@
         }
         .tab-btn:hover { color: #334155; border-bottom-color: #cbd5e1; }
         .tab-btn.active { color: #1e3a5f; border-bottom-color: #1e3a5f; font-weight: 600; }
-        .chevron {
-            transition: transform 0.2s;
-            color: #94a3b8;
-            flex-shrink: 0;
-        }
+        .chevron { transition: transform 0.2s; color: #94a3b8; flex-shrink: 0; }
         .chevron.open { transform: rotate(90deg); }
         .collapsible { overflow: hidden; }
         .file-icon { font-size: 15px; flex-shrink: 0; }
-        .section-header {
-            font-size: 0.6875rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: #94a3b8;
-            padding: 1rem 0.75rem 0.375rem;
-        }
         .investor-group-header {
             display: flex;
             align-items: center;
@@ -114,11 +99,7 @@
             cursor: pointer;
         }
         .investor-group-header:hover { background: #f1f5f9; }
-        .empty-state {
-            text-align: center;
-            padding: 3rem 1rem;
-            color: #94a3b8;
-        }
+        .empty-state { text-align: center; padding: 3rem 1rem; color: #94a3b8; }
         .download-btn {
             display: inline-flex;
             align-items: center;
@@ -152,10 +133,6 @@
             justify-content: center;
             flex-shrink: 0;
         }
-
-        .badge-under_review { background: #dbeafe; color: #1e40af; }
-        .badge-superseded   { background: #f3e8ff; color: #6b21a8; }
-        .badge-archived     { background: #f1f5f9; color: #94a3b8; }
     </style>
 
     <div class="py-8">
@@ -163,8 +140,7 @@
 
             {{-- Top Bar --}}
             <div class="flex items-center justify-between mb-6">
-                <div class="flex items-center gap-6">
-                    {{-- Stats --}}
+                <div class="flex items-center gap-4">
                     <div class="stat-card">
                         <div class="stat-icon bg-blue-50">
                             <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -226,16 +202,13 @@
                     <button class="tab-btn active" data-tab="marketing" onclick="switchTab('marketing', this)">
                         📢 Marketing
                     </button>
-                    <button class="tab-btn" data-tab="compliance" onclick="switchTab('compliance', this)">
-                        🔍 Diligence
+                    <button class="tab-btn" data-tab="constitutional" onclick="switchTab('constitutional', this)">
+                        📋 Fund Documents
                     </button>
-                    <button class="tab-btn" data-tab="legal" onclick="switchTab('legal', this)">
-                        ⚖️ Legal & Funding
+                    <button class="tab-btn" data-tab="offering" onclick="switchTab('offering', this)">
+                        📄 Subscription
                     </button>
-                    <button class="tab-btn" data-tab="activation" onclick="switchTab('activation', this)">
-                        🚀 Operations
-                    </button>
-                    <button class="tab-btn" data-tab="monitoring" onclick="switchTab('monitoring', this)">
+                    <button class="tab-btn" data-tab="reporting" onclick="switchTab('reporting', this)">
                         📊 Reporting
                     </button>
                     <button class="tab-btn" data-tab="investor-specific" onclick="switchTab('investor-specific', this)">
@@ -245,45 +218,47 @@
 
                 <div class="p-4">
 
-                    {{-- MARKETING TAB --}}
+                    {{-- MARKETING TAB — Folder 1 --}}
                     <div id="tab-marketing" class="tab-pane">
-                        @foreach($folders->whereIn('folder_number', ['1', '2', '11']) as $folder)
+                        @foreach($folders->where('folder_number', '1') as $folder)
                             @include('data-room.partials.folder-tree', ['folder' => $folder])
                         @endforeach
-                        @if($folders->whereIn('folder_number', ['1', '2', '11'])->isEmpty())
+                        @if($folders->where('folder_number', '1')->isEmpty())
                             <div class="empty-state">No folders in this section yet.</div>
                         @endif
                     </div>
 
-                    {{-- DILIGENCE TAB --}}
-                    <div id="tab-compliance" class="tab-pane hidden">
-                        @foreach($folders->whereIn('folder_number', ['3', '4', '5', '8']) as $folder)
+                    {{-- FUND DOCUMENTS TAB — Folder 2 --}}
+                    <div id="tab-constitutional" class="tab-pane hidden">
+                        @foreach($folders->where('folder_number', '2') as $folder)
                             @include('data-room.partials.folder-tree', ['folder' => $folder])
                         @endforeach
+                        @if($folders->where('folder_number', '2')->isEmpty())
+                            <div class="empty-state">No folders in this section yet.</div>
+                        @endif
                     </div>
 
-                    {{-- LEGAL TAB --}}
-                    <div id="tab-legal" class="tab-pane hidden">
-                        @foreach($folders->whereIn('folder_number', ['2', '6', '7']) as $folder)
+                    {{-- SUBSCRIPTION TAB — Folder 3 --}}
+                    <div id="tab-offering" class="tab-pane hidden">
+                        @foreach($folders->where('folder_number', '3') as $folder)
                             @include('data-room.partials.folder-tree', ['folder' => $folder])
                         @endforeach
+                        @if($folders->where('folder_number', '3')->isEmpty())
+                            <div class="empty-state">No folders in this section yet.</div>
+                        @endif
                     </div>
 
-                    {{-- ACTIVATION TAB --}}
-                    <div id="tab-activation" class="tab-pane hidden">
-                        @foreach($folders->whereIn('folder_number', ['9', '10']) as $folder)
+                    {{-- REPORTING TAB — Folder 4 --}}
+                    <div id="tab-reporting" class="tab-pane hidden">
+                        @foreach($folders->where('folder_number', '4') as $folder)
                             @include('data-room.partials.folder-tree', ['folder' => $folder])
                         @endforeach
+                        @if($folders->where('folder_number', '4')->isEmpty())
+                            <div class="empty-state">No folders in this section yet.</div>
+                        @endif
                     </div>
 
-                    {{-- MONITORING TAB --}}
-                    <div id="tab-monitoring" class="tab-pane hidden">
-                        @foreach($folders->whereIn('folder_number', ['10']) as $folder)
-                            @include('data-room.partials.folder-tree', ['folder' => $folder])
-                        @endforeach
-                    </div>
-
-                    {{-- INVESTOR-SPECIFIC TAB --}}
+                    {{-- INVESTOR-SPECIFIC TAB — Folder 5 --}}
                     <div id="tab-investor-specific" class="tab-pane hidden">
                         <div class="flex items-start gap-3 p-3 bg-amber-50 border border-amber-200 rounded-lg mb-4">
                             <svg class="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -295,17 +270,12 @@
                         </div>
 
                         @php
-                            $section12 = $folders->where('folder_number', '12')->first();
                             $investorDocs = \App\Models\DataRoomDocument::whereNotNull('investor_id')
                                 ->with(['investor'])
                                 ->get()
                                 ->groupBy('investor_id');
-                            $generalDocs = \App\Models\DataRoomDocument::whereNull('investor_id')
-                                ->whereHas('folder', fn($q) => $q->where('folder_number', 'like', '12%'))
-                                ->get();
                         @endphp
 
-                        {{-- Grouped by investor --}}
                         @forelse($investorDocs as $investorId => $docs)
                             @php $inv = $docs->first()->investor; @endphp
                             <div class="mb-3">
@@ -324,7 +294,14 @@
                                 <div id="inv-group-{{ $investorId }}" class="collapsible hidden pl-4">
                                     @foreach($docs as $doc)
                                         <div class="doc-row" style="padding-left: 1rem;">
-                                            <span class="file-icon">{{ match($doc->file_type) { 'pdf' => '📄', 'xlsx','xls' => '📊', 'pptx','ppt' => '📽️', 'docx','doc' => '📝', default => '📎' } }}</span>
+                                            <span class="file-icon">
+                                                @if($doc->file_type === 'pdf') 📄
+                                                @elseif(in_array($doc->file_type, ['xlsx','xls'])) 📊
+                                                @elseif(in_array($doc->file_type, ['pptx','ppt'])) 📽️
+                                                @elseif(in_array($doc->file_type, ['docx','doc'])) 📝
+                                                @else 📎
+                                                @endif
+                                            </span>
                                             <span class="text-sm text-gray-700 truncate">{{ $doc->document_name }}</span>
                                             <span class="text-xs text-gray-400">v{{ $doc->version }}</span>
                                             <span class="badge badge-{{ $doc->status === 'approved' ? 'approved' : ($doc->status === 'pending_review' ? 'pending' : 'draft') }}">
@@ -422,10 +399,11 @@
                         </select>
                     </div>
 
+                    {{-- Investor selection — shown only for Folder 5 --}}
                     <div id="investor-selection" class="hidden">
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">
                             Assign to Investor
-                            <span class="text-xs text-gray-400 font-normal ml-1">(Section 12 only)</span>
+                            <span class="text-xs text-gray-400 font-normal ml-1">(Folder 5 — Investor Personal Documents)</span>
                         </label>
                         <select name="investor_id"
                                 class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 bg-white">
@@ -441,7 +419,7 @@
                             Document Name <span class="text-red-500">*</span>
                         </label>
                         <input type="text" name="document_name" required
-                               placeholder="e.g., Q4 2025 Performance Report"
+                               placeholder="e.g., Q4 2025 NAV Report"
                                class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500">
                     </div>
 
@@ -497,23 +475,25 @@
                 </button>
             </div>
             <div class="p-5 space-y-4 text-sm text-gray-600">
-                <p><strong class="text-gray-800">Purpose:</strong> Centralized repository for all fund-related documents, organized by investment stage.</p>
+                <p><strong class="text-gray-800">Purpose:</strong> Centralised repository for all fund-related documents, organised by category.</p>
                 <div>
-                    <p class="font-medium text-gray-800 mb-2">Navigation:</p>
+                    <p class="font-medium text-gray-800 mb-2">Folders:</p>
                     <ul class="space-y-1 text-gray-500">
-                        <li>• Use tabs to browse documents by category</li>
-                        <li>• Click folder arrows to expand/collapse</li>
-                        <li>• Download any accessible document directly</li>
+                        <li>📢 <strong>Marketing</strong> — Teaser, deck, term sheet, investment thesis</li>
+                        <li>📋 <strong>Fund Documents</strong> — Constitutional docs, COI, AOA</li>
+                        <li>📄 <strong>Subscription</strong> — PPM, sub docs, KYC/AML templates</li>
+                        <li>📊 <strong>Reporting</strong> — Quarterly NAV reports, newsletters</li>
+                        <li>🔐 <strong>Investor-Specific</strong> — Personal documents per investor</li>
                     </ul>
                 </div>
                 <div>
-                    <p class="font-medium text-gray-800 mb-2">Access Levels:</p>
-                    <div class="space-y-1.5">
-                        <div class="flex items-center gap-2"><span class="badge badge-public">Public</span><span class="text-gray-500">All users</span></div>
-                        <div class="flex items-center gap-2"><span class="badge badge-restricted">Restricted</span><span class="text-gray-500">Authorized users</span></div>
-                        <div class="flex items-center gap-2"><span class="badge badge-confidential">Confidential</span><span class="text-gray-500">Approved users only</span></div>
-                        <div class="flex items-center gap-2"><span class="badge badge-highly_confidential">Highly Confidential</span><span class="text-gray-500">Senior management</span></div>
-                    </div>
+                    <p class="font-medium text-gray-800 mb-2">Navigation:</p>
+                    <ul class="space-y-1 text-gray-500">
+                        <li>• Use tabs to browse by category</li>
+                        <li>• Click folder arrows to expand/collapse</li>
+                        <li>• Upload button adds documents to selected folder</li>
+                        <li>• Investor-specific docs require investor assignment</li>
+                    </ul>
                 </div>
             </div>
             <div class="px-5 pb-5">
@@ -525,17 +505,48 @@
         </div>
     </div>
 
+    {{-- Reject Modal --}}
+    <div id="rejectModal" class="hidden fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md">
+            <div class="flex items-center justify-between p-5 border-b border-gray-100">
+                <h3 class="font-semibold text-gray-800">Request Revision</h3>
+                <button onclick="closeRejectModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <form id="rejectForm" method="POST" class="p-5 space-y-4">
+                @csrf
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Reason for revision *</label>
+                    <textarea name="rejection_reason" rows="3" required
+                              placeholder="Explain what needs to be changed..."
+                              class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-red-500 resize-none"></textarea>
+                </div>
+                <div class="flex justify-end gap-2">
+                    <button type="button" onclick="closeRejectModal()"
+                            class="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 font-medium">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            class="px-5 py-2 text-sm text-white bg-red-600 rounded-lg hover:bg-red-700 font-semibold">
+                        Request Revision
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
-    // Tab switching
     function switchTab(name, btn) {
         document.querySelectorAll('.tab-pane').forEach(p => p.classList.add('hidden'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.getElementById('tab-' + name).classList.remove('hidden');
         if (btn) btn.classList.add('active');
-        else document.querySelector(`[data-tab="${name}"]`).classList.add('active');
+        else document.querySelector(`[data-tab="${name}"]`)?.classList.add('active');
     }
 
-    // Folder toggle
     function toggleFolder(id) {
         const content = document.getElementById('folder-' + id);
         const chevron = document.getElementById('chevron-' + id);
@@ -545,7 +556,6 @@
         }
     }
 
-    // Investor group toggle
     function toggleInvestorGroup(id) {
         const content = document.getElementById('inv-group-' + id);
         const chevron = document.getElementById('inv-chevron-' + id);
@@ -555,74 +565,33 @@
         }
     }
 
-    // Upload modal
     function showUploadModal() { document.getElementById('uploadModal').classList.remove('hidden'); }
     function closeUploadModal() { document.getElementById('uploadModal').classList.add('hidden'); }
 
-    // Show investor field for section 12
+    // Show investor field only for Folder 5
     document.getElementById('folder_id')?.addEventListener('change', function() {
         const num = this.options[this.selectedIndex]?.getAttribute('data-folder-number') || '';
-        document.getElementById('investor-selection').classList.toggle('hidden', !num.startsWith('12'));
+        document.getElementById('investor-selection').classList.toggle('hidden', num !== '5');
     });
 
-    // Read Me modal
     function showReadMe() { document.getElementById('readMeModal').classList.remove('hidden'); }
     function closeReadMe() { document.getElementById('readMeModal').classList.add('hidden'); }
 
-    // Close modals on backdrop click
-    ['uploadModal', 'readMeModal'].forEach(id => {
+    function showRejectModal(docId) {
+        document.getElementById('rejectForm').action = '/data-room/documents/' + docId + '/reject';
+        document.getElementById('rejectModal').classList.remove('hidden');
+    }
+    function closeRejectModal() { document.getElementById('rejectModal').classList.add('hidden'); }
+
+    ['uploadModal', 'readMeModal', 'rejectModal'].forEach(id => {
         document.getElementById(id)?.addEventListener('click', function(e) {
             if (e.target === this) this.classList.add('hidden');
         });
     });
 
-    // Auto-open upload modal if there was an upload error
     @if($errors->any() || session('upload_success'))
         showUploadModal();
     @endif
-
-    function showRejectModal(docId) {
-    document.getElementById('rejectForm').action = '/data-room/documents/' + docId + '/reject';
-    document.getElementById('rejectModal').classList.remove('hidden');
-}
-    function closeRejectModal() {
-        document.getElementById('rejectModal').classList.add('hidden');
-    }
-    document.getElementById('rejectModal')?.addEventListener('click', function(e) {
-        if (e.target === this) this.classList.add('hidden');
-    });
     </script>
 
-    {{-- Reject Modal --}}
-<div id="rejectModal" class="hidden fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-xl shadow-2xl w-full max-w-md">
-        <div class="flex items-center justify-between p-5 border-b border-gray-100">
-            <h3 class="font-semibold text-gray-800">Request Revision</h3>
-            <button onclick="closeRejectModal()" class="text-gray-400 hover:text-gray-600">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-            </button>
-        </div>
-        <form id="rejectForm" method="POST" class="p-5 space-y-4">
-            @csrf
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1.5">Reason for revision *</label>
-                <textarea name="rejection_reason" rows="3" required
-                          placeholder="Explain what needs to be changed..."
-                          class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-red-500 resize-none"></textarea>
-            </div>
-            <div class="flex justify-end gap-2">
-                <button type="button" onclick="closeRejectModal()"
-                        class="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 font-medium">
-                    Cancel
-                </button>
-                <button type="submit"
-                        class="px-5 py-2 text-sm text-white bg-red-600 rounded-lg hover:bg-red-700 font-semibold">
-                    Request Revision
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
 </x-app-layout>

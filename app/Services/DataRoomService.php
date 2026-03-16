@@ -14,28 +14,12 @@ class DataRoomService
      * Folder access mapping by level
      */
     protected array $accessLevelFolders = [
-        'none' => [],
-        'prospect' => [
-            '0.0', // Read Me First
-            '1.1', // Executive Summary / Teaser
-        ],
-        'qualified' => [
-            '0.0', '1.1', '1.2', '1.3', // All of Section 1
-            '2.1', '2.2', '2.3', '2.4', // Fund Documents
-            '3.1', '3.2', // Legal & Governance (partial)
-            '4.1', // Portfolio Summary
-        ],
-        'subscribed' => [
-            // All folders from qualified +
-            '3.3', '3.4', // Full Legal
-            '4.2', '4.3', // Detailed Portfolio
-            '5.1', '5.2', '5.3', // Financial Statements
-            '6.1', '6.2', // Tax & Regulatory
-            '7.1', // Reports
-            '8.1', // Investor Relations
-        ],
-        'internal' => ['*'], // All folders
-        'external' => ['*'], // All folders (time-limited)
+        'none'       => [],
+        'prospect'   => ['1', '2', '3', '4'],
+        'qualified'  => ['1', '2', '3', '4'],
+        'subscribed' => ['1', '2', '3', '4'],
+        'internal'   => ['*'],
+        'external'   => ['*'],
     ];
 
     /**
@@ -223,12 +207,8 @@ class DataRoomService
     protected function canDownloadForLevel(string $accessLevel): bool
     {
         return match($accessLevel) {
-            'prospect' => false, // View only
-            'qualified' => true,
-            'subscribed' => true,
-            'internal' => true,
-            'external' => true,
-            default => false,
+            'none'    => false,
+            default   => true,
         };
     }
 

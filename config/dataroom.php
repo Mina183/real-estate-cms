@@ -115,7 +115,7 @@ return [
     'folder_exceptions' => [
         // Section 12: Investor-Specific Documents
         // Only accessible by: superadmin, admin, and the specific investor
-        12 => [
+        5 => [
             'allowed_roles' => ['superadmin', 'admin'],
             'requires_investor_match' => true,
         ],

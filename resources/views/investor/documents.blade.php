@@ -177,109 +177,83 @@
 
                 {{-- Tab Navigation --}}
                 <div class="border-b border-gray-200 px-4 flex gap-1 overflow-x-auto">
-                    @php
-                        $marketingFolders = $folders->filter(fn($f) => in_array($f->folder_number, ['0.1', '11']));
-                        $fundFolders      = $folders->filter(fn($f) => in_array($f->folder_number, ['1', '0.0']));
-                        $dueDiligFolders  = $folders->filter(fn($f) => in_array($f->folder_number, ['3', '4', '5', '8']));
-                        $legalFolders     = $folders->filter(fn($f) => in_array($f->folder_number, ['2', '6', '7']));
-                        $opsFolders       = $folders->filter(fn($f) => in_array($f->folder_number, ['9', '10']));
-                        $myFolders        = $folders->filter(fn($f) => str_starts_with($f->folder_number, '12'));
+                @php
+                    $marketingFolder      = $folders->where('folder_number', '1')->first();
+                    $constitutionalFolder = $folders->where('folder_number', '2')->first();
+                    $offeringFolder       = $folders->where('folder_number', '3')->first();
+                    $reportingFolder      = $folders->where('folder_number', '4')->first();
+                    $personalFolder       = $folders->where('folder_number', '5')->first();
+                @endphp
 
-                        // Determine first non-empty tab
-                        $firstTab = 'marketing';
-                    @endphp
-
-                    <button class="tab-btn active" data-tab="marketing" onclick="switchTab('marketing', this)">
-                        📢 Marketing
-                    </button>
-                    @if($fundFolders->isNotEmpty())
-                    <button class="tab-btn" data-tab="fund" onclick="switchTab('fund', this)">
-                        📁 Fund Overview
-                    </button>
-                    @endif
-                    @if($dueDiligFolders->isNotEmpty())
-                    <button class="tab-btn" data-tab="diligence" onclick="switchTab('diligence', this)">
-                        🔍 Due Diligence
-                    </button>
-                    @endif
-                    @if($legalFolders->isNotEmpty())
-                    <button class="tab-btn" data-tab="legal" onclick="switchTab('legal', this)">
-                        ⚖️ Legal
-                    </button>
-                    @endif
-                    @if($opsFolders->isNotEmpty())
-                    <button class="tab-btn" data-tab="operations" onclick="switchTab('operations', this)">
-                        📊 Reporting
-                    </button>
-                    @endif
-                    @if($myFolders->isNotEmpty())
-                    <button class="tab-btn" data-tab="my-docs" onclick="switchTab('my-docs', this)">
-                        🔐 My Documents
-                    </button>
-                    @endif
+                <button class="tab-btn active" data-tab="marketing" onclick="switchTab('marketing', this)">
+                    📢 Marketing
+                </button>
+                <button class="tab-btn" data-tab="constitutional" onclick="switchTab('constitutional', this)">
+                    📋 Fund Documents
+                </button>
+                <button class="tab-btn" data-tab="offering" onclick="switchTab('offering', this)">
+                    📄 Subscription
+                </button>
+                @if($reportingFolder)
+                <button class="tab-btn" data-tab="reporting" onclick="switchTab('reporting', this)">
+                    📊 Reporting
+                </button>
+                @endif
+                @if($personalFolder)
+                <button class="tab-btn" data-tab="my-docs" onclick="switchTab('my-docs', this)">
+                    🔐 My Documents
+                </button>
+                @endif
                 </div>
 
                 <div class="p-4">
 
-                    {{-- MARKETING TAB --}}
-                    <div id="tab-marketing" class="tab-pane">
-                        @forelse($marketingFolders as $folder)
-                            @include('investor.partials.folder-tree', ['folder' => $folder])
-                        @empty
-                            <div class="empty-state">No documents available in this section yet.</div>
-                        @endforelse
-                    </div>
-
-                    {{-- FUND OVERVIEW TAB --}}
-                    @if($fundFolders->isNotEmpty())
-                    <div id="tab-fund" class="tab-pane hidden">
-                        @foreach($fundFolders as $folder)
-                            @include('investor.partials.folder-tree', ['folder' => $folder])
-                        @endforeach
-                    </div>
+                {{-- MARKETING TAB --}}
+                <div id="tab-marketing" class="tab-pane">
+                    @if($marketingFolder)
+                        @include('investor.partials.folder-tree', ['folder' => $marketingFolder])
+                    @else
+                        <div class="empty-state">No documents available yet.</div>
                     @endif
+                </div>
 
-                    {{-- DUE DILIGENCE TAB --}}
-                    @if($dueDiligFolders->isNotEmpty())
-                    <div id="tab-diligence" class="tab-pane hidden">
-                        @foreach($dueDiligFolders as $folder)
-                            @include('investor.partials.folder-tree', ['folder' => $folder])
-                        @endforeach
-                    </div>
+                {{-- CONSTITUTIONAL TAB --}}
+                <div id="tab-constitutional" class="tab-pane hidden">
+                    @if($constitutionalFolder)
+                        @include('investor.partials.folder-tree', ['folder' => $constitutionalFolder])
+                    @else
+                        <div class="empty-state">No documents available yet.</div>
                     @endif
+                </div>
 
-                    {{-- LEGAL TAB --}}
-                    @if($legalFolders->isNotEmpty())
-                    <div id="tab-legal" class="tab-pane hidden">
-                        @foreach($legalFolders as $folder)
-                            @include('investor.partials.folder-tree', ['folder' => $folder])
-                        @endforeach
-                    </div>
+                {{-- OFFERING TAB --}}
+                <div id="tab-offering" class="tab-pane hidden">
+                    @if($offeringFolder)
+                        @include('investor.partials.folder-tree', ['folder' => $offeringFolder])
+                    @else
+                        <div class="empty-state">No documents available yet.</div>
                     @endif
+                </div>
 
-                    {{-- OPERATIONS TAB --}}
-                    @if($opsFolders->isNotEmpty())
-                    <div id="tab-operations" class="tab-pane hidden">
-                        @foreach($opsFolders as $folder)
-                            @include('investor.partials.folder-tree', ['folder' => $folder])
-                        @endforeach
-                    </div>
-                    @endif
+                {{-- REPORTING TAB --}}
+                @if($reportingFolder)
+                <div id="tab-reporting" class="tab-pane hidden">
+                    @include('investor.partials.folder-tree', ['folder' => $reportingFolder])
+                </div>
+                @endif
 
-                    {{-- MY DOCUMENTS TAB --}}
-                    @if($myFolders->isNotEmpty())
-                    <div id="tab-my-docs" class="tab-pane hidden">
-                        <div class="flex items-start gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg mb-4">
-                            <svg class="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            <p class="text-sm text-blue-800">These documents have been prepared specifically for you.</p>
-                        </div>
-                        @foreach($myFolders as $folder)
-                            @include('investor.partials.folder-tree', ['folder' => $folder])
-                        @endforeach
+                {{-- MY DOCUMENTS TAB --}}
+                @if($personalFolder)
+                <div id="tab-my-docs" class="tab-pane hidden">
+                    <div class="flex items-start gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg mb-4">
+                        <svg class="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <p class="text-sm text-blue-800">These documents have been prepared specifically for you.</p>
                     </div>
-                    @endif
+                    @include('investor.partials.folder-tree', ['folder' => $personalFolder])
+                </div>
+                @endif
 
                 </div>
 

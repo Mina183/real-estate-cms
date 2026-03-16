@@ -164,62 +164,33 @@ class InvestorPortalController extends Controller
         $investorUser = Auth::guard('investor')->user();
         $investor = $investorUser->investor;
 
-        // Redirect to gate if not completed
         if (!$this->hasCompletedGate($investor)) {
             return redirect()->route('investor.compliance-gate');
         }
 
-        $accessLevel = $investor->data_room_access_level ?? 'none';
+        // Svi investitori sa portalnim pristupom vide foldere 1-4
+        $folders = \App\Models\DataRoomFolder::whereNull('parent_folder_id')
+            ->whereIn('folder_number', ['1', '2', '3', '4'])
+            ->where('is_active', true)
+            ->with(['documents' => function ($q) {
+                $q->where('status', 'approved')->whereNull('investor_id');
+            }])
+            ->orderBy('folder_number')
+            ->get();
 
-        $allowedFolderLevels = match($accessLevel) {
-            'prospect'   => ['public'],
-            'qualified'  => ['public', 'restricted'],
-            'subscribed' => ['public', 'restricted', 'confidential'],
-            default      => [],
-        };
+        // Folder 5 — samo dokumenti specifični za ovog investitora
+        $folder5 = \App\Models\DataRoomFolder::where('folder_number', '5')
+            ->with(['documents' => function ($q) use ($investor) {
+                $q->where('status', 'approved')
+                    ->where('investor_id', $investor->id);
+            }])
+            ->first();
 
-        $folders = collect();
-
-        if (!empty($allowedFolderLevels)) {
-            $folders = \App\Models\DataRoomFolder::whereNull('parent_folder_id')
-                ->whereIn('access_level', $allowedFolderLevels)
-                ->where('is_active', true)
-                ->with(['children' => function ($q) use ($allowedFolderLevels) {
-                    $q->whereIn('access_level', $allowedFolderLevels)
-                        ->where('is_active', true)
-                        ->with(['documents' => function ($q) {
-                            $q->where('status', 'approved')->whereNull('investor_id');
-                        }]);
-                }])
-                ->with(['documents' => function ($q) {
-                    $q->where('status', 'approved')->whereNull('investor_id');
-                }])
-                ->orderBy('folder_number')
-                ->get();
-
-            // Folder 12 — samo za subscribed, samo njihovi dokumenti
-            if ($accessLevel === 'subscribed') {
-                $folder12 = \App\Models\DataRoomFolder::where('folder_number', '12')
-                    ->with(['documents' => function ($q) use ($investor) {
-                        $q->where('status', 'approved')
-                            ->where(function ($q) use ($investor) {
-                                $q->where('investor_id', $investor->id)->orWhereNull('investor_id');
-                            });
-                    }, 'children' => function ($q) use ($investor) {
-                        $q->with(['documents' => function ($q) use ($investor) {
-                            $q->where('status', 'approved')
-                                ->where(function ($q) use ($investor) {
-                                    $q->where('investor_id', $investor->id)->orWhereNull('investor_id');
-                                });
-                        }]);
-                    }])
-                    ->first();
-
-                if ($folder12) {
-                    $folders->push($folder12);
-                }
-            }
+        if ($folder5 && $folder5->documents->isNotEmpty()) {
+            $folders->push($folder5);
         }
+
+        $accessLevel = $investor->data_room_access_level ?? 'none';
 
         return view('investor.documents', compact('investor', 'folders', 'accessLevel'));
     }
@@ -232,7 +203,6 @@ class InvestorPortalController extends Controller
         $investorUser = Auth::guard('investor')->user();
         $investor = $investorUser->investor;
 
-        // Must have completed compliance gate
         if (!$this->hasCompletedGate($investor)) {
             return redirect()->route('investor.compliance-gate');
         }
@@ -240,34 +210,18 @@ class InvestorPortalController extends Controller
         $document = \App\Models\DataRoomDocument::with('folder')->findOrFail($documentId);
         $folder = $document->folder;
 
-        // Build allowed levels for this investor
-        $accessLevel = $investor->data_room_access_level ?? 'none';
-        $allowedFolderLevels = match($accessLevel) {
-            'prospect'   => ['public'],
-            'qualified'  => ['public', 'restricted'],
-            'subscribed' => ['public', 'restricted', 'confidential'],
-            default      => [],
-        };
-
-        // Check folder access level
-        $isFolder12 = str_starts_with($folder->folder_number, '12');
-
-        if ($isFolder12) {
-            // Folder 12 — only subscribed + only their docs or general docs
-            if ($accessLevel !== 'subscribed') {
-                abort(403, 'You do not have access to this document.');
-            }
-            if ($document->investor_id && $document->investor_id !== $investor->id) {
+        // Folder 5 — samo njihovi dokumenti
+        if ($folder->folder_number === '5') {
+            if ($document->investor_id !== $investor->id) {
                 abort(403, 'You do not have access to this document.');
             }
         } else {
-            // All other folders — check folder access_level against investor's allowed levels
-            if (!in_array($folder->access_level, $allowedFolderLevels)) {
+            // Folderi 1-4 — mora biti u dozvoljenim folderima
+            if (!in_array($folder->folder_number, ['1', '2', '3', '4'])) {
                 abort(403, 'You do not have access to this document.');
             }
         }
 
-        // Document must be approved
         if ($document->status !== 'approved') {
             abort(403, 'This document is not available.');
         }
