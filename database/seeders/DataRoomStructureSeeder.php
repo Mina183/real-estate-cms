@@ -7,9 +7,12 @@ use Illuminate\Support\Facades\DB;
 
 class DataRoomStructureSeeder extends Seeder
 {
-    public function run(): void
-    {
-        DB::table('data_room_folders')->truncate();
+        public function run(): void
+        {
+            DB::statement('SET FOREIGN_KEY_CHECKS=0');
+            DB::table('data_room_documents')->truncate();
+            DB::table('data_room_folders')->truncate();
+            DB::statement('SET FOREIGN_KEY_CHECKS=1');
 
         $folders = [
             [
