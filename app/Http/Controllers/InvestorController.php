@@ -77,8 +77,6 @@ class InvestorController extends Controller
 
     public function edit(Investor $investor)
     {
-        dd($investor->getAttributes());
-
         $funds = Fund::where('status', 'active')->get();
         $users = User::whereIn('role', ['admin', 'relationship_manager'])->get();
 
