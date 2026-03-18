@@ -11,9 +11,8 @@
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-        <!-- Select2 -->
+        <!-- Select2 CSS only -->
         <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -25,7 +24,6 @@
         <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
             @include('layouts.navigation')
 
-            <!-- Page Heading -->
             @isset($header)
                 <header class="bg-gradient-to-br from-brand-accent-light/70 via-brand-light/40 to-gray-50 shadow-md">
                     <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
@@ -34,18 +32,21 @@
                 </header>
             @endisset
 
-            <!-- Page Content -->
             <main>
                 {{ $slot }}
             </main>
         </div>
+
+        <!-- jQuery + Select2 JS (after Vite) -->
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
         <script src="https://unpkg.com/alpinejs" defer></script>
         <script>
             document.addEventListener('DOMContentLoaded', () => {
                 const toggle = document.getElementById('darkModeToggle');
                 const root = document.documentElement;
 
-                // Enable dark mode if stored
                 if (localStorage.getItem('theme') === 'dark') {
                     root.classList.add('dark');
                 }
