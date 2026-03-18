@@ -248,6 +248,7 @@
                                     {{-- PPM Acknowledged --}}
                                     <div class="flex items-start p-4 bg-gray-50 rounded-lg">
                                         <div class="flex items-center h-5">
+                                            DEBUG: {{ $investor->ppm_acknowledged_date }}
                                             <input type="checkbox" name="ppm_acknowledged" id="ppm_acknowledged"
                                                    value="1" {{ $investor->ppm_acknowledged_date ? 'checked' : '' }}
                                                    class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
