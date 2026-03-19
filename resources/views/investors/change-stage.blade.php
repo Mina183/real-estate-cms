@@ -235,10 +235,8 @@
     </div>
 
 <script>
-    // Dynamic stage requirements from backend
     const stageRequirements = @json($stageRequirements);
 
-    // Update stage info when selection changes
     document.getElementById('new_stage').addEventListener('change', function() {
         const stageValue = this.value;
         const infoDiv = document.getElementById('stage-info');
@@ -246,7 +244,6 @@
         if (stageValue && stageRequirements[stageValue]) {
             const info = stageRequirements[stageValue];
             
-            // Build requirements list
             let requirementsHtml = '<p class="text-sm text-gray-500 italic">All requirements met ✓</p>';
             
             if (info.requirements && info.requirements.length > 0) {
@@ -254,6 +251,12 @@
                     <ul class="list-disc list-inside space-y-1 text-red-600">
                         ${info.requirements.map(req => `<li class="text-sm">${req}</li>`).join('')}
                     </ul>
+                    <div class="mt-3">
+                        <a href="{{ route('investors.edit', $investor) }}" 
+                           class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm inline-block">
+                            ✏️ Edit Compliance Fields
+                        </a>
+                    </div>
                 `;
             }
             
@@ -274,5 +277,4 @@
         }
     });
 </script>
-
 </x-app-layout>
