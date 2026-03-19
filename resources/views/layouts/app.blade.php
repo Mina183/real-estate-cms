@@ -11,16 +11,16 @@
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-        <!-- Select2 CSS only -->
+        <!-- Select2 CSS -->
         <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans antialiased bg-gray-100 text-gray-900 dark:bg-gray-900 dark:text-white">
-    <button id="darkModeToggle" class="fixed bottom-4 right-4 bg-[#0e2442] text-white text-sm px-2 py-1 rounded shadow z-50">
-        Toggle Dark Mode
-    </button>
+        <button id="darkModeToggle" class="fixed bottom-4 right-4 bg-[#0e2442] text-white text-sm px-2 py-1 rounded shadow z-50">
+            Toggle Dark Mode
+        </button>
         <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
             @include('layouts.navigation')
 
@@ -37,11 +37,6 @@
             </main>
         </div>
 
-        <!-- jQuery + Select2 JS (after Vite) -->
-        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
-        <script src="https://unpkg.com/alpinejs" defer></script>
         <script>
             document.addEventListener('DOMContentLoaded', () => {
                 const toggle = document.getElementById('darkModeToggle');
