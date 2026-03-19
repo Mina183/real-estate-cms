@@ -85,6 +85,7 @@ class InvestorController extends Controller
 
     public function update(Request $request, Investor $investor)
 {
+    dd($request->all());
     $validated = $request->validate([
         'investor_type' => 'required|in:individual,corporate,family_office,spv,fund',
         'organization_name' => 'nullable|string|max:255',
