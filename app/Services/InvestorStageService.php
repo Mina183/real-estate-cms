@@ -17,25 +17,23 @@ class InvestorStageService
         'eligibility_review' => [
             'target_commitment_amount' => ['min', 1000000], // $1M minimum
             'is_professional_client' => ['equals', true],   // Professional Client confirmed
-            'sanctions_check_passed' => ['equals', true],   // Sanctions check passed
         ],
         
         // STAGE 3: PPM Issued
         'ppm_issued' => [
             'is_professional_client' => ['equals', true],   // Must be confirmed
-            'sanctions_check_passed' => ['equals', true],   // Compliance pre-clearance
             'agreed_confidentiality' => ['equals', true],   // FIXED: correct field name
         ],
         
-        // STAGE 4: KYC In Progress
-        'kyc_in_progress' => [
-            'ppm_acknowledged_date' => ['not_null'],        // PPM acknowledged
-        ],
-        
-        // STAGE 5: Subscription Signed
+        // STAGE 4: Subscription Signed
         'subscription_signed' => [
             'kyc_status' => ['equals', 'complete'],         // KYC complete
             'sanctions_check_passed' => ['equals', true],   // Sanctions passed
+        ],
+
+        // STAGE 5: KYC In Progress
+        'kyc_in_progress' => [
+            'ppm_acknowledged_date' => ['not_null'],        // PPM acknowledged
         ],
         
         // STAGE 6: Approved
@@ -279,8 +277,8 @@ class InvestorStageService
             'prospect' => 'eligibility_review',
             'eligibility_review' => 'ppm_issued',
             'ppm_issued' => 'kyc_in_progress',
-            'kyc_in_progress' => 'subscription_signed',
             'subscription_signed' => 'approved',
+            'kyc_in_progress' => 'subscription_signed',
             'approved' => 'funded',
             'funded' => 'active',
         ];
