@@ -93,6 +93,7 @@ class InvestorPolicy
         return in_array($user->role, [
             'admin',
             'superadmin',
+            'relationship_manager',
             'compliance_officer',
             'fund_manager',
         ]);
