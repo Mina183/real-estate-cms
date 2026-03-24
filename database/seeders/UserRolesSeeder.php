@@ -76,6 +76,15 @@ class UserRolesSeeder extends Seeder
                 'is_approved' => true,
                 'email_verified_at' => now(),
             ],
+
+            [
+                'name' => 'Fund Manager',
+                'email' => 'fm@triton.test',
+                'password' => $password,
+                'role' => 'fund_manager',
+                'is_approved' => true,
+                'email_verified_at' => now(),
+            ],
         ];
 
         foreach ($users as $userData) {
