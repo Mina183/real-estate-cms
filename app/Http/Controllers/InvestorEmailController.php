@@ -196,7 +196,7 @@ class InvestorEmailController extends Controller
                 $isCustom ? 'emails.investor.custom' : 'emails.investor.' . $request->template,
                 $viewData
                     )->render();
-                    $this->saveEmailToDataRoom($investor, $subject, $htmlContent, $primaryContact->email);
+                    $this->saveEmailToDataRoom($investor, $subject, $htmlContent, $primaryContact->email, $documents);
 
                 $sent++;
             } catch (\Exception $e) {
@@ -270,26 +270,46 @@ class InvestorEmailController extends Controller
         return view('emails.acknowledged', ['alreadyAcknowledged' => false]);
     }
 
-    private function saveEmailToDataRoom(Investor $investor, string $subject, string $htmlContent, string $to): void
+    private function saveEmailToDataRoom(Investor $investor, string $subject, string $htmlContent, string $to, $documents = null): void
     {
-        // Find Communication Log subfolder for this investor
         $folder = \App\Models\DataRoomFolder::where('investor_id', $investor->id)
             ->where('folder_name', 'Communication Log')
             ->first();
 
         if (!$folder) return;
 
-        // Build .eml content
         $date = now()->format('D, d M Y H:i:s O');
         $from = auth()->user()->email;
+        $boundary = md5(uniqid());
+
         $emlContent = "Date: {$date}\r\n"
             . "From: {$from}\r\n"
             . "To: {$to}\r\n"
             . "Subject: {$subject}\r\n"
             . "MIME-Version: 1.0\r\n"
+            . "Content-Type: multipart/mixed; boundary=\"{$boundary}\"\r\n"
+            . "\r\n"
+            . "--{$boundary}\r\n"
             . "Content-Type: text/html; charset=UTF-8\r\n"
             . "\r\n"
-            . $htmlContent;
+            . $htmlContent . "\r\n";
+
+        // Add attachments
+        if ($documents && $documents->count() > 0) {
+            foreach ($documents as $doc) {
+                if (\Storage::disk('private')->exists($doc->file_path)) {
+                    $fileContent = base64_encode(\Storage::disk('private')->get($doc->file_path));
+                    $emlContent .= "--{$boundary}\r\n"
+                        . "Content-Type: application/{$doc->file_type}; name=\"{$doc->document_name}.{$doc->file_type}\"\r\n"
+                        . "Content-Transfer-Encoding: base64\r\n"
+                        . "Content-Disposition: attachment; filename=\"{$doc->document_name}.{$doc->file_type}\"\r\n"
+                        . "\r\n"
+                        . $fileContent . "\r\n";
+                }
+            }
+        }
+
+        $emlContent .= "--{$boundary}--";
 
         $fileName = now()->format('Y-m-d_His') . '_' . \Str::slug($subject) . '.eml';
         $storagePath = 'data-room/' . $folder->folder_number . '/' . $fileName;

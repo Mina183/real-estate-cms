@@ -276,6 +276,7 @@ class DataRoomService
             ['name' => 'Subscription Pack',        'order' => 2],
             ['name' => 'Admission & Activation',   'order' => 3],
             ['name' => 'Monitoring',               'order' => 4],
+            ['name' => 'Communication Log', 'order' => 5],
         ];
 
         foreach ($subFolders as $sub) {
