@@ -32,8 +32,9 @@ class InvestorController extends Controller
     {
         $funds = Fund::where('status', 'active')->get();
         $users = User::whereIn('role', ['admin', 'relationship_manager'])->get();
+        $defaultAssignee = auth()->id();
 
-        return view('investors.create', compact('funds', 'users'));
+        return view('investors.create', compact('funds', 'users', 'defaultAssignee'));
     }
 
     public function store(Request $request)

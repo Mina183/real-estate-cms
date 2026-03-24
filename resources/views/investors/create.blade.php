@@ -127,9 +127,9 @@
                                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                                     <option value="">Unassigned</option>
                                     @foreach($users as $user)
-                                        <option value="{{ $user->id }}" {{ old('assigned_to_user_id') == $user->id ? 'selected' : '' }}>
-                                            {{ $user->name }} ({{ ucfirst(str_replace('_', ' ', $user->role)) }})
-                                        </option>
+                                    <option value="{{ $user->id }}" {{ $user->id == $defaultAssignee ? 'selected' : '' }}>
+                                        {{ $user->name }}
+                                    </option>
                                     @endforeach
                                 </select>
                             </div>
