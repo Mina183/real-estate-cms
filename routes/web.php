@@ -41,7 +41,7 @@ Route::prefix('investor')->name('investor.')->group(function () {
             ->name('login');
         Route::post('/login', [InvestorAuthController::class, 'login']);
 
-            // Password Reset
+        // Password Reset
     Route::get('/forgot-password', [InvestorPasswordResetController::class, 'showForgotForm'])
         ->name('password.request');
     Route::post('/forgot-password', [InvestorPasswordResetController::class, 'sendResetLink'])
@@ -141,6 +141,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::post('/{investor}/contacts', [ContactController::class, 'store'])->name('investors.contacts.store');
         Route::delete('/{investor}/contacts/{contact}', [ContactController::class, 'destroy'])->name('investors.contacts.destroy');
+
+        // Meetings
+        Route::post('/{investor}/meetings', [InvestorController::class, 'storeMeeting'])->name('investors.meetings.store');
+        Route::delete('/{investor}/meetings/{meeting}', [InvestorController::class, 'destroyMeeting'])->name('investors.meetings.destroy');
 
         // Portal Access
         Route::post('/{investor}/create-portal-access', [InvestorController::class, 'createPortalAccess'])->name('investors.create-portal-access');

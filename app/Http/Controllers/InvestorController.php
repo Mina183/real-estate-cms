@@ -347,4 +347,32 @@ class InvestorController extends Controller
 
     return back()->with('success', 'Portal access created and credentials sent to ' . $primaryContact->email);
 }
+
+public function storeMeeting(Request $request, Investor $investor)
+{
+    $this->authorize('update', $investor);
+
+    $validated = $request->validate([
+        'meeting_date' => 'required|date',
+        'attendees' => 'required|string|max:500',
+        'outcome' => 'nullable|string|max:1000',
+    ]);
+
+    $investor->meetings()->create([
+        ...$validated,
+        'created_by_user_id' => auth()->id(),
+    ]);
+
+    return redirect()->route('investors.show', $investor)
+        ->with('success', 'Meeting logged successfully.');
+}
+
+public function destroyMeeting(Investor $investor, \App\Models\InvestorMeeting $meeting)
+{
+    $this->authorize('update', $investor);
+    $meeting->delete();
+
+    return redirect()->route('investors.show', $investor)
+        ->with('success', 'Meeting removed.');
+}
 }

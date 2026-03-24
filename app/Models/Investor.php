@@ -249,4 +249,9 @@ public function investorUser()
 {
     return $this->hasOne(InvestorUser::class);
 }
+
+public function meetings()
+{
+    return $this->hasMany(InvestorMeeting::class)->orderBy('meeting_date', 'desc');
+}
 }
