@@ -31,7 +31,7 @@ class InvestorController extends Controller
     public function create()
     {
         $funds = Fund::where('status', 'active')->get();
-        $users = User::whereIn('role', ['admin', 'relationship_manager'])->get();
+        $users = User::whereIn('role', ['superadmin', 'admin', 'relationship_manager'])->get();
         $defaultAssignee = auth()->id();
 
         return view('investors.create', compact('funds', 'users', 'defaultAssignee'));
