@@ -60,6 +60,7 @@ class InvestorController extends Controller
         $validated['created_by_user_id'] = auth()->id();
 
         $investor = Investor::create($validated);
+        app(\App\Services\DataRoomService::class)->createInvestorFolders($investor);
 
         return redirect()->route('investors.show', $investor)
             ->with('success', 'Investor created successfully!');

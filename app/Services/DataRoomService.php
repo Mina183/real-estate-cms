@@ -250,4 +250,45 @@ class DataRoomService
         // Log activity
         $this->logActivity($investor, $documentId, null, 'download');
     }
+
+    /**
+     * Create private folder structure for new investor
+     */
+    public function createInvestorFolders(Investor $investor): void
+    {
+        $investorName = $investor->organization_name ?? $investor->legal_entity_name ?? 'Investor ' . $investor->id;
+
+        // Create parent folder named after investor
+        $parentFolder = \App\Models\DataRoomFolder::create([
+            'folder_number' => 'inv-' . $investor->id,
+            'folder_name'   => $investorName,
+            'parent_folder_id' => null,
+            'investor_id'   => $investor->id,
+            'order'         => 0,
+            'description'   => 'Private folder for ' . $investorName,
+            'access_level'  => 'highly_confidential',
+            'is_active'     => true,
+        ]);
+
+        // Create 4 sub-folders
+        $subFolders = [
+            ['name' => 'NDA - Populated/Signed',  'order' => 1],
+            ['name' => 'Subscription Pack',        'order' => 2],
+            ['name' => 'Admission & Activation',   'order' => 3],
+            ['name' => 'Monitoring',               'order' => 4],
+        ];
+
+        foreach ($subFolders as $sub) {
+            \App\Models\DataRoomFolder::create([
+                'folder_number'    => 'inv-' . $investor->id . '-' . $sub['order'],
+                'folder_name'      => $sub['name'],
+                'parent_folder_id' => $parentFolder->id,
+                'investor_id'      => $investor->id,
+                'order'            => $sub['order'],
+                'description'      => null,
+                'access_level'     => 'highly_confidential',
+                'is_active'        => true,
+            ]);
+        }
+    }
 }
