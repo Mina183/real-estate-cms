@@ -212,7 +212,7 @@
                         📊 Reporting
                     </button>
                     <button class="tab-btn" data-tab="investor-specific" onclick="switchTab('investor-specific', this)">
-                        🔐 Investor-Specific
+                        🔐 Investor Documents
                     </button>
                 </div>
 
@@ -258,72 +258,76 @@
                         @endif
                     </div>
 
-                    {{-- INVESTOR-SPECIFIC TAB — Folder 5 --}}
+                    {{-- INVESTOR DOCUMENTS TAB --}}
                     <div id="tab-investor-specific" class="tab-pane hidden">
                         <div class="flex items-start gap-3 p-3 bg-amber-50 border border-amber-200 rounded-lg mb-4">
                             <svg class="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                             </svg>
                             <p class="text-sm text-amber-800">
-                                <strong>Investor-Specific:</strong> Documents here are assigned to individual investors. Each investor only sees their own documents.
+                                <strong>Investor Documents:</strong> Private folders created automatically for each investor. Only visible to the assigned investor and staff.
                             </p>
                         </div>
 
-                        @php
-                            $investorDocs = \App\Models\DataRoomDocument::whereNotNull('investor_id')
-                                ->with(['investor'])
-                                ->get()
-                                ->groupBy('investor_id');
-                        @endphp
-
-                        @forelse($investorDocs as $investorId => $docs)
-                            @php $inv = $docs->first()->investor; @endphp
+                        @forelse($investorFolders as $investorFolder)
                             <div class="mb-3">
-                                <div class="investor-group-header" onclick="toggleInvestorGroup({{ $investorId }})">
-                                    <svg class="w-4 h-4 text-gray-500 chevron" id="inv-chevron-{{ $investorId }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div class="investor-group-header" onclick="toggleInvestorGroup({{ $investorFolder->id }})">
+                                    <svg class="w-4 h-4 text-gray-500 chevron" id="inv-chevron-{{ $investorFolder->id }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                                     </svg>
                                     <div class="w-7 h-7 rounded-full bg-brand-darker flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-                                        {{ strtoupper(substr($inv->organization_name ?? $inv->legal_entity_name ?? 'I', 0, 1)) }}
+                                        {{ strtoupper(substr($investorFolder->folder_name, 0, 1)) }}
                                     </div>
-                                    <span class="font-medium text-sm text-gray-800">
-                                        {{ $inv->organization_name ?? $inv->legal_entity_name ?? 'Unknown Investor' }}
-                                    </span>
-                                    <span class="ml-auto text-xs text-gray-500">{{ $docs->count() }} {{ $docs->count() == 1 ? 'document' : 'documents' }}</span>
+                                    <span class="font-medium text-sm text-gray-800">{{ $investorFolder->folder_name }}</span>
+                                    <span class="ml-auto text-xs text-gray-500">{{ $investorFolder->children->count() }} folders</span>
                                 </div>
-                                <div id="inv-group-{{ $investorId }}" class="collapsible hidden pl-4">
-                                    @foreach($docs as $doc)
-                                        <div class="doc-row" style="padding-left: 1rem;">
-                                            <span class="file-icon">
-                                                @if($doc->file_type === 'pdf') 📄
-                                                @elseif(in_array($doc->file_type, ['xlsx','xls'])) 📊
-                                                @elseif(in_array($doc->file_type, ['pptx','ppt'])) 📽️
-                                                @elseif(in_array($doc->file_type, ['docx','doc'])) 📝
-                                                @else 📎
-                                                @endif
-                                            </span>
-                                            <span class="text-sm text-gray-700 truncate">{{ $doc->document_name }}</span>
-                                            <span class="text-xs text-gray-400">v{{ $doc->version }}</span>
-                                            <span class="badge badge-{{ $doc->status === 'approved' ? 'approved' : ($doc->status === 'pending_review' ? 'pending' : 'draft') }}">
-                                                {{ $doc->status === 'pending_review' ? 'Pending' : ucfirst($doc->status) }}
-                                            </span>
-                                            <a href="{{ route('data-room.download', $doc->id) }}" class="download-btn">
-                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+
+                                <div id="inv-group-{{ $investorFolder->id }}" class="collapsible hidden pl-4 mt-1 space-y-1">
+                                    @foreach($investorFolder->children as $subFolder)
+                                        <div class="border border-gray-100 rounded-lg">
+                                            <div class="subfolder-row" onclick="toggleFolder('sub-{{ $subFolder->id }}')">
+                                                <svg class="w-3.5 h-3.5 chevron" id="chevron-sub-{{ $subFolder->id }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                                                 </svg>
-                                                Download
-                                            </a>
+                                                <span class="text-sm text-gray-700 font-medium">📁 {{ $subFolder->folder_name }}</span>
+                                                <span class="text-xs text-gray-400">{{ $subFolder->documents->count() }} docs</span>
+                                            </div>
+
+                                            <div id="folder-sub-{{ $subFolder->id }}" class="hidden">
+                                                @forelse($subFolder->documents as $doc)
+                                                    <div class="doc-row">
+                                                        <span class="file-icon">
+                                                            @if($doc->file_type === 'pdf') 📄
+                                                            @elseif(in_array($doc->file_type, ['xlsx','xls'])) 📊
+                                                            @elseif(in_array($doc->file_type, ['pptx','ppt'])) 📽️
+                                                            @elseif(in_array($doc->file_type, ['docx','doc'])) 📝
+                                                            @else 📎
+                                                            @endif
+                                                        </span>
+                                                        <span class="text-sm text-gray-700 truncate">{{ $doc->document_name }}</span>
+                                                        <span class="text-xs text-gray-400">v{{ $doc->version }}</span>
+                                                        <span class="badge badge-{{ $doc->status === 'approved' ? 'approved' : ($doc->status === 'pending_review' ? 'pending' : 'draft') }}">
+                                                            {{ $doc->status === 'pending_review' ? 'Pending' : ucfirst($doc->status) }}
+                                                        </span>
+                                                        <a href="{{ route('data-room.download', $doc->id) }}" class="download-btn">
+                                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                                            </svg>
+                                                            Download
+                                                        </a>
+                                                    </div>
+                                                @empty
+                                                    <p class="text-xs text-gray-400 px-4 py-2">No documents yet.</p>
+                                                @endforelse
+                                            </div>
                                         </div>
                                     @endforeach
                                 </div>
                             </div>
                         @empty
                             <div class="empty-state">
-                                <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                </svg>
-                                <p class="text-sm font-medium text-gray-400">No investor-specific documents yet</p>
-                                <p class="text-xs text-gray-400 mt-1">Upload a document and assign it to a specific investor</p>
+                                <p class="text-sm font-medium text-gray-400">No investor folders yet</p>
+                                <p class="text-xs text-gray-400 mt-1">Folders are created automatically when an investor profile is added.</p>
                             </div>
                         @endforelse
                     </div>

@@ -10,6 +10,7 @@ class DataRoomFolder extends Model
         'folder_number',
         'folder_name',
         'parent_folder_id',
+        'investor_id',
         'order',
         'description',
         'access_level',
@@ -29,6 +30,11 @@ class DataRoomFolder extends Model
     public function documents()
     {
         return $this->hasMany(DataRoomDocument::class, 'folder_id');
+    }
+
+    public function investor()
+    {
+        return $this->belongsTo(Investor::class);
     }
     
 }

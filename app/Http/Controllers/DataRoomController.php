@@ -18,11 +18,18 @@ class DataRoomController extends Controller
     public function index()
     {
         $folders = DataRoomFolder::whereNull('parent_folder_id')
+            ->whereNull('investor_id')
             ->with(['children.documents', 'documents'])
             ->orderBy('order')
             ->get();
 
-        return view('data-room.index', compact('folders'));
+        $investorFolders = DataRoomFolder::whereNull('parent_folder_id')
+            ->whereNotNull('investor_id')
+            ->with(['children.documents', 'documents', 'investor'])
+            ->orderBy('folder_name')
+            ->get();
+
+        return view('data-room.index', compact('folders', 'investorFolders'));
     }
 
     /**
