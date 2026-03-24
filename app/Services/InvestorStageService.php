@@ -185,10 +185,6 @@ class InvestorStageService
     {
         switch ($newStage) {
             case 'eligibility_review':
-                // Could trigger: Send welcome email
-                $investor->update([
-                    'sanctions_checked_at' => Carbon::now(),
-                ]);
                 break;
 
             case 'ppm_issued':

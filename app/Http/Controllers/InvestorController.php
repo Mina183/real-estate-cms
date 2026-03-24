@@ -291,7 +291,7 @@ class InvestorController extends Controller
     {
         return match($stage) {
             'prospect' => 'No automatic actions',
-            'eligibility_review' => 'Sanctions check timestamp recorded',
+            'eligibility_review' => 'No automatic actions',
             'ppm_issued' => 'Data Room access granted (PROSPECT level), PPM issue date recorded',
             'kyc_in_progress' => 'Data Room upgraded to QUALIFIED level',
             'subscription_signed' => 'Subscription date recorded',
