@@ -36,6 +36,8 @@ class DataRoomPolicy
         return in_array($user->role, [
             'superadmin',
             'admin',
+            'relationship_manager',
+            'fund_manager',
             'operations',
             'compliance_officer',
         ]);

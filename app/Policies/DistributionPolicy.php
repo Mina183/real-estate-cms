@@ -20,6 +20,7 @@ class DistributionPolicy
             'compliance_officer',
             'auditor',
             'relationship_manager',
+            'fund_manager',
         ]);
     }
 
@@ -38,7 +39,7 @@ class DistributionPolicy
     public function create(User $user): bool
     {
         // Only admin and operations can create distributions
-        return in_array($user->role, ['superadmin', 'admin', 'operations']);
+        return in_array($user->role, ['superadmin', 'admin', 'operations', 'fund_manager']);
     }
 
     /**
@@ -47,7 +48,7 @@ class DistributionPolicy
     public function update(User $user, Distribution $distribution): bool
     {
         // Only admin and operations can update distributions
-        return in_array($user->role, ['superadmin', 'admin', 'operations']);
+        return in_array($user->role, ['superadmin', 'admin', 'operations', 'fund_manager']);
     }
 
     /**
@@ -65,6 +66,6 @@ class DistributionPolicy
     public function issue(User $user, Distribution $distribution): bool
     {
         // Only admin and operations can issue distributions
-        return in_array($user->role, ['superadmin', 'admin', 'operations']);
+        return in_array($user->role, ['superadmin', 'admin', 'operations', 'fund_manager']);
     }
 }

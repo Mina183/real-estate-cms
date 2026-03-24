@@ -19,6 +19,7 @@ class InvestorPolicy
             'relationship_manager',
             'auditor',
             'operations',
+            'fund_manager',
         ]);
     }
 
@@ -28,7 +29,7 @@ class InvestorPolicy
     public function view(User $user, Investor $investor): bool
     {
         // Admin and compliance can view all
-        if (in_array($user->role, ['admin', 'superadmin', 'compliance_officer', 'auditor'])) {
+        if (in_array($user->role, ['admin', 'superadmin', 'compliance_officer', 'auditor', 'fund_manager'])) {
             return true;
         }
 
@@ -63,7 +64,7 @@ class InvestorPolicy
     public function update(User $user, Investor $investor): bool
     {
         // Admin and compliance can update all
-        if (in_array($user->role, ['admin', 'superadmin', 'compliance_officer'])) {
+        if (in_array($user->role, ['admin', 'superadmin', 'compliance_officer', 'fund_manager'])) {
             return true;
         }
 
@@ -93,6 +94,7 @@ class InvestorPolicy
             'admin',
             'superadmin',
             'compliance_officer',
+            'fund_manager',
         ]);
     }
 
@@ -105,6 +107,7 @@ class InvestorPolicy
             'admin',
             'superadmin',
             'compliance_officer',
+            'fund_manager',
         ]);
     }
 }

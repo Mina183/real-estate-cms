@@ -20,6 +20,7 @@ class PaymentTransactionPolicy
             'compliance_officer',
             'auditor',
             'relationship_manager',
+            'fund_manager',
         ]);
     }
 
@@ -38,7 +39,7 @@ class PaymentTransactionPolicy
     public function create(User $user): bool
     {
         // Only admin and operations can create payment transactions
-        return in_array($user->role, ['superadmin', 'admin', 'operations']);
+        return in_array($user->role, ['superadmin', 'admin', 'operations', 'fund_manager']);
     }
 
     /**
@@ -47,7 +48,7 @@ class PaymentTransactionPolicy
     public function update(User $user, PaymentTransaction $paymentTransaction): bool
     {
         // Only admin and operations can update payment transactions
-        return in_array($user->role, ['superadmin', 'admin', 'operations']);
+        return in_array($user->role, ['superadmin', 'admin', 'operations', 'fund_manager']);
     }
 
     /**
@@ -65,6 +66,6 @@ class PaymentTransactionPolicy
     public function markAsPaid(User $user, PaymentTransaction $paymentTransaction): bool
     {
         // Only admin and operations can mark payments as paid
-        return in_array($user->role, ['superadmin', 'admin', 'operations']);
+        return in_array($user->role, ['superadmin', 'admin', 'operations', 'fund_manager']);
     }
 }

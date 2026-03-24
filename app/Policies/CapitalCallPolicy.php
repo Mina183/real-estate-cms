@@ -20,6 +20,7 @@ class CapitalCallPolicy
             'compliance_officer',
             'auditor',
             'relationship_manager',
+            'fund_manager',
         ]);
     }
 
@@ -38,7 +39,7 @@ class CapitalCallPolicy
     public function create(User $user): bool
     {
         // Only admin and operations can create capital calls
-        return in_array($user->role, ['superadmin', 'admin', 'operations']);
+        return in_array($user->role, ['superadmin', 'admin', 'operations', 'fund_manager']);
     }
 
     /**
@@ -47,7 +48,7 @@ class CapitalCallPolicy
     public function update(User $user, CapitalCall $capitalCall): bool
     {
         // Only admin and operations can update capital calls
-        return in_array($user->role, ['superadmin', 'admin', 'operations']);
+        return in_array($user->role, ['superadmin', 'admin', 'operations', 'fund_manager']);
     }
 
     /**
@@ -56,7 +57,7 @@ class CapitalCallPolicy
     public function delete(User $user, CapitalCall $capitalCall): bool
     {
         // Only superadmin and admin can delete capital calls
-        return in_array($user->role, ['superadmin', 'admin']);
+        return in_array($user->role, ['superadmin', 'admin', 'fund_manager']);
     }
 
     /**
@@ -65,6 +66,6 @@ class CapitalCallPolicy
     public function issue(User $user, CapitalCall $capitalCall): bool
     {
         // Only admin and operations can issue capital calls
-        return in_array($user->role, ['superadmin', 'admin', 'operations']);
+        return in_array($user->role, ['superadmin', 'admin', 'operations', 'fund_manager']);
     }
 }
