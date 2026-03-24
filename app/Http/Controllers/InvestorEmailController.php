@@ -192,6 +192,12 @@ class InvestorEmailController extends Controller
                     'sent_at'                  => now(),
                 ]);
 
+                $htmlContent = view(
+                $isCustom ? 'emails.investor.custom' : 'emails.investor.' . $request->template,
+                $viewData
+                    )->render();
+                    $this->saveEmailToDataRoom($investor, $subject, $htmlContent, $primaryContact->email);
+
                 $sent++;
             } catch (\Exception $e) {
                 $failed++;
@@ -262,5 +268,45 @@ class InvestorEmailController extends Controller
         $log->update(['acknowledged_at' => now()]);
 
         return view('emails.acknowledged', ['alreadyAcknowledged' => false]);
+    }
+
+    private function saveEmailToDataRoom(Investor $investor, string $subject, string $htmlContent, string $to): void
+    {
+        // Find Communication Log subfolder for this investor
+        $folder = \App\Models\DataRoomFolder::where('investor_id', $investor->id)
+            ->where('folder_name', 'Communication Log')
+            ->first();
+
+        if (!$folder) return;
+
+        // Build .eml content
+        $date = now()->format('D, d M Y H:i:s O');
+        $from = auth()->user()->email;
+        $emlContent = "Date: {$date}\r\n"
+            . "From: {$from}\r\n"
+            . "To: {$to}\r\n"
+            . "Subject: {$subject}\r\n"
+            . "MIME-Version: 1.0\r\n"
+            . "Content-Type: text/html; charset=UTF-8\r\n"
+            . "\r\n"
+            . $htmlContent;
+
+        $fileName = now()->format('Y-m-d_His') . '_' . \Str::slug($subject) . '.eml';
+        $storagePath = 'data-room/' . $folder->folder_number . '/' . $fileName;
+
+        \Storage::disk('private')->put($storagePath, $emlContent);
+
+        \App\Models\DataRoomDocument::create([
+            'folder_id'     => $folder->id,
+            'investor_id'   => $investor->id,
+            'document_name' => $subject . ' — ' . now()->format('d M Y H:i'),
+            'file_path'     => $storagePath,
+            'file_type'     => 'eml',
+            'file_size'     => strlen($emlContent),
+            'version'       => '1.0',
+            'description'   => 'Auto-archived email',
+            'status'        => 'approved',
+            'uploaded_by'   => auth()->id(),
+        ]);
     }
 }
