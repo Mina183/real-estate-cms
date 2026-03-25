@@ -124,5 +124,9 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('manage-settings', function ($user) {
             return in_array($user->role, ['superadmin', 'admin']);
         });
+
+        Gate::define('approve-drafts', function ($user) {
+            return in_array($user->role, ['superadmin', 'admin']);
+        });
     }
 }

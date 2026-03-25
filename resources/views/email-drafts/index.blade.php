@@ -21,7 +21,7 @@
             @endif
 
             {{-- PENDING APPROVAL --}}
-            @can('approve', \App\Models\EmailDraft::class)
+            @can('approve-drafts')
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
                     <h3 class="text-lg font-semibold text-gray-900 mb-4">

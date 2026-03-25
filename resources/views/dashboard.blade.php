@@ -44,7 +44,7 @@
                         <p class="text-xs text-white/50 uppercase tracking-wider px-2 mb-2">Settings</p>
                         <a href="{{ route('email-drafts.index') }}"
                         class="block bg-white text-brand-darker px-4 py-2 rounded hover:bg-brand-light/20 font-semibold transition">
-                            ✉️ Email Drafts
+                            ✉️ Draft Approvals
                         </a>
                         <a href="{{ route('email-body-templates.index') }}"
                         class="block bg-white text-brand-darker px-4 py-2 rounded hover:bg-brand-light/20 font-semibold transition mt-1">
