@@ -48,7 +48,7 @@
                                 </label>
                                 <input type="text" name="subject_suggestion"
                                        value="{{ old('subject_suggestion') }}"
-                                       placeholder="e.g. Triton Real Estate Fund – Overview | {{investor_name}}"
+                                       placeholder="e.g. Triton Real Estate Fund – Overview | @{{investor_name}}"
                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                                 <p class="mt-1 text-xs text-gray-500">This will pre-fill the subject line when this template is selected.</p>
                             </div>
@@ -58,7 +58,7 @@
                                     Body <span class="text-red-500">*</span>
                                 </label>
                                 <textarea name="body" rows="16" required
-                                          placeholder="Write the email body here. Use {{investor_name}} for the investor's name."
+                                          placeholder="Write the email body here. Use @{{investor_name}} for the investor's name."
                                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 font-mono text-sm">{{ old('body') }}</textarea>
                                 <p class="mt-1 text-xs text-gray-500">Do not include disclaimer or signature — these are added automatically.</p>
                             </div>
