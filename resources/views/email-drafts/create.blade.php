@@ -24,7 +24,7 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('email-drafts.store') }}" method="POST">
+                    <form action="{{ route('email-drafts.store') }}" method="POST" onsubmit="tinymce.triggerSave()">
                         @csrf
                         <input type="hidden" name="investor_id" value="{{ $investor->id }}">
 
@@ -167,15 +167,20 @@
 
     <script src="https://cdn.tiny.cloud/1/cpo4gfv8nwq74g9b2ert0jfc2n8tv3z60s2uiqcx4wqovftg/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
         <script>
-            tinymce.init({
-                selector: 'textarea[name="body"]',
-                plugins: 'lists link',
-                toolbar: 'bold italic underline | bullist numlist | link | removeformat',
-                menubar: false,
-                height: 400,
-                content_style: 'body { font-family: Arial, sans-serif; font-size: 14px; }',
-                branding: false,
-            });
+        tinymce.init({
+            selector: 'textarea[name="body"]',
+            plugins: 'lists link',
+            toolbar: 'bold italic underline | bullist numlist | link | removeformat',
+            menubar: false,
+            height: 400,
+            content_style: 'body { font-family: Arial, sans-serif; font-size: 14px; }',
+            branding: false,
+            setup: function(editor) {
+                editor.on('submit', function() {
+                    editor.save();
+                });
+            }
+        });
         </script>
 
 </x-app-layout>
