@@ -22,7 +22,7 @@
                 <div class="p-6">
                     <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                         <p class="text-sm text-blue-800">
-                            Available placeholder: <code class="bg-blue-100 px-1 rounded">{{investor_name}}</code> — replaced with the investor's organisation name when the email is sent.
+                            Available placeholder: <code class="bg-blue-100 px-1 rounded">@{{ investor_name }}</code> — replaced with the investor's organisation name when the email is sent.
                         </p>
                     </div>
 
