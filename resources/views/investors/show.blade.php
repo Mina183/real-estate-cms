@@ -28,9 +28,9 @@
                     @endcan
 
                     @can('update', $investor)
-                        <a href="{{ route('investors.send-email.form', $investor) }}" 
-                        class="bg-teal-500 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded">
-                            ✉️ Send Email
+                        <a href="{{ route('email-drafts.create', ['investor_id' => $investor->id]) }}" 
+                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                            ✉️ Compose Email
                         </a>
                     @endcan
 

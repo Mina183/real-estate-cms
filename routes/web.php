@@ -15,6 +15,7 @@ use App\Http\Controllers\InvestorTwoFactorController;
 use App\Http\Controllers\InvestorPasswordResetController;
 use App\Http\Controllers\InvestorEmailController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\EmailDraftController;
 
 /*
 |--------------------------------------------------------------------------
@@ -236,6 +237,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/disable', [TwoFactorController::class, 'disable'])->name('disable');
     });
 
+    /*
+    |--------------------------------------------------------------------------
+    | Email Drafts
+    |--------------------------------------------------------------------------
+    */
+    Route::prefix('email-drafts')->controller(EmailDraftController::class)->group(function () {
+        Route::get('/', 'index')->name('email-drafts.index');
+        Route::get('/create', 'create')->name('email-drafts.create');
+        Route::post('/', 'store')->name('email-drafts.store');
+        Route::get('/{emailDraft}/edit', 'edit')->name('email-drafts.edit');
+        Route::put('/{emailDraft}', 'update')->name('email-drafts.update');
+        Route::post('/{emailDraft}/approve', 'approve')->name('email-drafts.approve');
+        Route::post('/{emailDraft}/send', 'send')->name('email-drafts.send');
+    });
 });
 
 /*
