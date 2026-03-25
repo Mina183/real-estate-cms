@@ -8,4 +8,5 @@ class EmailOnBehalf extends Model
 {
     protected $fillable = ['name', 'title', 'is_active'];
     protected $casts = ['is_active' => 'boolean'];
+    protected $table = 'email_on_behalves';
 }
