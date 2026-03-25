@@ -191,11 +191,12 @@ class EmailDraftController extends Controller
         $onBehalf = $emailDraft->onBehalfOf;
 
         $body = $this->replacePlaceholders($emailDraft->body, $investor);
+        $subject = $this->replacePlaceholders($emailDraft->subject, $investor);
 
         try {
             Mail::send([], [], function ($message) use ($emailDraft, $primaryContact, $documents, $signature, $onBehalf) {
                 $message->to($primaryContact->email, $primaryContact->full_name)
-                    ->subject($emailDraft->subject)
+                    ->subject($subject)
                     ->html(
                         view('emails.investor.draft', [
                             'body' => $body,
