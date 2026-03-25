@@ -24,7 +24,7 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('email-drafts.store') }}" method="POST" onsubmit="tinymce.triggerSave()">
+                    <form action="{{ route('email-drafts.store') }}" method="POST" onsubmit="tinymce.triggerSave(); return true;">
                         @csrf
                         <input type="hidden" name="investor_id" value="{{ $investor->id }}">
 
@@ -82,7 +82,7 @@
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                     Email Body <span class="text-red-500">*</span>
                                 </label>
-                                <textarea name="body" id="email_body" rows="12" required
+                                <textarea name="body" id="email_body" rows="12"
                                           placeholder="Write your email body here..."
                                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">{{ old('body') }}</textarea>
                             </div>
