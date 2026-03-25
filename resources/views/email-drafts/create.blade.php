@@ -154,7 +154,7 @@
             const body = this.value;
             const subject = this.options[this.selectedIndex]?.getAttribute('data-subject');
             if (body) {
-                document.getElementById('email_body').value = body;
+                tinymce.get('email_body')?.setContent(body);
             }
             if (subject) {
                 const subjectField = document.querySelector('input[name="subject"]');
@@ -164,5 +164,18 @@
             }
         });
     </script>
+
+    <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+        <script>
+            tinymce.init({
+                selector: 'textarea[name="body"]',
+                plugins: 'lists link',
+                toolbar: 'bold italic underline | bullist numlist | link | removeformat',
+                menubar: false,
+                height: 400,
+                content_style: 'body { font-family: Arial, sans-serif; font-size: 14px; }',
+                branding: false,
+            });
+        </script>
 
 </x-app-layout>

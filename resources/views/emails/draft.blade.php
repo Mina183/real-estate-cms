@@ -27,7 +27,7 @@
             </div>
             @endif
 
-            <div class="body-text">{{ $body }}</div>
+            <div class="body-text">{!! $body !!}</div>
 
             @if($signature)
             <div class="signature">

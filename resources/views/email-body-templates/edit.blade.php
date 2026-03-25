@@ -83,4 +83,18 @@
             </div>
         </div>
     </div>
+
+        <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+        <script>
+            tinymce.init({
+                selector: 'textarea[name="body"]',
+                plugins: 'lists link',
+                toolbar: 'bold italic underline | bullist numlist | link | removeformat',
+                menubar: false,
+                height: 400,
+                content_style: 'body { font-family: Arial, sans-serif; font-size: 14px; }',
+                branding: false,
+            });
+    </script>
+    
 </x-app-layout>
