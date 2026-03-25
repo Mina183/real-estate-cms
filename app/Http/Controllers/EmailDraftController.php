@@ -190,13 +190,15 @@ class EmailDraftController extends Controller
         $signature = $emailDraft->signature;
         $onBehalf = $emailDraft->onBehalfOf;
 
+        $body = $this->replacePlaceholders($emailDraft->body, $investor);
+
         try {
             Mail::send([], [], function ($message) use ($emailDraft, $primaryContact, $documents, $signature, $onBehalf) {
                 $message->to($primaryContact->email, $primaryContact->full_name)
                     ->subject($emailDraft->subject)
                     ->html(
                         view('emails.investor.draft', [
-                            'body'      => $emailDraft->body,
+                            'body' => $body,
                             'signature' => $signature,
                             'onBehalf'  => $onBehalf,
                         ])->render()
@@ -222,4 +224,15 @@ class EmailDraftController extends Controller
         return redirect()->route('investors.show', $investor)
             ->with('success', 'Email sent successfully.');
     }
+
+    private function replacePlaceholders(string $body, Investor $investor): string
+        {
+            $investorName = $investor->organization_name ?? $investor->legal_entity_name ?? 'Investor';
+            
+            return str_replace(
+                ['{{investor_name}}'],
+                [$investorName],
+                $body
+            );
+        }
 }

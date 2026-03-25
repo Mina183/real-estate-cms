@@ -119,5 +119,10 @@ class AuthServiceProvider extends ServiceProvider
                 'operations',
             ]);
         });
+
+        // For Admin CRUD
+        Gate::define('manage-settings', function ($user) {
+            return in_array($user->role, ['superadmin', 'admin']);
+        });
     }
 }

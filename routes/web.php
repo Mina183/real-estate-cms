@@ -16,6 +16,7 @@ use App\Http\Controllers\InvestorPasswordResetController;
 use App\Http\Controllers\InvestorEmailController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\EmailDraftController;
+use App\Http\Controllers\EmailBodyTemplateController;
 
 /*
 |--------------------------------------------------------------------------
@@ -250,6 +251,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/{emailDraft}', 'update')->name('email-drafts.update');
         Route::post('/{emailDraft}/approve', 'approve')->name('email-drafts.approve');
         Route::post('/{emailDraft}/send', 'send')->name('email-drafts.send');
+    });
+
+    Route::prefix('email-body-templates')->controller(EmailBodyTemplateController::class)
+    ->middleware('can:manage-settings')
+    ->group(function () {
+        Route::get('/', 'index')->name('email-body-templates.index');
+        Route::get('/create', 'create')->name('email-body-templates.create');
+        Route::post('/', 'store')->name('email-body-templates.store');
+        Route::get('/{emailBodyTemplate}/edit', 'edit')->name('email-body-templates.edit');
+        Route::put('/{emailBodyTemplate}', 'update')->name('email-body-templates.update');
+        Route::delete('/{emailBodyTemplate}', 'destroy')->name('email-body-templates.destroy');
     });
 });
 
