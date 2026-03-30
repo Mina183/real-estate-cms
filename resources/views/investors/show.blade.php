@@ -449,68 +449,132 @@
                 </div>
             </div>
 
-            {{-- COMMUNICATIONS TAB --}}
-            <div id="pane-communications" class="tab-pane hidden">
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Sent Emails</h3>
+{{-- COMMUNICATIONS TAB --}}
+<div id="pane-communications" class="tab-pane hidden space-y-6">
 
-                        @if($emailLogs->count() > 0)
-                            <div class="overflow-x-auto">
-                                <table class="min-w-full divide-y divide-gray-200 text-sm">
-                                    <thead class="bg-gray-50">
-                                        <tr>
-                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date <span class="normal-case font-normal">(GST)</span></th>
-                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Subject</th>
-                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Template</th>
-                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Document</th>
-                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Sent By</th>
-                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Acknowledgement</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="bg-white divide-y divide-gray-200">
-                                        @foreach($emailLogs as $log)
-                                        <tr>
-                                            <td class="px-4 py-3 text-gray-900 whitespace-nowrap">
-                                                {{ \Carbon\Carbon::parse($log->sent_at)->timezone('Asia/Dubai')->format('M d, Y H:i') }} <span class="text-xs text-gray-400">GST</span>
-                                            </td>
-                                            <td class="px-4 py-3 text-gray-900">{{ $log->email_subject }}</td>
-                                            <td class="px-4 py-3 text-gray-500">{{ ucfirst(str_replace('_', ' ', $log->template)) }}</td>
-                                            <td class="px-4 py-3 text-gray-500">
-                                                @if($log->document_name)
-                                                    {{ $log->document_name }}
-                                                    @if($log->document_version)
-                                                        <span class="text-xs text-gray-400">v{{ $log->document_version }}</span>
-                                                    @endif
-                                                @else
-                                                    <span class="text-gray-400">—</span>
-                                                @endif
-                                            </td>
-                                            <td class="px-4 py-3 text-gray-500">{{ $log->sentBy->name ?? '—' }}</td>
-                                            <td class="px-4 py-3">
-                                                @if(!$log->requires_acknowledgement)
-                                                    <span class="text-gray-400 text-xs">Not required</span>
-                                                @elseif($log->acknowledged_at)
-                                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                                                        ✓ {{ \Carbon\Carbon::parse($log->acknowledged_at)->timezone('Asia/Dubai')->format('M d, Y H:i') }} <span class="text-xs text-gray-400">GST</span>
-                                                    </span>
-                                                @else
-                                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                                        Pending
-                                                    </span>
-                                                @endif
-                                            </td>
-                                        </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        @else
-                            <p class="text-sm text-gray-500">No emails sent yet.</p>
-                        @endif
-                    </div>
-                </div>
+    {{-- DRAFTS SECTION --}}
+    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+        <div class="p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Email Drafts</h3>
+                @can('update', $investor)
+                    <a href="{{ route('email-drafts.create', ['investor_id' => $investor->id]) }}"
+                       class="bg-blue-500 hover:bg-blue-700 text-white text-sm font-bold py-2 px-4 rounded">
+                        + Compose Email
+                    </a>
+                @endcan
             </div>
+
+            @if($drafts->count() > 0)
+                <div class="space-y-3">
+                    @foreach($drafts as $draft)
+                    <div class="border border-gray-200 rounded-lg p-4 flex items-center justify-between">
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-gray-900">{{ $draft->subject }}</p>
+                            <p class="text-xs text-gray-500 mt-1">
+                                Created by {{ $draft->createdBy->name ?? '—' }} on {{ $draft->created_at->format('M d, Y H:i') }}
+                                @if($draft->status === 'approved' && $draft->approvedBy)
+                                    · Approved by {{ $draft->approvedBy->name }} on {{ $draft->approved_at->format('M d, Y H:i') }}
+                                @endif
+                            </p>
+                        </div>
+                        <div class="flex items-center space-x-3 ml-4">
+                            <span class="px-2 py-0.5 text-xs font-semibold rounded-full
+                                @if($draft->status === 'draft') bg-gray-100 text-gray-700
+                                @elseif($draft->status === 'pending_approval') bg-yellow-100 text-yellow-800
+                                @elseif($draft->status === 'approved') bg-green-100 text-green-800
+                                @endif">
+                                @if($draft->status === 'draft') Draft
+                                @elseif($draft->status === 'pending_approval') Pending Approval
+                                @elseif($draft->status === 'approved') ✓ Approved
+                                @endif
+                            </span>
+                            @if($draft->status === 'draft' || $draft->status === 'pending_approval')
+                                <a href="{{ route('email-drafts.edit', $draft) }}"
+                                   class="text-blue-600 hover:text-blue-800 text-xs font-medium">Edit</a>
+                            @endif
+                            @if($draft->status === 'approved' && $draft->created_by_user_id === auth()->id())
+                                <form method="POST" action="{{ route('email-drafts.send', $draft) }}" class="inline">
+                                    @csrf
+                                    <button type="submit"
+                                            class="bg-teal-500 hover:bg-teal-700 text-white text-xs font-bold py-1 px-3 rounded"
+                                            onclick="return confirm('Send this email now?')">
+                                        Send
+                                    </button>
+                                </form>
+                            @endif
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            @else
+                <p class="text-sm text-gray-500">No drafts yet.</p>
+            @endif
+        </div>
+    </div>
+
+    {{-- SENT EMAILS SECTION --}}
+    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+        <div class="p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Sent Emails</h3>
+
+            @if($emailLogs->count() > 0)
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 text-sm">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date <span class="normal-case font-normal">(GST)</span></th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Subject</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Template</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Document</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Sent By</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Acknowledgement</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @foreach($emailLogs as $log)
+                            <tr>
+                                <td class="px-4 py-3 text-gray-900 whitespace-nowrap">
+                                    {{ \Carbon\Carbon::parse($log->sent_at)->timezone('Asia/Dubai')->format('M d, Y H:i') }} <span class="text-xs text-gray-400">GST</span>
+                                </td>
+                                <td class="px-4 py-3 text-gray-900">{{ $log->email_subject }}</td>
+                                <td class="px-4 py-3 text-gray-500">{{ ucfirst(str_replace('_', ' ', $log->template)) }}</td>
+                                <td class="px-4 py-3 text-gray-500">
+                                    @if($log->document_name)
+                                        {{ $log->document_name }}
+                                        @if($log->document_version)
+                                            <span class="text-xs text-gray-400">v{{ $log->document_version }}</span>
+                                        @endif
+                                    @else
+                                        <span class="text-gray-400">—</span>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-3 text-gray-500">{{ $log->sentBy->name ?? '—' }}</td>
+                                <td class="px-4 py-3">
+                                    @if(!$log->requires_acknowledgement)
+                                        <span class="text-gray-400 text-xs">Not required</span>
+                                    @elseif($log->acknowledged_at)
+                                        <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                            ✓ {{ \Carbon\Carbon::parse($log->acknowledged_at)->timezone('Asia/Dubai')->format('M d, Y H:i') }} <span class="text-xs text-gray-400">GST</span>
+                                        </span>
+                                    @else
+                                        <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                            Pending
+                                        </span>
+                                    @endif
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @else
+                <p class="text-sm text-gray-500">No emails sent yet.</p>
+            @endif
+        </div>
+    </div>
+
+</div>
 
             {{-- SYSTEM TAB --}}
             <div id="pane-system" class="tab-pane hidden space-y-6">

@@ -74,7 +74,13 @@ class InvestorController extends Controller
             ->orderBy('sent_at', 'desc')
             ->get();
 
-        return view('investors.show', compact('investor', 'emailLogs'));
+        $drafts = \App\Models\EmailDraft::where('investor_id', $investor->id)
+            ->whereIn('status', ['draft', 'pending_approval', 'approved'])
+            ->with(['createdBy', 'approvedBy'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('investors.show', compact('investor', 'emailLogs', 'drafts'));
     }
 
     public function edit(Investor $investor)
