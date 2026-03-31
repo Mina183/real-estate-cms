@@ -106,6 +106,17 @@
                         class="tab-btn border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-3 px-1 text-sm font-medium">
                         System
                     </button>
+
+                    @can('update', $investor)
+                    <button onclick="switchTab('doc-links')" id="tab-doc-links"
+                        class="tab-btn border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-3 px-1 text-sm font-medium">
+                        Document Links
+                        @php $pendingCount = $investor->documentAccessLinks->flatMap->accessRequests->where('status','pending')->count(); @endphp
+                        @if($pendingCount > 0)
+                            <span class="ml-1 inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">{{ $pendingCount }}</span>
+                        @endif
+                    </button>
+                    @endcan
                 </nav>
             </div>
 
@@ -632,6 +643,197 @@
 
             </div>
 
+            {{-- DOCUMENT LINKS TAB --}}
+            @can('update', $investor)
+            <div id="pane-doc-links" class="tab-pane hidden space-y-6">
+
+                {{-- Existing links --}}
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                    <div class="p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Generated Links</h3>
+
+                        @if(session('success') && request()->is('*investors*'))
+                            {{-- success banner already shown above --}}
+                        @endif
+
+                        @if($investor->documentAccessLinks->isEmpty())
+                            <p class="text-sm text-gray-500">No links generated yet. Use the form below to create one.</p>
+                        @else
+                            <div class="space-y-4">
+                                @foreach($investor->documentAccessLinks as $link)
+                                    <div class="border border-gray-200 rounded-lg p-4">
+                                        <div class="flex items-start justify-between">
+                                            <div>
+                                                <p class="text-sm font-semibold text-gray-900">
+                                                    {{ $link->label ?: $link->package->name }}
+                                                </p>
+                                                <p class="text-xs text-gray-400 mt-0.5">
+                                                    Package: {{ $link->package->name }}
+                                                    @if(Str::startsWith($link->package->name, '[Custom]'))
+                                                        <span class="ml-1 px-1.5 py-0.5 rounded text-xs bg-purple-100 text-purple-700">custom</span>
+                                                    @endif
+                                                    &bull; Created by {{ $link->createdBy->name ?? '—' }} on {{ $link->created_at->format('d M Y') }}
+                                                </p>
+                                            </div>
+                                            <form action="{{ route('document-access-links.destroy', $link) }}" method="POST"
+                                                  onsubmit="return confirm('Delete this link and all its access requests?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="text-red-500 hover:text-red-700 text-xs font-medium">Delete</button>
+                                            </form>
+                                        </div>
+
+                                        <div class="mt-3 flex items-center space-x-2">
+                                            <input type="text" readonly
+                                                   value="{{ $link->public_url }}"
+                                                   onclick="this.select()"
+                                                   class="flex-1 text-xs border-gray-300 rounded bg-gray-50 px-2 py-1 focus:outline-none">
+                                            <button type="button"
+                                                    onclick="navigator.clipboard.writeText('{{ $link->public_url }}').then(() => this.textContent = 'Copied!').catch(() => {}); setTimeout(() => this.textContent = 'Copy', 1500)"
+                                                    class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded border border-gray-300 whitespace-nowrap">
+                                                Copy
+                                            </button>
+                                        </div>
+
+                                        @php
+                                            $pending  = $link->accessRequests->where('status', 'pending')->count();
+                                            $approved = $link->accessRequests->where('status', 'approved')->count();
+                                            $total    = $link->accessRequests->count();
+                                        @endphp
+                                        @if($total > 0)
+                                            <div class="mt-2 flex items-center space-x-3 text-xs text-gray-500">
+                                                <span>{{ $total }} request{{ $total !== 1 ? 's' : '' }}</span>
+                                                @if($pending > 0)
+                                                    <span class="px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 font-medium">{{ $pending }} pending</span>
+                                                @endif
+                                                @if($approved > 0)
+                                                    <span class="px-2 py-0.5 rounded-full bg-green-100 text-green-800 font-medium">{{ $approved }} approved</span>
+                                                @endif
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
+                {{-- Generate new link --}}
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                    <div class="p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Generate New Link</h3>
+
+                        @if($errors->any() && old('_tab') === 'doc-links')
+                            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                                <ul class="list-disc list-inside text-sm">
+                                    @foreach($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+
+                        <form action="{{ route('document-access-links.store') }}" method="POST" id="doc-link-form">
+                            @csrf
+                            <input type="hidden" name="investor_id" value="{{ $investor->id }}">
+                            <input type="hidden" name="_tab" value="doc-links">
+
+                            <div class="space-y-4">
+
+                                {{-- Label --}}
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">
+                                        Label <span class="text-gray-400 font-normal">(optional)</span>
+                                    </label>
+                                    <input type="text" name="label"
+                                           value="{{ old('label') }}"
+                                           placeholder="e.g. Q1 2024 Pack — sent 31 Mar"
+                                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                                </div>
+
+                                {{-- Mode selector --}}
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Package</label>
+                                    <div class="flex space-x-6 mb-3">
+                                        <label class="flex items-center text-sm cursor-pointer">
+                                            <input type="radio" name="_link_mode" value="existing" checked
+                                                   onchange="document.getElementById('mode-existing').classList.remove('hidden'); document.getElementById('mode-custom').classList.add('hidden')"
+                                                   class="mr-2 text-blue-600">
+                                            Use existing package
+                                        </label>
+                                        <label class="flex items-center text-sm cursor-pointer">
+                                            <input type="radio" name="_link_mode" value="custom"
+                                                   onchange="document.getElementById('mode-existing').classList.add('hidden'); document.getElementById('mode-custom').classList.remove('hidden')"
+                                                   class="mr-2 text-blue-600">
+                                            Custom — select documents
+                                        </label>
+                                    </div>
+
+                                    {{-- Existing package mode --}}
+                                    <div id="mode-existing">
+                                        @if($availablePackages->isEmpty())
+                                            <p class="text-sm text-gray-500">
+                                                No packages yet.
+                                                @can('manage-settings')
+                                                    <a href="{{ route('document-packages.create') }}" class="text-blue-600 underline">Create one in Settings.</a>
+                                                @endcan
+                                            </p>
+                                        @else
+                                            <select name="document_package_id"
+                                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                                                <option value="">Select a package…</option>
+                                                @foreach($availablePackages as $pkg)
+                                                    <option value="{{ $pkg->id }}" {{ old('document_package_id') == $pkg->id ? 'selected' : '' }}>
+                                                        {{ $pkg->name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        @endif
+                                    </div>
+
+                                    {{-- Custom document mode --}}
+                                    <div id="mode-custom" class="hidden">
+                                        @if($availableDocuments->isEmpty())
+                                            <p class="text-sm text-gray-500">No approved documents available in the Data Room.</p>
+                                        @else
+                                            <div class="border border-gray-300 rounded-md divide-y divide-gray-100 max-h-64 overflow-y-auto">
+                                                @foreach($availableDocuments->groupBy(fn($d) => $d->folder->folder_name ?? 'Uncategorised') as $folderName => $docs)
+                                                    <div class="px-3 py-1.5 bg-gray-50">
+                                                        <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ $folderName }}</span>
+                                                    </div>
+                                                    @foreach($docs as $doc)
+                                                        <label class="flex items-center px-3 py-2 hover:bg-gray-50 cursor-pointer">
+                                                            <input type="checkbox" name="document_ids[]" value="{{ $doc->id }}"
+                                                                   {{ in_array($doc->id, old('document_ids', [])) ? 'checked' : '' }}
+                                                                   class="rounded border-gray-300 text-blue-600 focus:ring-blue-200">
+                                                            <span class="ml-2 text-sm text-gray-700">{{ $doc->document_name }}</span>
+                                                            @if($doc->file_type)
+                                                                <span class="ml-1.5 text-xs text-gray-400 uppercase">{{ $doc->file_type }}</span>
+                                                            @endif
+                                                        </label>
+                                                    @endforeach
+                                                @endforeach
+                                            </div>
+                                            <p class="mt-1 text-xs text-gray-400">A package will be auto-created with the selected documents.</p>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <button type="submit"
+                                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm">
+                                        Generate Link
+                                    </button>
+                                </div>
+
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+            @endcan
+
         </div>
     </div>
 
@@ -650,7 +852,7 @@
 
         // Restore tab from URL hash
         const hash = window.location.hash.replace('#', '');
-        const validTabs = ['overview', 'financial', 'contacts', 'meetings', 'communications', 'system'];
+        const validTabs = ['overview', 'financial', 'contacts', 'meetings', 'communications', 'system', 'doc-links'];
         if (hash && validTabs.includes(hash)) {
             switchTab(hash);
         }

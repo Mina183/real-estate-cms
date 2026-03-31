@@ -11,16 +11,50 @@
                 </div>
 
                 <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex text-white">
+                <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex items-center text-white">
                     <x-nav-link :href="route('home')" :active="request()->routeIs('home')" class="text-white hover:text-brand-accent">
                         {{ __('Home') }}
                     </x-nav-link>
-                </div>
 
-                <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex text-white">
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="text-white hover:text-brand-accent">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+
+                    @auth
+                        @can('viewAny', App\Models\Investor::class)
+                            <x-nav-link :href="route('investors.index')" :active="request()->routeIs('investors.*')" class="text-white hover:text-brand-accent">
+                                {{ __('Investors') }}
+                            </x-nav-link>
+                        @endcan
+
+                        <x-nav-link :href="route('data-room.index')" :active="request()->routeIs('data-room.*')" class="text-white hover:text-brand-accent">
+                            {{ __('Data Room') }}
+                        </x-nav-link>
+
+                        @can('manage-settings')
+                            <x-dropdown align="left" width="52">
+                                <x-slot name="trigger">
+                                    <button class="inline-flex items-center text-sm font-medium text-white hover:text-brand-accent focus:outline-none transition">
+                                        {{ __('Settings') }}
+                                        <svg class="ml-1 h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                        </svg>
+                                    </button>
+                                </x-slot>
+                                <x-slot name="content">
+                                    <x-dropdown-link :href="route('document-packages.index')" :active="request()->routeIs('document-packages.*')">
+                                        {{ __('Document Packages') }}
+                                    </x-dropdown-link>
+                                    <x-dropdown-link :href="route('document-access-requests.index')" :active="request()->routeIs('document-access-requests.*')">
+                                        {{ __('Access Requests') }}
+                                    </x-dropdown-link>
+                                    <x-dropdown-link :href="route('email-body-templates.index')" :active="request()->routeIs('email-body-templates.*')">
+                                        {{ __('Email Templates') }}
+                                    </x-dropdown-link>
+                                </x-slot>
+                            </x-dropdown>
+                        @endcan
+                    @endauth
                 </div>
             </div>
 
@@ -80,6 +114,30 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+
+            @auth
+                @can('viewAny', App\Models\Investor::class)
+                    <x-responsive-nav-link :href="route('investors.index')" :active="request()->routeIs('investors.*')">
+                        {{ __('Investors') }}
+                    </x-responsive-nav-link>
+                @endcan
+
+                <x-responsive-nav-link :href="route('data-room.index')" :active="request()->routeIs('data-room.*')">
+                    {{ __('Data Room') }}
+                </x-responsive-nav-link>
+
+                @can('manage-settings')
+                    <x-responsive-nav-link :href="route('document-packages.index')" :active="request()->routeIs('document-packages.*')">
+                        {{ __('Document Packages') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('document-access-requests.index')" :active="request()->routeIs('document-access-requests.*')">
+                        {{ __('Access Requests') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('email-body-templates.index')" :active="request()->routeIs('email-body-templates.*')">
+                        {{ __('Email Templates') }}
+                    </x-responsive-nav-link>
+                @endcan
+            @endauth
         </div>
 
         <!-- Responsive Settings Options -->

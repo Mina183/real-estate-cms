@@ -8,6 +8,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use App\Services\InvestorStageService;
 use App\Models\InvestorUser;
+use App\Models\DataRoomDocument;
+use App\Models\DocumentPackage;
 use App\Notifications\InvestorPortalAccessNotification;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
@@ -68,8 +70,11 @@ class InvestorController extends Controller
 
     public function show(Investor $investor)
     {
-        $investor->load(['fund', 'contacts', 'meetings', 'commitments', 'assignedTo', 'createdBy', 'investorUser']);
-        
+        $investor->load([
+            'fund', 'contacts', 'meetings', 'commitments', 'assignedTo', 'createdBy', 'investorUser',
+            'documentAccessLinks.package', 'documentAccessLinks.accessRequests', 'documentAccessLinks.createdBy',
+        ]);
+
         $emailLogs = \App\Models\DocumentSendLog::where('investor_id', $investor->id)
             ->orderBy('sent_at', 'desc')
             ->get();
@@ -80,7 +85,14 @@ class InvestorController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return view('investors.show', compact('investor', 'emailLogs', 'drafts'));
+        $availablePackages = DocumentPackage::orderBy('name')->get();
+
+        $availableDocuments = DataRoomDocument::where('status', 'approved')
+            ->with('folder')
+            ->orderBy('document_name')
+            ->get();
+
+        return view('investors.show', compact('investor', 'emailLogs', 'drafts', 'availablePackages', 'availableDocuments'));
     }
 
     public function edit(Investor $investor)

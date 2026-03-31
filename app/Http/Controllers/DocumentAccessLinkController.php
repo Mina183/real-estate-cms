@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DataRoomDocument;
 use App\Models\DocumentAccessLink;
 use App\Models\DocumentAccessRequest;
 use App\Models\DocumentPackage;
@@ -13,6 +14,8 @@ class DocumentAccessLinkController extends Controller
 {
     public function index(Investor $investor)
     {
+        $this->authorize('update', $investor);
+
         $links = $investor->documentAccessLinks()
             ->with(['package', 'accessRequests', 'createdBy'])
             ->orderBy('created_at', 'desc')
@@ -23,6 +26,8 @@ class DocumentAccessLinkController extends Controller
 
     public function create(Investor $investor)
     {
+        $this->authorize('update', $investor);
+
         $packages = DocumentPackage::orderBy('name')->get();
 
         return view('document-access-links.create', compact('investor', 'packages'));
@@ -30,33 +35,63 @@ class DocumentAccessLinkController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $request->validate([
             'investor_id'          => 'required|exists:investors,id',
-            'document_package_id'  => 'required|exists:document_packages,id',
+            'document_package_id'  => 'nullable|exists:document_packages,id',
+            'document_ids'         => 'nullable|array|min:1',
+            'document_ids.*'       => 'exists:data_room_documents,id',
             'label'                => 'nullable|string|max:255',
         ]);
 
+        $investor = Investor::findOrFail($request->investor_id);
+
+        $this->authorize('update', $investor);
+
+        if (! $request->document_package_id && empty($request->document_ids)) {
+            return back()->withErrors(['document_package_id' => 'Select an existing package or choose individual documents.'])->withInput();
+        }
+
+        // Resolve or auto-create the package
+        if ($request->document_package_id) {
+            $packageId = $request->document_package_id;
+        } else {
+            $investorLabel = $investor->organization_name ?? $investor->legal_entity_name ?? 'Investor #' . $investor->id;
+            $package = DocumentPackage::create([
+                'name'               => '[Custom] ' . $investorLabel . ' — ' . now()->format('d M Y'),
+                'created_by_user_id' => auth()->id(),
+            ]);
+            foreach ($request->document_ids as $docId) {
+                $package->items()->create(['data_room_document_id' => $docId]);
+            }
+            $packageId = $package->id;
+        }
+
         DocumentAccessLink::create([
-            'investor_id'          => $validated['investor_id'],
-            'document_package_id'  => $validated['document_package_id'],
-            'label'                => $validated['label'] ?? null,
-            'token'                => Str::random(48),
-            'created_by_user_id'   => auth()->id(),
+            'investor_id'         => $investor->id,
+            'document_package_id' => $packageId,
+            'label'               => $request->label ?? null,
+            'token'               => Str::random(48),
+            'created_by_user_id'  => auth()->id(),
         ]);
 
-        $investor = Investor::findOrFail($validated['investor_id']);
-
-        return redirect()->route('document-access-links.index', $investor)
+        return redirect(route('investors.show', $investor) . '#doc-links')
             ->with('success', 'Access link generated successfully.');
     }
 
     public function destroy(DocumentAccessLink $documentAccessLink)
     {
         $investor = $documentAccessLink->investor;
+
+        if ($investor) {
+            $this->authorize('update', $investor);
+        } else {
+            $this->authorize('manage-settings');
+        }
+
         $documentAccessLink->delete();
 
         if ($investor) {
-            return redirect()->route('document-access-links.index', $investor)
+            return redirect(route('investors.show', $investor) . '#doc-links')
                 ->with('success', 'Access link deleted.');
         }
 
@@ -66,6 +101,8 @@ class DocumentAccessLinkController extends Controller
 
     public function requests()
     {
+        $this->authorize('manage-settings');
+
         $requests = DocumentAccessRequest::with(['link.investor', 'link.package', 'approvedBy'])
             ->orderByRaw("FIELD(status, 'pending', 'approved', 'rejected')")
             ->orderBy('created_at', 'desc')
@@ -76,6 +113,8 @@ class DocumentAccessLinkController extends Controller
 
     public function approve(DocumentAccessRequest $documentAccessRequest)
     {
+        $this->authorize('manage-settings');
+
         $documentAccessRequest->update([
             'status'               => 'approved',
             'approved_by_user_id'  => auth()->id(),
@@ -88,6 +127,8 @@ class DocumentAccessLinkController extends Controller
 
     public function reject(DocumentAccessRequest $documentAccessRequest)
     {
+        $this->authorize('manage-settings');
+
         $documentAccessRequest->update(['status' => 'rejected']);
 
         return back()->with('success', 'Request rejected.');
