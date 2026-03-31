@@ -254,4 +254,9 @@ public function meetings()
 {
     return $this->hasMany(InvestorMeeting::class)->orderBy('meeting_date', 'desc');
 }
+
+public function documentAccessLinks()
+{
+    return $this->hasMany(DocumentAccessLink::class);
+}
 }

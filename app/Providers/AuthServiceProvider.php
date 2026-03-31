@@ -13,9 +13,11 @@ use App\Models\CapitalCall;
 use App\Models\Distribution;
 use App\Models\PaymentTransaction;
 use App\Models\EmailDraft;
+use App\Models\DocumentPackage;
 
 // Policies
 use App\Policies\DataRoomPolicy;
+use App\Policies\DocumentPackagePolicy;
 use App\Policies\InvestorPolicy;
 use App\Policies\CapitalCallPolicy;
 use App\Policies\DistributionPolicy;
@@ -41,6 +43,8 @@ class AuthServiceProvider extends ServiceProvider
         PaymentTransaction::class => PaymentTransactionPolicy::class,
 
         EmailDraft::class => EmailDraftPolicy::class,
+
+        DocumentPackage::class => DocumentPackagePolicy::class,
     ];
 
     /**

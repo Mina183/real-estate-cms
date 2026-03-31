@@ -1,0 +1,133 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\DataRoomDocument;
+use App\Models\DocumentAccessLink;
+use App\Models\DocumentAccessRequest;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+
+class DocumentPublicAccessController extends Controller
+{
+    /**
+     * Show the public access page.
+     * If the session holds an active approved request for this token, show downloads.
+     * Otherwise show the request form.
+     */
+    public function show(Request $request, string $token)
+    {
+        $link = DocumentAccessLink::where('token', $token)
+            ->with('package.items.document')
+            ->firstOrFail();
+
+        $accessRequest = $this->resolveSessionRequest($token);
+
+        if ($accessRequest && $accessRequest->isActive()) {
+            return view('doc-access.downloads', compact('link', 'accessRequest'));
+        }
+
+        return view('doc-access.form', compact('link'));
+    }
+
+    /**
+     * Handle the access request form submission.
+     */
+    public function submit(Request $request, string $token)
+    {
+        $link = DocumentAccessLink::where('token', $token)->firstOrFail();
+
+        $validated = $request->validate([
+            'requester_name'  => 'required|string|max:255',
+            'requester_email' => 'required|email|max:255',
+        ]);
+
+        // Check if a request already exists for this email on this link
+        $existing = DocumentAccessRequest::where('document_access_link_id', $link->id)
+            ->where('requester_email', $validated['requester_email'])
+            ->latest()
+            ->first();
+
+        if ($existing) {
+            session(["doc_access_{$token}" => $existing->id]);
+
+            if ($existing->isActive()) {
+                return redirect()->route('doc-access.show', $token);
+            }
+
+            return redirect()->route('doc-access.confirmation', $token);
+        }
+
+        $accessRequest = DocumentAccessRequest::create([
+            'document_access_link_id' => $link->id,
+            'requester_name'          => $validated['requester_name'],
+            'requester_email'         => $validated['requester_email'],
+            'status'                  => 'pending',
+            'ip_address'              => $request->ip(),
+        ]);
+
+        session(["doc_access_{$token}" => $accessRequest->id]);
+
+        return redirect()->route('doc-access.confirmation', $token);
+    }
+
+    /**
+     * Show the confirmation / status page after submitting a request.
+     */
+    public function confirmation(string $token)
+    {
+        $link = DocumentAccessLink::where('token', $token)->firstOrFail();
+
+        $accessRequest = $this->resolveSessionRequest($token);
+
+        return view('doc-access.confirmation', compact('link', 'accessRequest'));
+    }
+
+    /**
+     * Serve a document file if the session request is approved and not expired.
+     */
+    public function download(Request $request, string $token, int $documentId)
+    {
+        $link = DocumentAccessLink::where('token', $token)
+            ->with('package.items')
+            ->firstOrFail();
+
+        // Ensure document belongs to this package
+        $packageDocIds = $link->package->items->pluck('data_room_document_id');
+        if (! $packageDocIds->contains($documentId)) {
+            abort(403, 'This document is not part of the requested package.');
+        }
+
+        // Verify session-based access
+        $accessRequest = $this->resolveSessionRequest($token);
+
+        if (! $accessRequest || ! $accessRequest->isActive()) {
+            return redirect()->route('doc-access.show', $token)
+                ->with('error', 'Your access has expired or has not been approved yet.');
+        }
+
+        $document = DataRoomDocument::findOrFail($documentId);
+
+        if (! Storage::disk('private')->exists($document->file_path)) {
+            abort(404, 'File not found.');
+        }
+
+        $downloadName = $document->document_name;
+        if ($document->file_type && ! str_ends_with(strtolower($downloadName), '.' . $document->file_type)) {
+            $downloadName .= '.' . $document->file_type;
+        }
+
+        return Storage::disk('private')->download($document->file_path, $downloadName);
+    }
+
+    private function resolveSessionRequest(string $token): ?DocumentAccessRequest
+    {
+        $requestId = session("doc_access_{$token}");
+
+        if (! $requestId) {
+            return null;
+        }
+
+        return DocumentAccessRequest::find($requestId);
+    }
+}

@@ -17,6 +17,9 @@ use App\Http\Controllers\InvestorEmailController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\EmailDraftController;
 use App\Http\Controllers\EmailBodyTemplateController;
+use App\Http\Controllers\DocumentPackageController;
+use App\Http\Controllers\DocumentAccessLinkController;
+use App\Http\Controllers\DocumentPublicAccessController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,6 +33,14 @@ Route::get('/', function () {
 // Public acknowledgement route (no auth required)
 Route::get('/acknowledge/{token}', [InvestorEmailController::class, 'acknowledge'])
     ->name('email.acknowledge');
+
+// Document Access — public link (no auth required)
+Route::prefix('doc-access')->name('doc-access.')->group(function () {
+    Route::get('/{token}', [DocumentPublicAccessController::class, 'show'])->name('show');
+    Route::post('/{token}', [DocumentPublicAccessController::class, 'submit'])->name('submit');
+    Route::get('/{token}/confirmation', [DocumentPublicAccessController::class, 'confirmation'])->name('confirmation');
+    Route::get('/{token}/download/{documentId}', [DocumentPublicAccessController::class, 'download'])->name('download');
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -251,6 +262,38 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/{emailDraft}', 'update')->name('email-drafts.update');
         Route::post('/{emailDraft}/approve', 'approve')->name('email-drafts.approve');
         Route::post('/{emailDraft}/send', 'send')->name('email-drafts.send');
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Document Packages — admin/superadmin only
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware(['can:manage-settings'])->group(function () {
+        Route::prefix('document-packages')->controller(DocumentPackageController::class)->group(function () {
+            Route::get('/', 'index')->name('document-packages.index');
+            Route::get('/create', 'create')->name('document-packages.create');
+            Route::post('/', 'store')->name('document-packages.store');
+            Route::get('/{documentPackage}', 'show')->name('document-packages.show');
+            Route::get('/{documentPackage}/edit', 'edit')->name('document-packages.edit');
+            Route::put('/{documentPackage}', 'update')->name('document-packages.update');
+            Route::delete('/{documentPackage}', 'destroy')->name('document-packages.destroy');
+        });
+
+        // Document Access Links — per investor
+        Route::prefix('document-access-links')->controller(DocumentAccessLinkController::class)->group(function () {
+            Route::get('/investor/{investor}', 'index')->name('document-access-links.index');
+            Route::get('/investor/{investor}/create', 'create')->name('document-access-links.create');
+            Route::post('/', 'store')->name('document-access-links.store');
+            Route::delete('/{documentAccessLink}', 'destroy')->name('document-access-links.destroy');
+        });
+
+        // Document Access Requests — approve / reject
+        Route::prefix('document-access-requests')->controller(DocumentAccessLinkController::class)->group(function () {
+            Route::get('/', 'requests')->name('document-access-requests.index');
+            Route::post('/{documentAccessRequest}/approve', 'approve')->name('document-access-requests.approve');
+            Route::post('/{documentAccessRequest}/reject', 'reject')->name('document-access-requests.reject');
+        });
     });
 
     Route::prefix('email-body-templates')->controller(EmailBodyTemplateController::class)
