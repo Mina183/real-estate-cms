@@ -34,7 +34,7 @@ class InvestorController extends Controller
     {
         $funds = Fund::where('status', 'active')->get();
         $users = User::whereIn('role', ['superadmin', 'admin', 'relationship_manager'])->get();
-        $defaultAssignee = auth()->id();
+        $defaultAssignee = auth()->user()->id;
 
         return view('investors.create', compact('funds', 'users', 'defaultAssignee'));
     }
@@ -59,7 +59,7 @@ class InvestorController extends Controller
         $validated['stage'] = 'prospect';
         $validated['status'] = 'pending';
         $validated['lifecycle_status'] = 'active';
-        $validated['created_by_user_id'] = auth()->id();
+        $validated['created_by_user_id'] = auth()->user()->id;
 
         $investor = Investor::create($validated);
         app(\App\Services\DataRoomService::class)->createInvestorFolders($investor);
@@ -166,6 +166,12 @@ class InvestorController extends Controller
         'last_kyc_refresh_date' => 'nullable|date',
         'next_kyc_refresh_due' => 'nullable|date',
         'last_sanctions_rescreen_date' => 'nullable|date',
+
+        // Eligibility gate
+        'difc_dp_consent' => 'nullable|boolean',
+
+        // KYC Completed/Approved gate
+        'commitment_letter_signed' => 'nullable|boolean',
     ]);
 
     // Convert checkboxes to boolean
@@ -179,6 +185,8 @@ class InvestorController extends Controller
     $validated['legal_review_complete'] = $request->has('legal_review_complete');
     $validated['board_approval_required'] = $request->has('board_approval_required');
     $validated['investor_register_updated'] = $request->has('investor_register_updated');
+    $validated['difc_dp_consent'] = $request->has('difc_dp_consent');
+    $validated['commitment_letter_signed'] = $request->has('commitment_letter_signed');
 
     // Timestamps za boolean polja
     if ($validated['is_professional_client'] && !$investor->is_professional_client) {
@@ -195,6 +203,12 @@ class InvestorController extends Controller
     }
     if ($validated['acknowledged_ppm_confidential'] && !$investor->acknowledged_ppm_confidential) {
         $validated['acknowledged_ppm_confidential_at'] = now();
+    }
+    if ($validated['difc_dp_consent'] && !$investor->difc_dp_consent) {
+        $validated['difc_dp_consent_at'] = now();
+    }
+    if ($validated['commitment_letter_signed'] && !$investor->commitment_letter_signed) {
+        $validated['commitment_letter_signed_at'] = now();
     }
 
     // PPM acknowledged - checkbox setuje datum
@@ -279,7 +293,7 @@ class InvestorController extends Controller
             $investor,
             $validated['new_stage'],
             $validated['reason'] ?? null,
-            auth()->id()
+            auth()->user()->id
         );
 
         if ($success) {
@@ -380,7 +394,7 @@ public function storeMeeting(Request $request, Investor $investor)
 
     $investor->meetings()->create([
         ...$validated,
-        'created_by_user_id' => auth()->id(),
+        'created_by_user_id' => auth()->user()->id,
     ]);
 
     return redirect()->route('investors.show', $investor)

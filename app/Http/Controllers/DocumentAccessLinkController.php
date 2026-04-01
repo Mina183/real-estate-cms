@@ -142,6 +142,14 @@ class DocumentAccessLinkController extends Controller
             $notifyUser->notify(new DocumentAccessApprovedNotification($documentAccessRequest));
         }
 
+        // If the investor hasn't confirmed DIFC DP consent, redirect RM to the Eligibility tab
+        // to confirm it — requesting document access constitutes DIFC DP consent.
+        if ($investor && ! $investor->difc_dp_consent) {
+            return redirect(route('investors.edit', $investor))
+                ->with('difc_consent_prompt', true)
+                ->with('success', 'Request approved. Investor access expires in 48 hours.');
+        }
+
         return back()->with('success', 'Request approved. Investor access expires in 48 hours.');
     }
 

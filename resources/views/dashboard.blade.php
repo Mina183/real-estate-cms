@@ -75,7 +75,7 @@
                         @can('manage-access-requests')
                         <a href="{{ route('document-access-requests.index') }}"
                         class="block bg-white text-brand-darker px-4 py-2 rounded hover:bg-brand-light/20 font-semibold transition mt-1">
-                            🔑 Access Requests
+                            🔑Document Access Requests
                         </a>
                         @endcan
                     </div>

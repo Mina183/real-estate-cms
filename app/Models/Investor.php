@@ -125,6 +125,14 @@ class Investor extends Model
         'investor_register_updated',
         'next_action',
         'next_action_due_date',
+
+        // Eligibility gate
+        'difc_dp_consent',
+        'difc_dp_consent_at',
+
+        // KYC Completed/Approved gate
+        'commitment_letter_signed',
+        'commitment_letter_signed_at',
     ];
 
     protected $casts = [
@@ -177,6 +185,10 @@ class Investor extends Model
         'welcome_letter_sent_date' => 'date',
         'next_action_due_date' => 'date',
         'units_allotted' => 'decimal:4',
+        'difc_dp_consent' => 'boolean',
+        'difc_dp_consent_at' => 'datetime',
+        'commitment_letter_signed' => 'boolean',
+        'commitment_letter_signed_at' => 'datetime',
         'tax_id' => 'encrypted',
         'passport_number' => 'encrypted',
         'national_id' => 'encrypted',

@@ -186,7 +186,7 @@
 
                 @can('manage-access-requests')
                     <x-responsive-nav-link :href="route('document-access-requests.index')" :active="request()->routeIs('document-access-requests.*')">
-                        {{ __('Access Requests') }}
+                        {{ __('Document Access Requests') }}
                     </x-responsive-nav-link>
                 @endcan
 
