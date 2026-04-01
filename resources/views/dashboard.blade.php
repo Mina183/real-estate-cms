@@ -15,25 +15,41 @@
             <aside class="w-72 bg-gradient-to-b from-brand-darker to-brand-dark text-white py-8 px-4 space-y-4 rounded-r-lg shadow-md">
                 <h3 class="text-lg font-bold mb-4">Navigation</h3>
                 <nav class="flex flex-col gap-2">
-                    <a href="{{ route('dashboard') }}"
-                       class="block bg-white text-brand-darker px-4 py-2 rounded hover:bg-brand-light/20 font-semibold transition">
-                        📊 Dashboard
-                    </a>
-                    <a href="{{ route('investors.index') }}"
-                       class="block bg-white text-brand-darker px-4 py-2 rounded hover:bg-brand-light/20 font-semibold transition">
-                        👥 Investors
-                    </a>
+
+                    {{-- Dashboard group with hover sub-items --}}
+                    <div x-data="{ open: true }" @mouseenter="open = true" @mouseleave="open = false">
+                        <a href="{{ route('dashboard') }}"
+                           class="flex items-center justify-between bg-white text-brand-darker px-4 py-2 rounded hover:bg-brand-light/20 font-semibold transition">
+                            <span>📊 Dashboard</span>
+                            <svg :class="{'rotate-180': open}" class="h-4 w-4 fill-current transition-transform duration-200" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </a>
+                        <div x-show="open" class="ml-3 mt-1 pl-3 border-l-2 border-white/20 space-y-1">
+                            @can('viewAny', App\Models\Investor::class)
+                                <a href="{{ route('investors.index') }}"
+                                   class="block bg-white/90 text-brand-darker px-4 py-2 rounded hover:bg-brand-light/20 font-semibold transition text-sm">
+                                    👥 Investors
+                                </a>
+                            @endcan
+                            @can('manage-capital-calls')
+                                <a href="{{ route('capital-calls.index') }}"
+                                   class="block bg-white/90 text-brand-darker px-4 py-2 rounded hover:bg-brand-light/20 font-semibold transition text-sm">
+                                    💰 Capital Calls
+                                </a>
+                            @endcan
+                            @can('manage-distributions')
+                                <a href="{{ route('distributions.index') }}"
+                                   class="block bg-white/90 text-brand-darker px-4 py-2 rounded hover:bg-brand-light/20 font-semibold transition text-sm">
+                                    📊 Distributions
+                                </a>
+                            @endcan
+                        </div>
+                    </div>
+
                     <a href="{{ route('data-room.index') }}"
                        class="block bg-white text-brand-darker px-4 py-2 rounded hover:bg-brand-light/20 font-semibold transition">
                         🔒 Data Room
-                    </a>
-                    <a href="{{ route('capital-calls.index') }}"
-                        class="block bg-white text-brand-darker px-4 py-2 rounded hover:bg-brand-light/20 font-semibold transition">
-                        💰 Capital Calls
-                    </a>
-                    <a href="{{ route('distributions.index') }}"
-                        class="block bg-white text-brand-darker px-4 py-2 rounded hover:bg-brand-light/20 font-semibold transition">
-                        📊 Distributions
                     </a>
                     <a href="#" class="block bg-gray-300 text-gray-500 px-4 py-2 rounded cursor-not-allowed font-semibold">
                         📈 Reports <span class="text-xs">(Coming Soon)</span>
