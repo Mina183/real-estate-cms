@@ -248,15 +248,13 @@ class InvestorController extends Controller
         $this->authorize('changeStage', $investor);
 
         $stages = [
-            'prospect' => 'Prospect',
-            'eligibility_review' => 'Eligibility Review',
-            'ppm_issued' => 'PPM Issued',
-            'subscription_signed' => 'Subscription Signed',
-            'kyc_in_progress' => 'KYC In Progress',
-            'approved' => 'Approved',
-            'funded' => 'Funded',
-            'active' => 'Active',
-            'monitored' => 'Monitored', // ADDED Stage 9
+            'prospect'              => 'Prospect',
+            'eligibility_confirmed' => 'Eligibility Confirmed',
+            'portal_access_granted' => 'Portal Access Granted',
+            'kyc_in_progress'       => 'KYC In Progress',
+            'kyc_completed'         => 'KYC Completed / Approved',
+            'funded'                => 'Funded / Active',
+            'monitored'             => 'Monitored',
         ];
 
         $stageService = app(\App\Services\InvestorStageService::class);
@@ -277,7 +275,7 @@ class InvestorController extends Controller
         $this->authorize('changeStage', $investor);
 
         $validated = $request->validate([
-            'new_stage' => 'required|in:prospect,eligibility_review,ppm_issued,kyc_in_progress,subscription_signed,approved,funded,active,monitored', // ADDED monitored
+            'new_stage' => 'required|in:prospect,eligibility_confirmed,portal_access_granted,kyc_in_progress,kyc_completed,funded,monitored',
             'reason' => 'nullable|string|max:500',
         ]);
 
@@ -324,16 +322,14 @@ class InvestorController extends Controller
     protected function getAutomationText(string $stage): string
     {
         return match($stage) {
-            'prospect' => 'No automatic actions',
-            'eligibility_review' => 'No automatic actions',
-            'ppm_issued' => 'Data Room access granted (PROSPECT level), PPM issue date recorded',
-            'kyc_in_progress' => 'Data Room upgraded to QUALIFIED level',
-            'subscription_signed' => 'Subscription date recorded',
-            'approved' => 'Approval date and approver recorded',
-            'funded' => 'Funding date recorded',
-            'active' => 'Data Room upgraded to SUBSCRIBED level, Investor ID generated, Reporting access granted',
-            'monitored' => 'Ongoing KYC/AML monitoring enabled', // ADDED
-            default => 'No automatic actions',
+            'prospect'              => 'No automatic actions',
+            'eligibility_confirmed' => 'No automatic actions',
+            'portal_access_granted' => 'PPM acknowledged date recorded, Data Room upgraded to QUALIFIED level',
+            'kyc_in_progress'       => 'No automatic actions',
+            'kyc_completed'         => 'KYC completion date, approval date and approver recorded',
+            'funded'                => 'Funding date recorded, Data Room upgraded to SUBSCRIBED level, Investor ID generated, Reporting access granted',
+            'monitored'             => 'No automatic actions',
+            default                 => 'No automatic actions',
         };
     }
 
@@ -347,7 +343,7 @@ class InvestorController extends Controller
     }
 
     // Provjeri stage
-    $allowedStages = ['ppm_issued', 'kyc_in_progress', 'subscription_signed', 'approved', 'funded', 'active'];
+    $allowedStages = ['portal_access_granted', 'kyc_in_progress', 'kyc_completed', 'funded', 'monitored'];
     if (!in_array($investor->stage, $allowedStages)) {
         return back()->with('error', 'Portal access can only be created from PPM Issued stage onwards.');
     }

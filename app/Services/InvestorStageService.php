@@ -9,96 +9,80 @@ use Carbon\Carbon;
 class InvestorStageService
 {
     /**
-     * Stage validation rules
+     * Gate requirements for each stage.
+     * All conditions must pass before an investor can move to that stage.
      */
-
     protected array $stageRules = [
-        // STAGE 2: Eligibility Review
-        'eligibility_review' => [
-            'target_commitment_amount' => ['min', 1000000], // $1M minimum
-            'is_professional_client' => ['equals', true],   // Professional Client confirmed
-        ],
-        
-        // STAGE 3: PPM Issued
-        'ppm_issued' => [
-            'is_professional_client' => ['equals', true],   // Must be confirmed
-            'agreed_confidentiality' => ['equals', true],   // FIXED: correct field name
-        ],
-        
-        // STAGE 4: Subscription Signed
-        'subscription_signed' => [
-            'kyc_status' => ['equals', 'complete'],         // KYC complete
-            'sanctions_check_passed' => ['equals', true],   // Sanctions passed
+
+        // STAGE 2: Eligibility Confirmed
+        'eligibility_confirmed' => [
+            'target_commitment_amount' => ['min', 1000000],
+            'is_professional_client'   => ['equals', true],
+            'difc_dp_consent'          => ['equals', true],
+            'agreed_confidentiality'   => ['equals', true],
         ],
 
-        // STAGE 5: KYC In Progress
+        // STAGE 3: Portal Access Granted
+        'portal_access_granted' => [
+            'subscription_signed_date'  => ['not_null'],
+            'final_commitment_amount'   => ['greater_than', 0],
+        ],
+
+        // STAGE 4: KYC In Progress
         'kyc_in_progress' => [
-            'ppm_acknowledged_date' => ['not_null'],        // PPM acknowledged
-        ],
-        
-        // STAGE 6: Approved
-        'approved' => [
-            'subscription_signed_date' => ['not_null'],     // Subscription signed
-            'final_commitment_amount' => ['greater_than', 0], // Final commitment set
-        ],
-        
-        // STAGE 7: Funded
-        'funded' => [
-            'approved_date' => ['not_null'],                // Must be approved first
-            'bank_account_verified' => ['equals', true],    // Bank verified
-        ],
-        
-        // STAGE 8: Active
-        'active' => [
-            'funded_amount' => ['greater_than', 0],         // Funds received
+            'kyc_status' => ['in', ['in_progress', 'submitted', 'under_review', 'complete']],
         ],
 
-        // STAGE 9: Monitored
-        'monitored' => [
-            // No specific requirements - admin decision for ongoing monitoring
+        // STAGE 5: KYC Completed / Approved
+        'kyc_completed' => [
+            'kyc_status'               => ['equals', 'complete'],
+            'sanctions_check_passed'   => ['equals', true],
+            'commitment_letter_signed' => ['equals', true],
         ],
+
+        // STAGE 6: Funded / Active
+        'funded' => [
+            'bank_account_verified' => ['equals', true],
+            'funded_amount'         => ['greater_than', 0],
+        ],
+
+        // STAGE 7: Monitored — Compliance Officer decision, no hard gates
+        'monitored' => [],
     ];
 
     /**
-     * Check if investor can move to target stage
+     * Human-readable field names for missing requirement messages.
+     */
+    protected array $fieldLabels = [
+        'target_commitment_amount' => 'Target Commitment Amount (min $1,000,000)',
+        'is_professional_client'   => 'Professional Client Status confirmed',
+        'difc_dp_consent'          => 'DIFC Data Protection Consent confirmed',
+        'agreed_confidentiality'   => 'NDA / Confidentiality accepted',
+        'subscription_signed_date' => 'Subscription Agreement signed & received',
+        'final_commitment_amount'  => 'Final Commitment Amount entered',
+        'kyc_status'               => 'KYC/AML documents uploaded and in review',
+        'sanctions_check_passed'   => 'Sanctions Check passed',
+        'commitment_letter_signed' => 'Commitment Letter signed',
+        'bank_account_verified'    => 'Bank Account verified',
+        'funded_amount'            => 'Funded Amount entered',
+    ];
+
+    /**
+     * Check if investor meets all requirements for a target stage.
      */
     public function canMoveToStage(Investor $investor, string $targetStage): bool
     {
-        // Prospect can always be created
         if ($targetStage === 'prospect') {
             return true;
         }
 
-        // Check if rules exist for this stage
         if (!isset($this->stageRules[$targetStage])) {
-            return true; // No rules = allowed
+            return true;
         }
 
-        $rules = $this->stageRules[$targetStage];
-
-        foreach ($rules as $field => $rule) {
-            $operator = $rule[0];
-            $value = $rule[1] ?? null; // ← FIX
-
-            $fieldValue = $investor->$field;
-
-            switch ($operator) {
-                case 'min':
-                    if ($fieldValue < $value) return false;
-                    break;
-                case 'equals':
-                    if ($fieldValue !== $value) return false;
-                    break;
-                case 'not_null':
-                    if (is_null($fieldValue)) return false;
-                    break;
-                case 'greater_than':
-                    if ($fieldValue <= $value) return false;
-                    break;
-                case 'not_in':
-                    // Example: check jurisdiction not in sanctioned list
-                    // In real implementation, check against actual list
-                    break;
+        foreach ($this->stageRules[$targetStage] as $field => $rule) {
+            if (!$this->checkRule($investor->$field, $rule)) {
+                return false;
             }
         }
 
@@ -106,140 +90,105 @@ class InvestorStageService
     }
 
     /**
-     * Move investor to new stage
+     * Move investor to a new stage, log the transition, trigger automation.
      */
     public function moveToStage(Investor $investor, string $newStage, ?string $reason = null, ?int $userId = null): bool
     {
-        // Validate if move is allowed
         if (!$this->canMoveToStage($investor, $newStage)) {
             return false;
         }
 
-        $oldStage = $investor->stage;
+        $oldStage  = $investor->stage;
         $oldStatus = $investor->status;
 
-        // Update investor stage
-        $investor->stage = $newStage;
-        
-        // Auto-update status based on stage
+        $investor->stage  = $newStage;
         $investor->status = $this->getDefaultStatusForStage($newStage);
-        
         $investor->save();
 
-        // Log transition
         InvestorStageTransition::create([
-            'investor_id' => $investor->id,
-            'from_stage' => $oldStage,
-            'to_stage' => $newStage,
-            'from_status' => $oldStatus,
-            'to_status' => $investor->status,
-            'changed_by_user_id' => $userId ?? auth()->id(),
-            'reason' => $reason,
-            'transitioned_at' => Carbon::now(),
+            'investor_id'        => $investor->id,
+            'from_stage'         => $oldStage,
+            'to_stage'           => $newStage,
+            'from_status'        => $oldStatus,
+            'to_status'          => $investor->status,
+            'changed_by_user_id' => $userId ?? auth()->user()->id,
+            'reason'             => $reason,
+            'transitioned_at'    => Carbon::now(),
         ]);
 
-        // Log to Data Room activity log
         app(\App\Services\DataRoomService::class)->logActivity(
-            $investor,
-            null,
-            null,
-            'stage_transition',
+            $investor, null, null, 'stage_transition',
             [
-                'from_stage' => $oldStage,
-                'to_stage' => $newStage,
+                'from_stage'  => $oldStage,
+                'to_stage'    => $newStage,
                 'from_status' => $oldStatus,
-                'to_status' => $investor->status,
-                'reason' => $reason,
+                'to_status'   => $investor->status,
+                'reason'      => $reason,
             ]
         );
 
-        // Trigger automation based on stage
         $this->triggerStageAutomation($investor, $newStage);
 
         return true;
     }
 
     /**
-     * Get default status for a stage
+     * Return the default workflow status for a given stage.
      */
     protected function getDefaultStatusForStage(string $stage): string
     {
-        return match($stage) {
-            'prospect' => 'pending',
-            'eligibility_review' => 'in_review',
-            'ppm_issued' => 'in_review',
-            'kyc_in_progress' => 'in_review',
-            'subscription_signed' => 'in_review',
-            'approved' => 'qualified',
-            'funded' => 'qualified',
-            'active' => 'qualified',
-            'monitored' => 'qualified',
-            default => 'pending',
+        return match ($stage) {
+            'prospect'              => 'pending',
+            'eligibility_confirmed' => 'in_review',
+            'portal_access_granted' => 'in_review',
+            'kyc_in_progress'       => 'in_review',
+            'kyc_completed'         => 'qualified',
+            'funded'                => 'qualified',
+            'monitored'             => 'qualified',
+            default                 => 'pending',
         };
     }
 
     /**
-     * Trigger automation when stage changes
+     * Trigger automatic actions when a stage is reached.
      */
     protected function triggerStageAutomation(Investor $investor, string $newStage): void
     {
         switch ($newStage) {
-            case 'eligibility_review':
-                break;
 
-            case 'ppm_issued':
-                
+            case 'portal_access_granted':
+                // Record PPM acknowledged date (if not already set) and upgrade DR to Qualified
                 $investor->update([
-                    'ppm_issued_date' => Carbon::now(),
-                    'data_room_access_level' => 'prospect',
-                    'data_room_access_granted' => true,
+                    'ppm_acknowledged_date'      => $investor->ppm_acknowledged_date ?? Carbon::now(),
+                    'data_room_access_level'     => 'qualified',
+                    'data_room_access_granted'   => true,
                     'data_room_access_granted_at' => Carbon::now(),
                 ]);
-                app(\App\Services\DataRoomService::class)->grantAccess(
-                    $investor, 
-                    'prospect',
-                    'Auto-granted on PPM issued'
-                );
-                break;
-
-            case 'kyc_in_progress':
-                // Upgrade Data Room access (QUALIFIED level)
-                $investor->update([
-                    'data_room_access_level' => 'qualified',
-                ]);
                 app(\App\Services\DataRoomService::class)->upgradeAccess(
-                    $investor,
-                    'qualified',
-                    'Auto-upgraded on KYC started'
+                    $investor, 'qualified', 'Auto-upgraded on Portal Access Granted'
                 );
                 break;
 
-            case 'approved':
+            case 'kyc_completed':
+                // Record approval date and approver
                 $investor->update([
-                    'approved_date' => Carbon::now(),
-                    'approved_by_user_id' => auth()->id(),
+                    'kyc_completed_date'     => Carbon::now(),
+                    'approved_date'          => Carbon::now(),
+                    'approved_by_user_id'    => auth()->user()->id,
                 ]);
                 break;
 
             case 'funded':
+                // Record funding & activation, upgrade DR to Subscribed, generate investor ID
                 $investor->update([
-                    'funding_date' => Carbon::now(),
-                ]);
-                break;
-
-            case 'active':
-                // Upgrade to SUBSCRIBED Data Room access
-                $investor->update([
-                    'activated_date' => Carbon::now(),
+                    'funding_date'           => $investor->funding_date ?? Carbon::now(),
+                    'activated_date'         => Carbon::now(),
                     'data_room_access_level' => 'subscribed',
                     'reporting_access_granted' => true,
                 ]);
                 app(\App\Services\DataRoomService::class)->upgradeAccess(
-                    $investor,
-                    'subscribed',
-                    'Auto-upgraded on activation'
+                    $investor, 'subscribed', 'Auto-upgraded on Funded/Active'
                 );
-                // Generate investor ID if not exists
                 if (!$investor->investor_id_number) {
                     $investor->update([
                         'investor_id_number' => $this->generateInvestorId($investor),
@@ -250,52 +199,44 @@ class InvestorStageService
     }
 
     /**
-     * Generate unique investor ID
+     * Generate a unique investor ID string.
      */
     protected function generateInvestorId(Investor $investor): string
     {
-        $prefix = 'INV';
-        $year = Carbon::now()->year;
+        $year     = Carbon::now()->year;
         $sequence = str_pad($investor->id, 4, '0', STR_PAD_LEFT);
-        
-        return "{$prefix}-{$year}-{$sequence}";
+
+        return "INV-{$year}-{$sequence}";
     }
 
     /**
-     * Auto-advance investor if eligible
+     * Try to auto-advance investor to the next stage if all gates are met.
      */
     public function autoAdvanceIfEligible(Investor $investor): bool
     {
-        $currentStage = $investor->stage;
-        
-        // Define stage progression
         $progression = [
-            'prospect' => 'eligibility_review',
-            'eligibility_review' => 'ppm_issued',
-            'ppm_issued' => 'kyc_in_progress',
-            'subscription_signed' => 'approved',
-            'kyc_in_progress' => 'subscription_signed',
-            'approved' => 'funded',
-            'funded' => 'active',
+            'prospect'              => 'eligibility_confirmed',
+            'eligibility_confirmed' => 'portal_access_granted',
+            'portal_access_granted' => 'kyc_in_progress',
+            'kyc_in_progress'       => 'kyc_completed',
+            'kyc_completed'         => 'funded',
         ];
 
-        // Check if there's a next stage
-        if (!isset($progression[$currentStage])) {
+        if (!isset($progression[$investor->stage])) {
             return false;
         }
 
-        $nextStage = $progression[$currentStage];
+        $nextStage = $progression[$investor->stage];
 
-        // Check if can move
         if ($this->canMoveToStage($investor, $nextStage)) {
-            return $this->moveToStage($investor, $nextStage, 'Auto-advanced (criteria met)');
+            return $this->moveToStage($investor, $nextStage, 'Auto-advanced (all criteria met)');
         }
 
         return false;
     }
 
     /**
-     * Get missing requirements for stage
+     * Return an array of human-readable missing requirement strings for a target stage.
      */
     public function getMissingRequirements(Investor $investor, string $targetStage): array
     {
@@ -305,39 +246,31 @@ class InvestorStageService
             return $missing;
         }
 
-        $rules = $this->stageRules[$targetStage];
-
-        foreach ($rules as $field => $rule) {
-            $operator = $rule[0];
-            $value = $rule[1] ?? null;
-            $fieldValue = $investor->$field;
-
-            $isMissing = false;
-
-            switch ($operator) {
-                case 'min':
-                    $isMissing = $fieldValue < $value;
-                    $message = ucfirst(str_replace('_', ' ', $field)) . " must be at least " . number_format($value);
-                    break;
-                case 'equals':
-                    $isMissing = $fieldValue !== $value;
-                    $message = ucfirst(str_replace('_', ' ', $field)) . " must be " . ($value ? 'true' : 'false');
-                    break;
-                case 'not_null':
-                    $isMissing = is_null($fieldValue);
-                    $message = ucfirst(str_replace('_', ' ', $field)) . " is required";
-                    break;
-                case 'greater_than':
-                    $isMissing = $fieldValue <= $value;
-                    $message = ucfirst(str_replace('_', ' ', $field)) . " must be greater than " . $value;
-                    break;
-            }
-
-            if ($isMissing) {
-                $missing[] = $message;
+        foreach ($this->stageRules[$targetStage] as $field => $rule) {
+            if (!$this->checkRule($investor->$field, $rule)) {
+                $missing[] = $this->fieldLabels[$field]
+                    ?? ucfirst(str_replace('_', ' ', $field)) . ' requirement not met';
             }
         }
 
         return $missing;
+    }
+
+    /**
+     * Evaluate a single rule against a field value.
+     */
+    protected function checkRule(mixed $fieldValue, array $rule): bool
+    {
+        $operator = $rule[0];
+        $value    = $rule[1] ?? null;
+
+        return match ($operator) {
+            'min'          => $fieldValue >= $value,
+            'equals'       => $fieldValue === $value,
+            'not_null'     => !is_null($fieldValue),
+            'greater_than' => $fieldValue > $value,
+            'in'           => in_array($fieldValue, (array) $value, true),
+            default        => true,
+        };
     }
 }
