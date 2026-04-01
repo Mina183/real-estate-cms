@@ -47,6 +47,23 @@
                             </div>
 
                             <div>
+                                <label for="notify_user_id" class="block text-sm font-medium text-gray-700">
+                                    Notify on Approval <span class="text-gray-400 font-normal">(optional)</span>
+                                </label>
+                                <select name="notify_user_id" id="notify_user_id"
+                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                    <option value="">— No notification —</option>
+                                    @foreach($notifiableUsers as $user)
+                                        <option value="{{ $user->id }}"
+                                            {{ old('notify_user_id', $documentPackage->notify_user_id) == $user->id ? 'selected' : '' }}>
+                                            {{ $user->name }} ({{ str_replace('_', ' ', $user->role) }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <p class="mt-1 text-xs text-gray-500">This person receives an email each time an access request for this package is approved.</p>
+                            </div>
+
+                            <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                     Select Documents <span class="text-red-500">*</span>
                                 </label>

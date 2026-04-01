@@ -287,14 +287,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('/', 'store')->name('document-access-links.store');
             Route::delete('/{documentAccessLink}', 'destroy')->name('document-access-links.destroy');
         });
+    });
 
-        // Document Access Requests — approve / reject
-        Route::prefix('document-access-requests')->controller(DocumentAccessLinkController::class)->group(function () {
+    // Document Access Requests — admin + relationship_manager
+    Route::middleware(['can:manage-access-requests'])
+        ->prefix('document-access-requests')
+        ->controller(DocumentAccessLinkController::class)
+        ->group(function () {
             Route::get('/', 'requests')->name('document-access-requests.index');
             Route::post('/{documentAccessRequest}/approve', 'approve')->name('document-access-requests.approve');
             Route::post('/{documentAccessRequest}/reject', 'reject')->name('document-access-requests.reject');
         });
-    });
 
     Route::prefix('email-body-templates')->controller(EmailBodyTemplateController::class)
     ->middleware('can:manage-settings')

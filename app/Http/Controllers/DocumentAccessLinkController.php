@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\DataRoomDocument;
 use App\Models\DocumentAccessLink;
 use App\Models\DocumentAccessRequest;
 use App\Models\DocumentPackage;
 use App\Models\Investor;
+use App\Notifications\DocumentAccessApprovedNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -51,14 +51,13 @@ class DocumentAccessLinkController extends Controller
             return back()->withErrors(['document_package_id' => 'Select an existing package or choose individual documents.'])->withInput();
         }
 
-        // Resolve or auto-create the package
         if ($request->document_package_id) {
             $packageId = $request->document_package_id;
         } else {
             $investorLabel = $investor->organization_name ?? $investor->legal_entity_name ?? 'Investor #' . $investor->id;
             $package = DocumentPackage::create([
                 'name'               => '[Custom] ' . $investorLabel . ' — ' . now()->format('d M Y'),
-                'created_by_user_id' => auth()->id(),
+                'created_by_user_id' => auth()->user()->id,
             ]);
             foreach ($request->document_ids as $docId) {
                 $package->items()->create(['data_room_document_id' => $docId]);
@@ -71,7 +70,7 @@ class DocumentAccessLinkController extends Controller
             'document_package_id' => $packageId,
             'label'               => $request->label ?? null,
             'token'               => Str::random(48),
-            'created_by_user_id'  => auth()->id(),
+            'created_by_user_id'  => auth()->user()->id,
         ]);
 
         return redirect(route('investors.show', $investor) . '#doc-links')
@@ -101,33 +100,62 @@ class DocumentAccessLinkController extends Controller
 
     public function requests()
     {
-        $this->authorize('manage-settings');
+        $query = DocumentAccessRequest::with(['link.investor', 'link.package', 'approvedBy']);
 
-        $requests = DocumentAccessRequest::with(['link.investor', 'link.package', 'approvedBy'])
+        $isFiltered = auth()->user()->role === 'relationship_manager';
+
+        if ($isFiltered) {
+            $query->whereHas('link.investor', function ($q) {
+                $q->where('assigned_to_user_id', auth()->user()->id);
+            });
+        }
+
+        $requests = $query
             ->orderByRaw("FIELD(status, 'pending', 'approved', 'rejected')")
             ->orderBy('created_at', 'desc')
             ->paginate(25);
 
-        return view('document-access-links.requests', compact('requests'));
+        return view('document-access-links.requests', compact('requests', 'isFiltered'));
     }
 
     public function approve(DocumentAccessRequest $documentAccessRequest)
     {
-        $this->authorize('manage-settings');
+        $investor = $documentAccessRequest->link?->investor;
+
+        if (auth()->user()->role === 'relationship_manager') {
+            if (! $investor || $investor->assigned_to_user_id !== auth()->user()->id) {
+                abort(403);
+            }
+        } else {
+            $this->authorize('manage-settings');
+        }
 
         $documentAccessRequest->update([
             'status'               => 'approved',
-            'approved_by_user_id'  => auth()->id(),
+            'approved_by_user_id'  => auth()->user()->id,
             'approved_at'          => now(),
             'expires_at'           => now()->addHours(48),
         ]);
+
+        $notifyUser = $documentAccessRequest->link?->package?->notifyUser;
+        if ($notifyUser) {
+            $notifyUser->notify(new DocumentAccessApprovedNotification($documentAccessRequest));
+        }
 
         return back()->with('success', 'Request approved. Investor access expires in 48 hours.');
     }
 
     public function reject(DocumentAccessRequest $documentAccessRequest)
     {
-        $this->authorize('manage-settings');
+        $investor = $documentAccessRequest->link?->investor;
+
+        if (auth()->user()->role === 'relationship_manager') {
+            if (! $investor || $investor->assigned_to_user_id !== auth()->user()->id) {
+                abort(403);
+            }
+        } else {
+            $this->authorize('manage-settings');
+        }
 
         $documentAccessRequest->update(['status' => 'rejected']);
 

@@ -32,7 +32,7 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
                     <h3 class="text-lg font-medium text-gray-900 mb-4">Package Details</h3>
-                    <dl class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <dl class="grid grid-cols-1 sm:grid-cols-4 gap-4">
                         <div>
                             <dt class="text-sm font-medium text-gray-500">Created By</dt>
                             <dd class="mt-1 text-sm text-gray-900">{{ $documentPackage->createdBy->name ?? '—' }}</dd>
@@ -40,6 +40,17 @@
                         <div>
                             <dt class="text-sm font-medium text-gray-500">Created</dt>
                             <dd class="mt-1 text-sm text-gray-900">{{ $documentPackage->created_at->format('d M Y, H:i') }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Notify on Approval</dt>
+                            <dd class="mt-1 text-sm text-gray-900">
+                                @if($documentPackage->notifyUser)
+                                    {{ $documentPackage->notifyUser->name }}
+                                    <span class="text-xs text-gray-400">({{ str_replace('_', ' ', $documentPackage->notifyUser->role) }})</span>
+                                @else
+                                    <span class="text-gray-400">—</span>
+                                @endif
+                            </dd>
                         </div>
                         <div>
                             <dt class="text-sm font-medium text-gray-500">Description</dt>

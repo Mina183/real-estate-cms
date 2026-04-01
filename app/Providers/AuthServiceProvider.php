@@ -132,5 +132,10 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('approve-drafts', function ($user) {
             return in_array($user->role, ['superadmin', 'admin']);
         });
+
+        // Manage document access requests (approve/reject) — admin and relationship managers
+        Gate::define('manage-access-requests', function ($user) {
+            return in_array($user->role, ['superadmin', 'admin', 'relationship_manager']);
+        });
     }
 }

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use App\Models\User;
 
 class DocumentPackage extends Model
 {
@@ -16,6 +17,7 @@ class DocumentPackage extends Model
         'name',
         'description',
         'created_by_user_id',
+        'notify_user_id',
     ];
 
     public function items(): HasMany
@@ -36,5 +38,10 @@ class DocumentPackage extends Model
     public function createdBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by_user_id');
+    }
+
+    public function notifyUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'notify_user_id');
     }
 }

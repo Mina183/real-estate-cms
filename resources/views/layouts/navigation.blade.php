@@ -12,10 +12,6 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex items-center text-white">
-                    <x-nav-link :href="route('home')" :active="request()->routeIs('home')" class="text-white hover:text-brand-accent">
-                        {{ __('Home') }}
-                    </x-nav-link>
-
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="text-white hover:text-brand-accent">
                         {{ __('Dashboard') }}
                     </x-nav-link>
@@ -31,7 +27,7 @@
                             {{ __('Data Room') }}
                         </x-nav-link>
 
-                        @can('manage-settings')
+                        @if(auth()->user()->can('manage-settings') || auth()->user()->can('manage-access-requests'))
                             <x-dropdown align="left" width="52">
                                 <x-slot name="trigger">
                                     <button class="inline-flex items-center text-sm font-medium text-white hover:text-brand-accent focus:outline-none transition">
@@ -42,18 +38,25 @@
                                     </button>
                                 </x-slot>
                                 <x-slot name="content">
-                                    <x-dropdown-link :href="route('document-packages.index')" :active="request()->routeIs('document-packages.*')">
-                                        {{ __('Document Packages') }}
-                                    </x-dropdown-link>
-                                    <x-dropdown-link :href="route('document-access-requests.index')" :active="request()->routeIs('document-access-requests.*')">
-                                        {{ __('Access Requests') }}
-                                    </x-dropdown-link>
-                                    <x-dropdown-link :href="route('email-body-templates.index')" :active="request()->routeIs('email-body-templates.*')">
-                                        {{ __('Email Templates') }}
-                                    </x-dropdown-link>
+                                    @can('manage-settings')
+                                        <x-dropdown-link :href="route('email-drafts.index')" :active="request()->routeIs('email-drafts.*')">
+                                            {{ __('Email Draft Approvals') }}
+                                        </x-dropdown-link>
+                                        <x-dropdown-link :href="route('email-body-templates.index')" :active="request()->routeIs('email-body-templates.*')">
+                                            {{ __('Email Templates') }}
+                                        </x-dropdown-link>
+                                        <x-dropdown-link :href="route('document-packages.index')" :active="request()->routeIs('document-packages.*')">
+                                            {{ __('Document Packages') }}
+                                        </x-dropdown-link>
+                                    @endcan
+                                    @can('manage-access-requests')
+                                        <x-dropdown-link :href="route('document-access-requests.index')" :active="request()->routeIs('document-access-requests.*')">
+                                            {{ __('Access Requests') }}
+                                        </x-dropdown-link>
+                                    @endcan
                                 </x-slot>
                             </x-dropdown>
-                        @endcan
+                        @endif
                     @endauth
                 </div>
             </div>
@@ -116,9 +119,23 @@
             </x-responsive-nav-link>
 
             @auth
+                {{-- Investors group --}}
+                <div class="px-4 pt-2 pb-1">
+                    <span class="text-xs font-semibold text-white/50 uppercase tracking-wider">Investors</span>
+                </div>
                 @can('viewAny', App\Models\Investor::class)
                     <x-responsive-nav-link :href="route('investors.index')" :active="request()->routeIs('investors.*')">
                         {{ __('Investors') }}
+                    </x-responsive-nav-link>
+                @endcan
+                @can('manage-capital-calls')
+                    <x-responsive-nav-link :href="route('capital-calls.index')" :active="request()->routeIs('capital-calls.*')">
+                        {{ __('Capital Calls') }}
+                    </x-responsive-nav-link>
+                @endcan
+                @can('manage-distributions')
+                    <x-responsive-nav-link :href="route('distributions.index')" :active="request()->routeIs('distributions.*')">
+                        {{ __('Distributions') }}
                     </x-responsive-nav-link>
                 @endcan
 
@@ -126,17 +143,27 @@
                     {{ __('Data Room') }}
                 </x-responsive-nav-link>
 
-                @can('manage-settings')
-                    <x-responsive-nav-link :href="route('document-packages.index')" :active="request()->routeIs('document-packages.*')">
-                        {{ __('Document Packages') }}
-                    </x-responsive-nav-link>
-                    <x-responsive-nav-link :href="route('document-access-requests.index')" :active="request()->routeIs('document-access-requests.*')">
-                        {{ __('Access Requests') }}
-                    </x-responsive-nav-link>
-                    <x-responsive-nav-link :href="route('email-body-templates.index')" :active="request()->routeIs('email-body-templates.*')">
-                        {{ __('Email Templates') }}
-                    </x-responsive-nav-link>
-                @endcan
+                @if(auth()->user()->can('manage-settings') || auth()->user()->can('manage-access-requests'))
+                    <div class="px-4 pt-2 pb-1">
+                        <span class="text-xs font-semibold text-white/50 uppercase tracking-wider">Settings</span>
+                    </div>
+                    @can('manage-settings')
+                        <x-responsive-nav-link :href="route('email-drafts.index')" :active="request()->routeIs('email-drafts.*')">
+                            {{ __('Email Draft Approvals') }}
+                        </x-responsive-nav-link>
+                        <x-responsive-nav-link :href="route('email-body-templates.index')" :active="request()->routeIs('email-body-templates.*')">
+                            {{ __('Email Templates') }}
+                        </x-responsive-nav-link>
+                        <x-responsive-nav-link :href="route('document-packages.index')" :active="request()->routeIs('document-packages.*')">
+                            {{ __('Document Packages') }}
+                        </x-responsive-nav-link>
+                    @endcan
+                    @can('manage-access-requests')
+                        <x-responsive-nav-link :href="route('document-access-requests.index')" :active="request()->routeIs('document-access-requests.*')">
+                            {{ __('Access Requests') }}
+                        </x-responsive-nav-link>
+                    @endcan
+                @endif
             @endauth
         </div>
 

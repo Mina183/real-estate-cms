@@ -39,9 +39,10 @@
                         📈 Reports <span class="text-xs">(Coming Soon)</span>
                     </a>
 
-                    @can('manage-settings')
+                    @if(auth()->user()->can('manage-settings') || auth()->user()->can('manage-access-requests'))
                     <div class="pt-2 border-t border-white/20">
                         <p class="text-xs text-white/50 uppercase tracking-wider px-2 mb-2">Settings</p>
+                        @can('manage-settings')
                         <a href="{{ route('email-drafts.index') }}"
                         class="block bg-white text-brand-darker px-4 py-2 rounded hover:bg-brand-light/20 font-semibold transition">
                             ✉️ Draft Approvals
@@ -50,8 +51,19 @@
                         class="block bg-white text-brand-darker px-4 py-2 rounded hover:bg-brand-light/20 font-semibold transition mt-1">
                             📝 Email Templates
                         </a>
+                        <a href="{{ route('document-packages.index') }}"
+                        class="block bg-white text-brand-darker px-4 py-2 rounded hover:bg-brand-light/20 font-semibold transition mt-1">
+                            📦 Document Packages
+                        </a>
+                        @endcan
+                        @can('manage-access-requests')
+                        <a href="{{ route('document-access-requests.index') }}"
+                        class="block bg-white text-brand-darker px-4 py-2 rounded hover:bg-brand-light/20 font-semibold transition mt-1">
+                            🔑 Access Requests
+                        </a>
+                        @endcan
                     </div>
-                    @endcan
+                    @endif
                 </nav>
             </aside>
 
