@@ -4,43 +4,83 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 Edit Draft — {{ $emailDraft->investor->organization_name ?? $emailDraft->investor->legal_entity_name }}
             </h2>
-            <a href="{{ route('email-drafts.index') }}"
-               class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
-                ← Back
-            </a>
+            <div class="flex space-x-2">
+                <a href="{{ route('email-drafts.preview', $emailDraft) }}" target="_blank"
+                   class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2 px-4 rounded border border-gray-300">
+                    Preview
+                </a>
+                <a href="{{ route('email-drafts.index') }}"
+                   class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                    ← Back
+                </a>
+            </div>
         </div>
     </x-slot>
 
     <div class="py-12">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
+
+            @if ($errors->any())
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                    @foreach ($errors->all() as $error)
+                        <p>{{ $error }}</p>
+                    @endforeach
+                </div>
+            @endif
+
+            {{-- Status Banner --}}
+            <div class="mb-4 p-3 rounded-lg
+                @if($emailDraft->status === 'pending_approval') bg-yellow-50 border border-yellow-200
+                @elseif($emailDraft->status === 'approved') bg-green-50 border border-green-200
+                @else bg-gray-50 border border-gray-200
+                @endif">
+                <p class="text-sm font-medium
+                    @if($emailDraft->status === 'pending_approval') text-yellow-800
+                    @elseif($emailDraft->status === 'approved') text-green-800
+                    @else text-gray-700
+                    @endif">
+                    Status: {{ ucfirst(str_replace('_', ' ', $emailDraft->status)) }}
+                    @if($emailDraft->status === 'approved' && $emailDraft->approvedBy)
+                        — Approved by {{ $emailDraft->approvedBy->name }} on {{ $emailDraft->approved_at->format('M d, Y H:i') }}
+                    @endif
+                </p>
+            </div>
+
+            {{-- Approve action — standalone form, NOT nested inside the edit form --}}
+            @can('approve', $emailDraft)
+                @if($emailDraft->status === 'pending_approval')
+                <div class="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center justify-between">
+                    <p class="text-sm text-green-800 font-medium">This draft is awaiting your approval.</p>
+                    <form method="POST" action="{{ route('email-drafts.approve', $emailDraft) }}">
+                        @csrf
+                        <button type="submit"
+                                class="bg-green-600 hover:bg-green-800 text-white font-bold py-2 px-5 rounded"
+                                onclick="return confirm('Approve this draft for sending?')">
+                            ✓ Approve Draft
+                        </button>
+                    </form>
+                </div>
+                @endif
+            @endcan
+
+            {{-- Send action (creator only, when approved) — also standalone --}}
+            @if($emailDraft->status === 'approved' && $emailDraft->created_by_user_id === auth()->id())
+            <div class="mb-4 p-4 bg-teal-50 border border-teal-200 rounded-lg flex items-center justify-between">
+                <p class="text-sm text-teal-800 font-medium">This draft is approved and ready to send.</p>
+                <form method="POST" action="{{ route('email-drafts.send', $emailDraft) }}">
+                    @csrf
+                    <button type="submit"
+                            class="bg-teal-600 hover:bg-teal-800 text-white font-bold py-2 px-5 rounded"
+                            onclick="return confirm('Send this email now?')">
+                        Send Email
+                    </button>
+                </form>
+            </div>
+            @endif
+
+            {{-- Edit form --}}
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
-
-                    @if ($errors->any())
-                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
-                            @foreach ($errors->all() as $error)
-                                <p>{{ $error }}</p>
-                            @endforeach
-                        </div>
-                    @endif
-
-                    {{-- Status Banner --}}
-                    <div class="mb-6 p-3 rounded-lg
-                        @if($emailDraft->status === 'pending_approval') bg-yellow-50 border border-yellow-200
-                        @elseif($emailDraft->status === 'approved') bg-green-50 border border-green-200
-                        @else bg-gray-50 border border-gray-200
-                        @endif">
-                        <p class="text-sm font-medium
-                            @if($emailDraft->status === 'pending_approval') text-yellow-800
-                            @elseif($emailDraft->status === 'approved') text-green-800
-                            @else text-gray-700
-                            @endif">
-                            Status: {{ ucfirst(str_replace('_', ' ', $emailDraft->status)) }}
-                            @if($emailDraft->status === 'approved' && $emailDraft->approvedBy)
-                                — Approved by {{ $emailDraft->approvedBy->name }} on {{ $emailDraft->approved_at->format('M d, Y H:i') }}
-                            @endif
-                        </p>
-                    </div>
 
                     <form action="{{ route('email-drafts.update', $emailDraft) }}" method="POST">
                         @csrf
@@ -137,39 +177,25 @@
 
                         </div>
 
-                        {{-- Action Buttons --}}
-                        <div class="mt-8 flex items-center justify-between">
-                            <div>
-                                @can('approve', $emailDraft)
-                                    @if($emailDraft->status === 'pending_approval')
-                                    <form method="POST" action="{{ route('email-drafts.approve', $emailDraft) }}" class="inline">
-                                        @csrf
-                                        <button type="submit"
-                                                class="bg-green-500 hover:bg-green-700 text-white font-bold py-3 px-6 rounded"
-                                                onclick="return confirm('Approve this draft for sending?')">
-                                            ✓ Approve
-                                        </button>
-                                    </form>
-                                    @endif
-                                @endcan
-                            </div>
-
-                            <div class="flex space-x-3">
-                                <a href="{{ route('email-drafts.index') }}"
-                                   class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-6 rounded">
-                                    Cancel
-                                </a>
-                                <button type="submit" name="submit_for_approval" value="0"
-                                        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded">
-                                    Save Changes
-                                </button>
+                        {{-- Form Action Buttons --}}
+                        <div class="mt-8 flex items-center justify-end space-x-3">
+                            <a href="{{ route('email-drafts.index') }}"
+                               class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-6 rounded">
+                                Cancel
+                            </a>
+                            <button type="submit" name="submit_for_approval" value="0"
+                                    class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded">
+                                Save Changes
+                            </button>
+                            {{-- Submit for Approval: only for non-admins, only when not yet approved --}}
+                            @cannot('approve', $emailDraft)
                                 @if($emailDraft->status !== 'approved')
                                 <button type="submit" name="submit_for_approval" value="1"
                                         class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded">
                                     Submit for Approval
                                 </button>
                                 @endif
-                            </div>
+                            @endcannot
                         </div>
 
                     </form>
@@ -195,16 +221,16 @@
     </script>
 
     <script src="https://cdn.tiny.cloud/1/cpo4gfv8nwq74g9b2ert0jfc2n8tv3z60s2uiqcx4wqovftg/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
-        <script>
-            tinymce.init({
-                selector: 'textarea[name="body"]',
-                plugins: 'lists link',
-                toolbar: 'bold italic underline | bullist numlist | link | removeformat',
-                menubar: false,
-                height: 400,
-                content_style: 'body { font-family: Arial, sans-serif; font-size: 14px; }',
-                branding: false,
-            });
-        </script>
+    <script>
+        tinymce.init({
+            selector: 'textarea[name="body"]',
+            plugins: 'lists link',
+            toolbar: 'bold italic underline | bullist numlist | link | removeformat',
+            menubar: false,
+            height: 400,
+            content_style: 'body { font-family: Arial, sans-serif; font-size: 14px; }',
+            branding: false,
+        });
+    </script>
 
 </x-app-layout>

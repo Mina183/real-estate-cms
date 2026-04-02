@@ -500,10 +500,12 @@
                                 @elseif($draft->status === 'approved') ✓ Approved
                                 @endif
                             </span>
-                            @if($draft->status === 'draft' || $draft->status === 'pending_approval')
+                            <a href="{{ route('email-drafts.preview', $draft) }}" target="_blank"
+                               class="text-gray-600 hover:text-gray-800 text-xs font-medium">Preview</a>
+                            @can('update', $draft)
                                 <a href="{{ route('email-drafts.edit', $draft) }}"
                                    class="text-blue-600 hover:text-blue-800 text-xs font-medium">Edit</a>
-                            @endif
+                            @endcan
                             @if($draft->status === 'approved' && $draft->created_by_user_id === auth()->id())
                                 <form method="POST" action="{{ route('email-drafts.send', $draft) }}" class="inline">
                                     @csrf

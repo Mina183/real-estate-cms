@@ -133,17 +133,32 @@ class EmailDraftController extends Controller
             'submit_for_approval' => 'boolean',
         ]);
 
+        $user = auth()->user();
+        $isAdmin = in_array($user->role, ['superadmin', 'admin']);
+
+        if ($request->boolean('submit_for_approval')) {
+            $newStatus = 'pending_approval';
+        } elseif ($isAdmin) {
+            // Admins saving edits preserve the current approval status
+            $newStatus = $emailDraft->status;
+        } else {
+            // Non-admin edits reset to draft — requires re-approval
+            $newStatus = 'draft';
+        }
+
         $emailDraft->update([
             'on_behalf_of_id' => $validated['on_behalf_of_id'] ?? null,
             'signature_id'    => $validated['signature_id'] ?? null,
             'subject'         => $validated['subject'],
             'body'            => $validated['body'],
             'document_ids'    => $validated['document_ids'] ?? [],
-            'status'          => $request->boolean('submit_for_approval') ? 'pending_approval' : 'draft',
+            'status'          => $newStatus,
         ]);
 
+        $message = $request->boolean('submit_for_approval') ? 'Draft submitted for approval.' : 'Draft updated.';
+
         return redirect()->route('email-drafts.index')
-            ->with('success', $request->boolean('submit_for_approval') ? 'Draft submitted for approval.' : 'Draft updated.');
+            ->with('success', $message);
     }
 
     /**
@@ -194,12 +209,12 @@ class EmailDraftController extends Controller
         $subject = $this->replacePlaceholders($emailDraft->subject, $investor);
 
         try {
-            Mail::send([], [], function ($message) use ($emailDraft, $primaryContact, $documents, $signature, $onBehalf) {
+            Mail::send([], [], function ($message) use ($emailDraft, $primaryContact, $documents, $signature, $onBehalf, $subject, $body) {
                 $message->to($primaryContact->email, $primaryContact->full_name)
                     ->subject($subject)
                     ->html(
-                        view('emails.investor.draft', [
-                            'body' => $body,
+                        view('emails.draft', [
+                            'body'      => $body,
                             'signature' => $signature,
                             'onBehalf'  => $onBehalf,
                         ])->render()
@@ -224,6 +239,21 @@ class EmailDraftController extends Controller
 
         return redirect()->route('investors.show', $investor)
             ->with('success', 'Email sent successfully.');
+    }
+
+    /**
+     * Preview the rendered email
+     */
+    public function preview(EmailDraft $emailDraft)
+    {
+        $this->authorize('update', $emailDraft);
+
+        $investor  = $emailDraft->investor;
+        $body      = $this->replacePlaceholders($emailDraft->body, $investor);
+        $signature = $emailDraft->signature;
+        $onBehalf  = $emailDraft->onBehalfOf;
+
+        return view('email-drafts.preview', compact('emailDraft', 'investor', 'body', 'signature', 'onBehalf'));
     }
 
     private function replacePlaceholders(string $body, Investor $investor): string

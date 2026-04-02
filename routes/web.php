@@ -259,6 +259,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/create', 'create')->name('email-drafts.create');
         Route::post('/', 'store')->name('email-drafts.store');
         Route::get('/{emailDraft}/edit', 'edit')->name('email-drafts.edit');
+        Route::get('/{emailDraft}/preview', 'preview')->name('email-drafts.preview');
         Route::put('/{emailDraft}', 'update')->name('email-drafts.update');
         Route::post('/{emailDraft}/approve', 'approve')->name('email-drafts.approve');
         Route::post('/{emailDraft}/send', 'send')->name('email-drafts.send');

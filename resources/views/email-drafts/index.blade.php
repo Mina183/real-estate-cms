@@ -118,12 +118,16 @@
                                         <td class="px-4 py-3 text-gray-500">{{ $draft->created_at->format('M d, Y H:i') }}</td>
                                         <td class="px-4 py-3">
                                             <div class="flex space-x-2">
-                                                @if($draft->status === 'draft')
+                                                <a href="{{ route('email-drafts.preview', $draft) }}" target="_blank"
+                                                   class="bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold py-1 px-3 rounded border border-gray-300">
+                                                    Preview
+                                                </a>
+                                                @can('update', $draft)
                                                     <a href="{{ route('email-drafts.edit', $draft) }}"
                                                        class="bg-blue-500 hover:bg-blue-700 text-white text-xs font-bold py-1 px-3 rounded">
                                                         Edit
                                                     </a>
-                                                @endif
+                                                @endcan
                                                 @if($draft->status === 'approved')
                                                     <form method="POST" action="{{ route('email-drafts.send', $draft) }}" class="inline">
                                                         @csrf
