@@ -350,6 +350,69 @@
                         <div id="pane-subscription" class="tab-pane hidden space-y-6">
                             <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Stage: Portal Access Granted — Subscription &amp; legal documentation</p>
 
+                            {{-- Gate status summary (read-only) --}}
+                            @php
+                                $gateIntroMeeting   = $investor->has_introductory_meeting;
+                                $gateSubscription   = (bool) $investor->subscription_signed_date;
+                                $gateFinalAmount    = ($investor->final_commitment_amount ?? 0) > 0;
+                                $allGatesMet        = $gateIntroMeeting && $gateSubscription && $gateFinalAmount;
+                            @endphp
+                            <div class="rounded-lg border {{ $allGatesMet ? 'border-green-200 bg-green-50' : 'border-amber-200 bg-amber-50' }} px-4 py-4">
+                                <p class="text-xs font-semibold uppercase tracking-wider {{ $allGatesMet ? 'text-green-700' : 'text-amber-700' }} mb-3">
+                                    Portal Access Granted — Gate Status
+                                </p>
+                                <div class="space-y-2 text-sm">
+
+                                    <div class="flex items-start gap-2">
+                                        <span class="{{ $gateIntroMeeting ? 'text-green-600' : 'text-red-500' }} font-bold mt-0.5">{{ $gateIntroMeeting ? '✓' : '✗' }}</span>
+                                        <div>
+                                            <span class="{{ $gateIntroMeeting ? 'text-gray-700' : 'text-gray-600' }}">Introductory Meeting held and logged</span>
+                                            @if($gateIntroMeeting)
+                                                @php $lastMeeting = $investor->meetings->first(); @endphp
+                                                @if($lastMeeting)
+                                                    <span class="ml-2 text-xs text-gray-400">{{ $lastMeeting->meeting_date->format('d M Y') }} — {{ Str::limit($lastMeeting->attendees, 60) }}</span>
+                                                @endif
+                                            @else
+                                                <span class="ml-2 text-xs text-gray-400">— log a meeting on the
+                                                    <a href="{{ route('investors.show', $investor) }}#meetings"
+                                                       class="underline text-blue-500 hover:text-blue-700" target="_blank">Meetings tab</a>
+                                                </span>
+                                            @endif
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-start gap-2">
+                                        <span class="{{ $gateSubscription ? 'text-green-600' : 'text-red-500' }} font-bold mt-0.5">{{ $gateSubscription ? '✓' : '✗' }}</span>
+                                        <div>
+                                            <span class="{{ $gateSubscription ? 'text-gray-700' : 'text-gray-600' }}">Subscription Agreement signed &amp; received</span>
+                                            @if($gateSubscription)
+                                                <span class="ml-2 text-xs text-gray-400">{{ $investor->subscription_signed_date->format('d M Y') }}</span>
+                                            @else
+                                                <span class="ml-2 text-xs text-gray-400">— tick the checkbox below</span>
+                                            @endif
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-start gap-2">
+                                        <span class="{{ $gateFinalAmount ? 'text-green-600' : 'text-red-500' }} font-bold mt-0.5">{{ $gateFinalAmount ? '✓' : '✗' }}</span>
+                                        <div>
+                                            <span class="{{ $gateFinalAmount ? 'text-gray-700' : 'text-gray-600' }}">Final Commitment Amount entered</span>
+                                            @if($gateFinalAmount)
+                                                <span class="ml-2 text-xs text-gray-400">{{ $investor->currency }} {{ number_format($investor->final_commitment_amount) }}</span>
+                                            @else
+                                                <span class="ml-2 text-xs text-gray-400">— enter the amount in the field below</span>
+                                            @endif
+                                        </div>
+                                    </div>
+
+                                </div>
+                                @if(!$allGatesMet)
+                                    <p class="mt-3 text-xs text-amber-600">All three gates must be met before this investor can be moved to <strong>Portal Access Granted</strong>.</p>
+                                @else
+                                    <p class="mt-3 text-xs text-green-600">All gates met — investor is eligible to advance to <strong>Portal Access Granted</strong>.</p>
+                                @endif
+                            </div>
+
                             {{-- Subscription gates --}}
                             <div class="border border-gray-200 rounded-lg divide-y divide-gray-100">
                                 <div class="px-4 py-2 bg-gray-50 rounded-t-lg">

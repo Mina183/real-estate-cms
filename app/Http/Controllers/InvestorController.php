@@ -99,6 +99,7 @@ class InvestorController extends Controller
 
     public function edit(Investor $investor)
     {
+        $investor->load('meetings');
         $funds = Fund::where('status', 'active')->get();
         $users = User::whereIn('role', ['admin', 'relationship_manager'])->get();
 
