@@ -198,6 +198,9 @@
             height: 400,
             content_style: 'body { font-family: Arial, sans-serif; font-size: 14px; }',
             branding: false,
+            relative_urls: false,
+            remove_script_host: false,
+            convert_urls: false,
             setup: function(editor) {
                 editor.on('submit', function() {
                     editor.save();
