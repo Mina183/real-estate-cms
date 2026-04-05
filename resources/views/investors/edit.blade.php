@@ -452,7 +452,7 @@
                                     </label>
                                     <select name="kyc_status" id="kyc_status"
                                             class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
-                                        <option value="">— Not Started —</option>
+                                        <option value="not_started"   {{ (in_array($investor->kyc_status, ['not_started', null, ''])) ? 'selected' : '' }}>Not Started</option>
                                         <option value="in_progress"   {{ $investor->kyc_status === 'in_progress'   ? 'selected' : '' }}>In Progress</option>
                                         <option value="submitted"     {{ $investor->kyc_status === 'submitted'     ? 'selected' : '' }}>Submitted</option>
                                         <option value="under_review"  {{ $investor->kyc_status === 'under_review'  ? 'selected' : '' }}>Under Review</option>

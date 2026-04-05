@@ -233,6 +233,11 @@ class InvestorController extends Controller
     unset($validated['ppm_acknowledged']);
     unset($validated['subscription_signed']);
 
+    // kyc_status column is NOT NULL — default to not_started if empty
+    if (empty($validated['kyc_status'])) {
+        $validated['kyc_status'] = 'not_started';
+    }
+
     $investor->update($validated);
 
     return redirect()->route('investors.show', $investor)
