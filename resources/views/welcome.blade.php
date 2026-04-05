@@ -28,7 +28,7 @@
         <!-- Main content -->
         <div class="flex-1 flex flex-col justify-center items-center md:items-start max-w-[90%] sm:max-w-[80%] md:max-w-[640px]">
             <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-6 leading-tight">
-                Your Investors. Your Fund. Fully Secure.
+                Your Investors.<br>Your Fund.<br>Fully Secure.
             </h1>
             @auth
                 @php
