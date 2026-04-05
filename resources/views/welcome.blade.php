@@ -13,14 +13,14 @@
         
     <!-- Top-left nav (only visible on md+ for better mobile centering) -->
     <div class="absolute top-6 left-6 md:block hidden">
-        <a href="/login" class="text-lg md:text-xl font-semibold border-2 border-brand-darker px-4 py-1 rounded hover:bg-brand-darker hover:text-white transition">
+        <a href="/login" class="text-lg md:text-xl font-semibold text-white px-4 py-1 rounded hover:opacity-90 transition" style="background-color: rgb(37 45 48);">
             Log in
         </a>
     </div>
 
     <!-- Mobile nav at top center -->
     <div class="block md:hidden mb-4">
-        <a href="/login" class="text-lg md:text-xl font-semibold border-2 border-brand-darker px-4 py-1 rounded hover:bg-brand-darker hover:text-white transition">
+        <a href="/login" class="text-lg md:text-xl font-semibold text-white px-4 py-1 rounded hover:opacity-90 transition" style="background-color: rgb(37 45 48);">
             Log in
         </a>
     </div>
