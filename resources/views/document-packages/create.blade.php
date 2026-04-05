@@ -71,24 +71,29 @@
                                     <p class="text-sm text-gray-500">No approved documents found in the Data Room.</p>
                                 @else
                                     <div class="border border-gray-300 rounded-md divide-y divide-gray-200 max-h-96 overflow-y-auto">
-                                        @foreach($documents->groupBy(fn($d) => $d->folder->folder_name ?? 'Uncategorised') as $folderName => $docs)
-                                            <div class="px-4 py-2 bg-gray-50">
-                                                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ $folderName }}</span>
+                                        @foreach($documents->groupBy(function($d) {
+                                            $parent = $d->folder?->parent?->folder_name;
+                                            $folder = $d->folder?->folder_name ?? 'Uncategorised';
+                                            return $parent ? $parent . ' › ' . $folder : $folder;
+                                        }) as $groupLabel => $docs)
+                                            <div class="px-4 py-2 bg-gray-50 sticky top-0 z-10">
+                                                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ $groupLabel }}</span>
                                             </div>
                                             @foreach($docs as $doc)
-                                                <label class="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer">
+                                                <label class="flex items-center px-4 py-2 hover:bg-blue-50 cursor-pointer">
                                                     <input type="checkbox" name="document_ids[]" value="{{ $doc->id }}"
                                                            {{ in_array($doc->id, old('document_ids', [])) ? 'checked' : '' }}
-                                                           class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                                                    <span class="ml-3 text-sm text-gray-700">{{ $doc->document_name }}</span>
+                                                           class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 flex-shrink-0">
+                                                    <span class="ml-3 text-sm text-gray-700 flex-1">{{ $doc->document_name }}</span>
+                                                    <span class="ml-2 text-xs text-gray-400">v{{ $doc->version }}</span>
                                                     @if($doc->file_type)
-                                                        <span class="ml-2 text-xs text-gray-400 uppercase">{{ $doc->file_type }}</span>
+                                                        <span class="ml-2 text-xs font-medium text-gray-400 uppercase bg-gray-100 px-1.5 py-0.5 rounded">{{ $doc->file_type }}</span>
                                                     @endif
                                                 </label>
                                             @endforeach
                                         @endforeach
                                     </div>
-                                    <p class="mt-1 text-xs text-gray-500">Only approved documents are shown.</p>
+                                    <p class="mt-1 text-xs text-gray-500">Only general fund documents are shown. Investor-specific files are excluded.</p>
                                 @endif
                             </div>
 

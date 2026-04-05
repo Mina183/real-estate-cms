@@ -24,6 +24,7 @@ class InvestorStageService
 
         // STAGE 3: Portal Access Granted
         'portal_access_granted' => [
+            'has_introductory_meeting'  => ['equals', true],
             'subscription_signed_date'  => ['not_null'],
             'final_commitment_amount'   => ['greater_than', 0],
         ],
@@ -58,6 +59,7 @@ class InvestorStageService
         'is_professional_client'   => 'Professional Client Status confirmed',
         'difc_dp_consent'          => 'DIFC Data Protection Consent confirmed',
         'agreed_confidentiality'   => 'NDA / Confidentiality accepted',
+        'has_introductory_meeting'  => 'Introductory Meeting held and logged',
         'subscription_signed_date' => 'Subscription Agreement signed & received',
         'final_commitment_amount'  => 'Final Commitment Amount entered',
         'kyc_status'               => 'KYC/AML documents uploaded and in review',

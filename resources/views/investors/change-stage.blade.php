@@ -138,6 +138,17 @@
                                     <div class="col-span-2 text-gray-400 font-medium uppercase tracking-wide mt-2">Stage 3 — Portal Access</div>
 
                                     <div class="flex items-center">
+                                        <span class="{{ $investor->has_introductory_meeting ? 'text-green-600' : 'text-red-500' }} mr-2 font-bold">
+                                            {{ $investor->has_introductory_meeting ? '✓' : '✗' }}
+                                        </span>
+                                        <span>Introductory Meeting held
+                                            @if($investor->has_introductory_meeting)
+                                                <span class="text-gray-400">({{ $investor->meetings->count() }} logged)</span>
+                                            @endif
+                                        </span>
+                                    </div>
+
+                                    <div class="flex items-center">
                                         <span class="{{ $investor->subscription_signed_date ? 'text-green-600' : 'text-red-500' }} mr-2 font-bold">
                                             {{ $investor->subscription_signed_date ? '✓' : '✗' }}
                                         </span>

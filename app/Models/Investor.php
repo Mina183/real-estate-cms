@@ -269,6 +269,15 @@ public function meetings()
     return $this->hasMany(InvestorMeeting::class)->orderBy('meeting_date', 'desc');
 }
 
+public function getHasIntroductoryMeetingAttribute(): bool
+{
+    // Uses loaded relation if available, otherwise queries
+    if ($this->relationLoaded('meetings')) {
+        return $this->meetings->isNotEmpty();
+    }
+    return $this->meetings()->exists();
+}
+
 public function documentAccessLinks()
 {
     return $this->hasMany(DocumentAccessLink::class);

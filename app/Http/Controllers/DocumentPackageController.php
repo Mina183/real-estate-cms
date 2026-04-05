@@ -27,7 +27,10 @@ class DocumentPackageController extends Controller
     public function create()
     {
         $documents = DataRoomDocument::where('status', 'approved')
-            ->with('folder')
+            ->where('file_type', '!=', 'eml')
+            ->whereNull('investor_id')
+            ->whereHas('folder', fn($q) => $q->where('folder_name', '!=', 'Communication Log'))
+            ->with(['folder.parent'])
             ->orderBy('document_name')
             ->get();
 
@@ -73,7 +76,10 @@ class DocumentPackageController extends Controller
     public function edit(DocumentPackage $documentPackage)
     {
         $documents = DataRoomDocument::where('status', 'approved')
-            ->with('folder')
+            ->where('file_type', '!=', 'eml')
+            ->whereNull('investor_id')
+            ->whereHas('folder', fn($q) => $q->where('folder_name', '!=', 'Communication Log'))
+            ->with(['folder.parent'])
             ->orderBy('document_name')
             ->get();
 

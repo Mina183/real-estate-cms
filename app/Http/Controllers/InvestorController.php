@@ -259,6 +259,7 @@ class InvestorController extends Controller
     public function changeStageForm(Investor $investor)
     {
         $this->authorize('changeStage', $investor);
+        $investor->load('meetings');
 
         $stages = [
             'prospect'              => 'Prospect',
