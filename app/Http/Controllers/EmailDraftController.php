@@ -8,8 +8,12 @@ use App\Models\EmailOnBehalf;
 use App\Models\EmailBodyTemplate;
 use App\Models\Investor;
 use App\Models\DataRoomDocument;
+use App\Models\DataRoomFolder;
+use App\Models\DocumentSendLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class EmailDraftController extends Controller
 {
@@ -237,6 +241,29 @@ class EmailDraftController extends Controller
             return back()->with('error', 'Failed to send email: ' . $e->getMessage());
         }
 
+        // Log in sent emails history
+        DocumentSendLog::create([
+            'investor_id'              => $investor->id,
+            'document_id'              => null,
+            'document_name'            => null,
+            'template'                 => 'custom_draft',
+            'email_subject'            => $subject,
+            'sent_by_user_id'          => auth()->user()->id,
+            'sent_to_email'            => $primaryContact->email,
+            'document_version'         => null,
+            'requires_acknowledgement' => false,
+            'sent_at'                  => now(),
+        ]);
+
+        // Archive .eml to investor's Communication Log folder
+        $this->saveEmailToDataRoom(
+            $investor,
+            $subject,
+            view('emails.draft', ['body' => $body, 'signature' => $signature, 'onBehalf' => $onBehalf])->render(),
+            $primaryContact->email,
+            $documents->isNotEmpty() ? $documents : null
+        );
+
         return redirect()->route('investors.show', $investor)
             ->with('success', 'Email sent successfully.');
     }
@@ -254,6 +281,65 @@ class EmailDraftController extends Controller
         $onBehalf  = $emailDraft->onBehalfOf;
 
         return view('email-drafts.preview', compact('emailDraft', 'investor', 'body', 'signature', 'onBehalf'));
+    }
+
+    private function saveEmailToDataRoom(Investor $investor, string $subject, string $htmlContent, string $to, $documents = null): void
+    {
+        $folder = DataRoomFolder::where('investor_id', $investor->id)
+            ->where('folder_name', 'Communication Log')
+            ->first();
+
+        if (!$folder) return;
+
+        $date     = now()->format('D, d M Y H:i:s O');
+        $from     = auth()->user()->email;
+        $boundary = md5(uniqid());
+
+        $emlContent = "Date: {$date}\r\n"
+            . "From: {$from}\r\n"
+            . "To: {$to}\r\n"
+            . "Subject: {$subject}\r\n"
+            . "MIME-Version: 1.0\r\n"
+            . "Content-Type: multipart/mixed; boundary=\"{$boundary}\"\r\n"
+            . "\r\n"
+            . "--{$boundary}\r\n"
+            . "Content-Type: text/html; charset=UTF-8\r\n"
+            . "\r\n"
+            . $htmlContent . "\r\n";
+
+        if ($documents) {
+            foreach ($documents as $doc) {
+                if (Storage::disk('private')->exists($doc->file_path)) {
+                    $fileContent  = base64_encode(Storage::disk('private')->get($doc->file_path));
+                    $emlContent  .= "--{$boundary}\r\n"
+                        . "Content-Type: application/{$doc->file_type}; name=\"{$doc->document_name}.{$doc->file_type}\"\r\n"
+                        . "Content-Transfer-Encoding: base64\r\n"
+                        . "Content-Disposition: attachment; filename=\"{$doc->document_name}.{$doc->file_type}\"\r\n"
+                        . "\r\n"
+                        . $fileContent . "\r\n";
+                }
+            }
+        }
+
+        $emlContent .= "--{$boundary}--";
+
+        $fileName    = now()->format('Y-m-d_His') . '_' . Str::slug($subject) . '.eml';
+        $storagePath = 'data-room/' . $folder->folder_number . '/' . $fileName;
+
+        Storage::disk('private')->put($storagePath, $emlContent);
+
+        DataRoomDocument::create([
+            'folder_id'     => $folder->id,
+            'investor_id'   => $investor->id,
+            'document_name' => $subject . ' — ' . now()->format('d M Y H:i'),
+            'file_path'     => $storagePath,
+            'file_type'     => 'eml',
+            'file_size'     => strlen($emlContent),
+            'version'       => '1.0',
+            'description'   => 'Auto-archived sent email',
+            'status'        => 'approved',
+            'uploaded_by'   => auth()->user()->id,
+        ]);
     }
 
     private function replacePlaceholders(string $body, Investor $investor): string
