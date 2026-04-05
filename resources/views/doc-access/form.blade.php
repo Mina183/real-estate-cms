@@ -82,6 +82,13 @@
                             Request Access
                         </button>
 
+                        <p class="mt-1 text-xs text-gray-500 leading-relaxed">
+                            By requesting access to these materials, you acknowledge the Privacy Notice and consent
+                            to the processing of your personal data for access management, security monitoring,
+                            regulatory compliance, and audit recordkeeping.
+                            <a href="{{ route('privacy-notice') }}" target="_blank" class="underline hover:text-gray-700">Privacy Notice</a>
+                        </p>
+
                     </div>
                 </form>
 

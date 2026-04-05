@@ -24,6 +24,9 @@ class DocumentPublicAccessController extends Controller
         $accessRequest = $this->resolveSessionRequest($token);
 
         if ($accessRequest && $accessRequest->isActive()) {
+            if (is_null($accessRequest->first_accessed_at)) {
+                $accessRequest->update(['first_accessed_at' => now()]);
+            }
             return view('doc-access.downloads', compact('link', 'accessRequest'));
         }
 
@@ -64,6 +67,11 @@ class DocumentPublicAccessController extends Controller
             'requester_email'         => $validated['requester_email'],
             'status'                  => 'pending',
             'ip_address'              => $request->ip(),
+            'user_agent'              => $request->header('User-Agent') ?? $request->userAgent(),
+            'consent_recorded_at'     => now(),
+            'consent_source'          => 'document_access_request',
+            'dp_notice_version'       => config('compliance.dp_notice_version'),
+            'privacy_notice_version'  => config('compliance.privacy_notice_version'),
         ]);
 
         session(["doc_access_{$token}" => $accessRequest->id]);
@@ -116,6 +124,13 @@ class DocumentPublicAccessController extends Controller
         if ($document->file_type && ! str_ends_with(strtolower($downloadName), '.' . $document->file_type)) {
             $downloadName .= '.' . $document->file_type;
         }
+
+        $accessRequest->increment('download_count');
+        $accessRequest->update([
+            'last_downloaded_at'       => now(),
+            'last_download_ip'         => $request->ip(),
+            'last_download_user_agent' => $request->userAgent(),
+        ]);
 
         return Storage::disk('private')->download($document->file_path, $downloadName);
     }

@@ -19,11 +19,24 @@ class DocumentAccessRequest extends Model
         'approved_at',
         'expires_at',
         'ip_address',
+        'user_agent',
+        'consent_recorded_at',
+        'consent_source',
+        'dp_notice_version',
+        'privacy_notice_version',
+        'first_accessed_at',
+        'download_count',
+        'last_downloaded_at',
+        'last_download_ip',
+        'last_download_user_agent',
     ];
 
     protected $casts = [
-        'approved_at' => 'datetime',
-        'expires_at'  => 'datetime',
+        'approved_at'         => 'datetime',
+        'expires_at'          => 'datetime',
+        'consent_recorded_at' => 'datetime',
+        'first_accessed_at'   => 'datetime',
+        'last_downloaded_at'  => 'datetime',
     ];
 
     public function link(): BelongsTo

@@ -54,6 +54,8 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
 
+    'privacy_notice_url' => env('PRIVACY_NOTICE_URL'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone
