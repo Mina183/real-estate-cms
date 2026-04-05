@@ -50,8 +50,14 @@ class EmailDraftController extends Controller
         $onBehalfOptions = EmailOnBehalf::where('is_active', true)->get();
         $bodyTemplates = EmailBodyTemplate::where('is_active', true)->get();
         $documents = DataRoomDocument::where('status', 'approved')
-            ->whereNull('investor_id')
-            ->orWhere('investor_id', $investor->id)
+            ->where('file_type', '!=', 'eml')
+            ->where(function($q) use ($investor) {
+                $q->whereNull('investor_id')
+                  ->orWhere('investor_id', $investor->id);
+            })
+            ->whereHas('folder', function($q) {
+                $q->where('folder_name', '!=', 'Communication Log');
+            })
             ->with('folder')
             ->get();
 
@@ -119,9 +125,13 @@ class EmailDraftController extends Controller
         $onBehalfOptions = EmailOnBehalf::where('is_active', true)->get();
         $bodyTemplates = EmailBodyTemplate::where('is_active', true)->get();
         $documents = DataRoomDocument::where('status', 'approved')
+            ->where('file_type', '!=', 'eml')
             ->where(function($q) use ($emailDraft) {
                 $q->whereNull('investor_id')
                   ->orWhere('investor_id', $emailDraft->investor_id);
+            })
+            ->whereHas('folder', function($q) {
+                $q->where('folder_name', '!=', 'Communication Log');
             })
             ->with('folder')
             ->get();
