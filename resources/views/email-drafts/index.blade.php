@@ -128,6 +128,17 @@
                                                         Edit
                                                     </a>
                                                 @endcan
+                                                @cannot('approve', $draft)
+                                                    @if($draft->status === 'draft')
+                                                        <form method="POST" action="{{ route('email-drafts.submit', $draft) }}" class="inline">
+                                                            @csrf
+                                                            <button type="submit"
+                                                                    class="bg-blue-600 hover:bg-blue-800 text-white text-xs font-bold py-1 px-3 rounded">
+                                                                Submit for Approval
+                                                            </button>
+                                                        </form>
+                                                    @endif
+                                                @endcannot
                                                 @if($draft->status === 'approved')
                                                     <form method="POST" action="{{ route('email-drafts.send', $draft) }}" class="inline">
                                                         @csrf

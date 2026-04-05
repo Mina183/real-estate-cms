@@ -180,6 +180,22 @@ class EmailDraftController extends Controller
     }
 
     /**
+     * Submit draft for approval — creator only, draft status only
+     */
+    public function submitForApproval(EmailDraft $emailDraft)
+    {
+        $this->authorize('update', $emailDraft);
+
+        if ($emailDraft->status !== 'draft') {
+            return back()->with('error', 'Only drafts can be submitted for approval.');
+        }
+
+        $emailDraft->update(['status' => 'pending_approval']);
+
+        return back()->with('success', 'Draft submitted for approval.');
+    }
+
+    /**
      * Approve draft — admin/superadmin only
      */
     public function approve(EmailDraft $emailDraft)
