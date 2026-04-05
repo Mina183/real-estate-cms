@@ -7,6 +7,8 @@ use App\Models\DocumentAccessRequest;
 use App\Models\DocumentPackage;
 use App\Models\Investor;
 use App\Notifications\DocumentAccessApprovedNotification;
+use App\Notifications\DocumentAccessGrantedNotification;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -141,6 +143,10 @@ class DocumentAccessLinkController extends Controller
         if ($notifyUser) {
             $notifyUser->notify(new DocumentAccessApprovedNotification($documentAccessRequest));
         }
+
+        // Notify the requester that their access has been granted
+        Notification::route('mail', $documentAccessRequest->requester_email)
+            ->notify(new DocumentAccessGrantedNotification($documentAccessRequest));
 
         // If the investor hasn't confirmed DIFC DP consent, redirect RM to the Eligibility tab
         // to confirm it — requesting document access constitutes DIFC DP consent.

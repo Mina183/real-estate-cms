@@ -102,7 +102,11 @@ class InvestorController extends Controller
         $funds = Fund::where('status', 'active')->get();
         $users = User::whereIn('role', ['admin', 'relationship_manager'])->get();
 
-        return view('investors.edit', compact('investor', 'funds', 'users'));
+        $latestConsentRequest = \App\Models\DocumentAccessRequest::whereHas('link', function ($q) use ($investor) {
+            $q->where('investor_id', $investor->id);
+        })->whereNotNull('consent_recorded_at')->latest('consent_recorded_at')->first();
+
+        return view('investors.edit', compact('investor', 'funds', 'users', 'latestConsentRequest'));
     }
 
     public function update(Request $request, Investor $investor)

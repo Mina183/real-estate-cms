@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DataRoomDocument;
 use App\Models\DocumentAccessLink;
 use App\Models\DocumentAccessRequest;
+use App\Notifications\NewAccessRequestNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -23,6 +24,19 @@ class DocumentPublicAccessController extends Controller
 
         $accessRequest = $this->resolveSessionRequest($token);
 
+        // If no session, check DB for any active approved request on this link
+        if (! $accessRequest || ! $accessRequest->isActive()) {
+            $accessRequest = DocumentAccessRequest::where('document_access_link_id', $link->id)
+                ->where('status', 'approved')
+                ->where('expires_at', '>', now())
+                ->latest('approved_at')
+                ->first();
+
+            if ($accessRequest) {
+                session(["doc_access_{$token}" => $accessRequest->id]);
+            }
+        }
+
         if ($accessRequest && $accessRequest->isActive()) {
             if (is_null($accessRequest->first_accessed_at)) {
                 $accessRequest->update(['first_accessed_at' => now()]);
@@ -38,7 +52,7 @@ class DocumentPublicAccessController extends Controller
      */
     public function submit(Request $request, string $token)
     {
-        $link = DocumentAccessLink::where('token', $token)->firstOrFail();
+        $link = DocumentAccessLink::where('token', $token)->with('createdBy')->firstOrFail();
 
         $validated = $request->validate([
             'requester_name'  => 'required|string|max:255',
@@ -75,6 +89,12 @@ class DocumentPublicAccessController extends Controller
         ]);
 
         session(["doc_access_{$token}" => $accessRequest->id]);
+
+        // Notify the link creator about the new request
+        $linkCreator = $accessRequest->link?->createdBy;
+        if ($linkCreator) {
+            $linkCreator->notify(new NewAccessRequestNotification($accessRequest));
+        }
 
         return redirect()->route('doc-access.confirmation', $token);
     }

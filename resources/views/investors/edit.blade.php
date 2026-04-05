@@ -275,6 +275,18 @@
                                     </div>
                                 </div>
 
+                                {{-- Consent audit log — read only, shown before DP consent checkbox --}}
+                                @if($latestConsentRequest)
+                                <div class="mx-4 mb-2 p-3 bg-gray-50 border border-gray-200 rounded-md text-xs text-gray-600 space-y-1">
+                                    <p class="font-semibold text-gray-700 mb-1">Consent Record (from document access request)</p>
+                                    <p><span class="text-gray-400 w-28 inline-block">Name</span> {{ $latestConsentRequest->requester_name }}</p>
+                                    <p><span class="text-gray-400 w-28 inline-block">Email</span> {{ $latestConsentRequest->requester_email }}</p>
+                                    <p><span class="text-gray-400 w-28 inline-block">IP Address</span> {{ $latestConsentRequest->ip_address ?? '—' }}</p>
+                                    <p><span class="text-gray-400 w-28 inline-block">User Agent</span> <span class="break-all">{{ $latestConsentRequest->user_agent ?? '—' }}</span></p>
+                                    <p><span class="text-gray-400 w-28 inline-block">Consented At</span> {{ $latestConsentRequest->consent_recorded_at?->format('d M Y, H:i') ?? '—' }}</p>
+                                </div>
+                                @endif
+
                                 <div class="flex items-start px-4 py-4">
                                     <input type="checkbox" name="difc_dp_consent" id="difc_dp_consent" value="1"
                                            {{ $investor->difc_dp_consent ? 'checked' : '' }}
