@@ -40,7 +40,7 @@
                         View Investors
                     </a>
                 @elseif($role === 'fund_manager' || $role === 'superadmin')
-                    <a href="{{ route('dashboard') }}" class="bg-brand-darker text-white px-5 py-2 rounded hover:opacity-90 transition w-fit">
+                    <a href="{{ route('dashboard') }}" class="text-white px-5 py-2 rounded hover:opacity-90 transition w-fit" style="background: linear-gradient(135deg, #53666e, #8fc6cb);">
                         Go to Dashboard
                     </a>
                 @endif
@@ -50,20 +50,6 @@
 
 <!-- Right column: logo -->
 <div class="w-full lg:w-1/2 bg-brand-darker text-white relative flex flex-col items-center justify-center py-12 lg:py-0">
-
-    <!-- Top-right nav for large screens only -->
-    <div class="hidden lg:block absolute top-6 right-8">
-        <a href="/register" class="text-lg font-medium hover:underline border border-white px-3 py-1 rounded">
-            Register
-        </a>
-    </div>
-
-    <!-- Mobile register button -->
-    <div class="lg:hidden mb-6">
-        <a href="/register" class="text-lg font-medium hover:underline border border-white px-3 py-1 rounded">
-            Register
-        </a>
-    </div>
 
     <!-- Logo center -->
     <img id="logo" src="/images/logo.png" alt="Poseidon Real Estate Logo"
