@@ -539,6 +539,17 @@
                                     </button>
                                 </form>
                             @endif
+                            @can('delete', $draft)
+                                <form method="POST" action="{{ route('email-drafts.destroy', $draft) }}" class="inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit"
+                                            class="bg-red-100 hover:bg-red-200 text-red-700 text-xs font-bold py-1 px-3 rounded"
+                                            onclick="return confirm('Delete this draft? This cannot be undone.')">
+                                        Delete
+                                    </button>
+                                </form>
+                            @endcan
                         </div>
                     </div>
                     @endforeach

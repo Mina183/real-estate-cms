@@ -22,6 +22,19 @@ class EmailDraftPolicy
         return $draft->created_by_user_id === $user->id && $draft->status !== 'sent';
     }
 
+    public function delete(User $user, EmailDraft $draft): bool
+    {
+        if ($draft->status !== 'draft') {
+            return false;
+        }
+        // Admin/superadmin can delete any draft
+        if (in_array($user->role, ['superadmin', 'admin'])) {
+            return true;
+        }
+        // Creator (RM etc.) can delete their own draft
+        return $draft->created_by_user_id === $user->id;
+    }
+
     public function approve(User $user, EmailDraft $draft): bool
     {
         return in_array($user->role, ['superadmin', 'admin']);

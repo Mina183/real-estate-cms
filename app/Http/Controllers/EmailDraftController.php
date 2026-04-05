@@ -214,6 +214,19 @@ class EmailDraftController extends Controller
     }
 
     /**
+     * Delete a draft — only draft status, creator or admin
+     */
+    public function destroy(EmailDraft $emailDraft)
+    {
+        $this->authorize('delete', $emailDraft);
+
+        $emailDraft->delete();
+
+        return redirect()->route('email-drafts.index')
+            ->with('success', 'Draft deleted.');
+    }
+
+    /**
      * Approve draft — admin/superadmin only
      */
     public function approve(EmailDraft $emailDraft)

@@ -269,6 +269,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/{emailDraft}/submit', 'submitForApproval')->name('email-drafts.submit');
         Route::post('/{emailDraft}/approve', 'approve')->name('email-drafts.approve');
         Route::post('/{emailDraft}/send', 'send')->name('email-drafts.send');
+        Route::delete('/{emailDraft}', 'destroy')->name('email-drafts.destroy');
     });
 
     /*
