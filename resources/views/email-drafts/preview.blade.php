@@ -83,7 +83,7 @@
                     {{ ucfirst(str_replace('_', ' ', $emailDraft->status)) }}
                 </span>
             </div>
-            <div class="meta">Subject: {{ $emailDraft->subject }}</div>
+            <div class="meta">Subject: {{ $subject }}</div>
         </div>
         <div class="toolbar-right">
             @can('update', $emailDraft)
@@ -115,6 +115,22 @@
             </div>
             @endif
         @endcan
+
+        {{-- Recipient info --}}
+        <div style="max-width:640px; margin:0 auto 12px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:12px 16px; font-size:13px; color:#374151;">
+            <div><span style="color:#6b7280; min-width:32px; display:inline-block;">To:</span>
+                @if($primaryContact)
+                    <strong>{{ $primaryContact->full_name }}</strong> &lt;{{ $primaryContact->email }}&gt;
+                @else
+                    <span style="color:#ef4444;">No primary contact with email found</span>
+                @endif
+            </div>
+            @if(!empty($emailDraft->cc_emails))
+            <div style="margin-top:4px;"><span style="color:#6b7280; min-width:32px; display:inline-block;">CC:</span>
+                {{ implode(', ', $emailDraft->cc_emails) }}
+            </div>
+            @endif
+        </div>
 
         {{-- Rendered email (reuses the email template inline) --}}
         <div style="max-width:640px; margin:0 auto; background:#fff; box-shadow:0 1px 4px rgba(0,0,0,.1); border-radius:4px; overflow:hidden;">

@@ -318,12 +318,17 @@ class EmailDraftController extends Controller
     {
         $this->authorize('update', $emailDraft);
 
-        $investor  = $emailDraft->investor;
-        $body      = $this->replacePlaceholders($emailDraft->body, $investor);
-        $signature = $emailDraft->signature;
-        $onBehalf  = $emailDraft->onBehalfOf;
+        $investor       = $emailDraft->investor->load('contacts');
+        $body           = $this->replacePlaceholders($emailDraft->body, $investor);
+        $subject        = $this->replacePlaceholders($emailDraft->subject, $investor);
+        $signature      = $emailDraft->signature;
+        $onBehalf       = $emailDraft->onBehalfOf;
+        $primaryContact = $investor->contacts->where('is_primary', true)->first()
+                          ?? $investor->contacts->first();
 
-        return view('email-drafts.preview', compact('emailDraft', 'investor', 'body', 'signature', 'onBehalf'));
+        return view('email-drafts.preview', compact(
+            'emailDraft', 'investor', 'body', 'subject', 'signature', 'onBehalf', 'primaryContact'
+        ));
     }
 
     private function saveEmailToDataRoom(Investor $investor, string $subject, string $htmlContent, string $to, $documents = null): void
@@ -386,13 +391,10 @@ class EmailDraftController extends Controller
     }
 
     private function replacePlaceholders(string $body, Investor $investor): string
-        {
-            $investorName = $investor->organization_name ?? $investor->legal_entity_name ?? 'Investor';
-            
-            return str_replace(
-                ['{{investor_name}}'],
-                [$investorName],
-                $body
-            );
-        }
+    {
+        $investorName = $investor->organization_name ?? $investor->legal_entity_name ?? 'Investor';
+
+        // Use regex so {{ investor_name }} with spaces also matches
+        return preg_replace('/\{\{\s*investor_name\s*\}\}/', $investorName, $body);
+    }
 }
