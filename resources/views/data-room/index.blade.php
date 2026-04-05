@@ -382,6 +382,7 @@
 
                 <form action="{{ route('data-room.upload') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
                     @csrf
+                    <input type="hidden" name="investor_id" id="investor_id_upload" value="">
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">
@@ -390,32 +391,42 @@
                         <select name="folder_id" id="folder_id" required
                                 class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white">
                             <option value="">— Select folder —</option>
+
+                            {{-- General fund folders --}}
                             @foreach($folders as $folder)
-                                <option value="{{ $folder->id }}" data-folder-number="{{ $folder->folder_number }}">
+                                <option value="{{ $folder->id }}" data-investor-id="">
                                     {{ $folder->folder_number }} · {{ $folder->folder_name }}
                                 </option>
                                 @foreach($folder->children as $child)
-                                    <option value="{{ $child->id }}" data-folder-number="{{ $child->folder_number }}">
+                                    <option value="{{ $child->id }}" data-investor-id="">
                                         &nbsp;&nbsp;&nbsp;└ {{ $child->folder_number }} · {{ $child->folder_name }}
                                     </option>
                                 @endforeach
                             @endforeach
+
+                            {{-- Investor sub-folders, grouped by investor, excluding Communication Log --}}
+                            @foreach($investorFolders as $invRoot)
+                                @php
+                                    $uploadable = $invRoot->children;
+                                @endphp
+                                @if($uploadable->isNotEmpty())
+                                    <optgroup label="── {{ $invRoot->folder_name }} ──">
+                                        @foreach($uploadable as $subFolder)
+                                            <option value="{{ $subFolder->id }}"
+                                                    data-investor-id="{{ $subFolder->investor_id }}"
+                                                    data-investor-name="{{ $invRoot->folder_name }}">
+                                                📁 {{ $subFolder->folder_name }}
+                                            </option>
+                                        @endforeach
+                                    </optgroup>
+                                @endif
+                            @endforeach
                         </select>
                     </div>
 
-                    {{-- Investor selection — shown only for Folder 5 --}}
-                    <div id="investor-selection" class="hidden">
-                        <label class="block text-sm font-medium text-gray-700 mb-1.5">
-                            Assign to Investor
-                            <span class="text-xs text-gray-400 font-normal ml-1">(Folder 5 — Investor Personal Documents)</span>
-                        </label>
-                        <select name="investor_id"
-                                class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 bg-white">
-                            <option value="">— Available to all —</option>
-                            @foreach(\App\Models\Investor::orderBy('organization_name')->get() as $investor)
-                                <option value="{{ $investor->id }}">{{ $investor->organization_name ?? $investor->legal_entity_name }}</option>
-                            @endforeach
-                        </select>
+                    {{-- Investor context — shown automatically when an investor sub-folder is selected --}}
+                    <div id="investor-folder-info" class="hidden p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800">
+                        Uploading to investor folder: <strong id="investor-folder-name"></strong>
                     </div>
 
                     <div>
@@ -432,9 +443,9 @@
                             File <span class="text-red-500">*</span>
                         </label>
                         <input type="file" name="document" required
-                               accept=".pdf,.doc,.docx,.xlsx,.xls,.pptx,.ppt"
+                               accept=".pdf,.doc,.docx,.xlsx,.xls,.pptx,.ppt,.eml"
                                class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 file:mr-3 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-medium file:bg-blue-50 file:text-blue-700">
-                        <p class="text-xs text-gray-400 mt-1">PDF, Word, Excel, PowerPoint · Max 10MB</p>
+                        <p class="text-xs text-gray-400 mt-1">PDF, Word, Excel, PowerPoint, EML · Max 10MB</p>
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">
@@ -572,10 +583,19 @@
     function showUploadModal() { document.getElementById('uploadModal').classList.remove('hidden'); }
     function closeUploadModal() { document.getElementById('uploadModal').classList.add('hidden'); }
 
-    // Show investor field only for Folder 5
+    // Auto-populate investor_id when an investor sub-folder is selected
     document.getElementById('folder_id')?.addEventListener('change', function() {
-        const num = this.options[this.selectedIndex]?.getAttribute('data-folder-number') || '';
-        document.getElementById('investor-selection').classList.toggle('hidden', num !== '5');
+        const selected = this.options[this.selectedIndex];
+        const investorId   = selected?.getAttribute('data-investor-id') || '';
+        const investorName = selected?.getAttribute('data-investor-name') || '';
+        document.getElementById('investor_id_upload').value = investorId;
+        const infoBox = document.getElementById('investor-folder-info');
+        if (investorId) {
+            document.getElementById('investor-folder-name').textContent = investorName;
+            infoBox.classList.remove('hidden');
+        } else {
+            infoBox.classList.add('hidden');
+        }
     });
 
     function showReadMe() { document.getElementById('readMeModal').classList.remove('hidden'); }
