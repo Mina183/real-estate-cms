@@ -161,23 +161,34 @@
                                 </select>
                             </div>
 
-                            {{-- CC Placement Agent --}}
-                            @php $investor = $emailDraft->investor; @endphp
-                            @if($investor->source_of_introduction === 'placement_agent' && $investor->placement_agent_email)
+                            {{-- CC --}}
+                            @php
+                                $investor = $emailDraft->investor;
+                                $existingCustomCc = collect($emailDraft->cc_emails ?? [])
+                                    ->filter(fn($e) => $e !== $investor->placement_agent_email)
+                                    ->first();
+                            @endphp
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">CC</label>
-                                <label class="flex items-center space-x-2 p-3 bg-gray-50 border border-gray-200 rounded-md">
-                                    <input type="checkbox" name="cc_placement_agent" value="1"
-                                           {{ in_array($investor->placement_agent_email, old('cc_emails', $emailDraft->cc_emails ?? [])) ? 'checked' : '' }}
-                                           class="rounded border-gray-300 text-blue-600">
-                                    <span class="text-sm text-gray-700">
-                                        CC Placement Agent:
-                                        <strong>{{ $investor->placement_agent_name }}</strong>
-                                        ({{ $investor->placement_agent_email }})
-                                    </span>
-                                </label>
+                                <div class="space-y-2">
+                                    @if($investor->source_of_introduction === 'placement_agent' && $investor->placement_agent_email)
+                                    <label class="flex items-center space-x-2 p-3 bg-gray-50 border border-gray-200 rounded-md">
+                                        <input type="checkbox" name="cc_placement_agent" value="1"
+                                               {{ in_array($investor->placement_agent_email, old('cc_emails', $emailDraft->cc_emails ?? [])) ? 'checked' : '' }}
+                                               class="rounded border-gray-300 text-blue-600">
+                                        <span class="text-sm text-gray-700">
+                                            CC Placement Agent:
+                                            <strong>{{ $investor->placement_agent_name }}</strong>
+                                            ({{ $investor->placement_agent_email }})
+                                        </span>
+                                    </label>
+                                    @endif
+                                    <input type="email" name="cc_custom_email"
+                                           value="{{ old('cc_custom_email', $existingCustomCc) }}"
+                                           placeholder="Custom CC email address (optional)"
+                                           class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                                </div>
                             </div>
-                            @endif
 
                             {{-- Documents --}}
                             @if($documents->count() > 0)

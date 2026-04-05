@@ -74,12 +74,16 @@ class EmailDraftController extends Controller
             'document_ids'       => 'nullable|array',
             'document_ids.*'     => 'exists:data_room_documents,id',
             'submit_for_approval'=> 'boolean',
+            'cc_custom_email'    => 'nullable|email|max:255',
         ]);
 
         $investor = Investor::find($validated['investor_id']);
         $ccEmails = [];
         if ($request->boolean('cc_placement_agent') && $investor?->placement_agent_email) {
             $ccEmails[] = $investor->placement_agent_email;
+        }
+        if ($request->filled('cc_custom_email')) {
+            $ccEmails[] = $request->input('cc_custom_email');
         }
 
         $draft = EmailDraft::create([
@@ -142,6 +146,7 @@ class EmailDraftController extends Controller
             'document_ids'        => 'nullable|array',
             'document_ids.*'      => 'exists:data_room_documents,id',
             'submit_for_approval' => 'boolean',
+            'cc_custom_email'     => 'nullable|email|max:255',
         ]);
 
         $user = auth()->user();
@@ -161,6 +166,9 @@ class EmailDraftController extends Controller
         $ccEmails = [];
         if ($request->boolean('cc_placement_agent') && $investor?->placement_agent_email) {
             $ccEmails[] = $investor->placement_agent_email;
+        }
+        if ($request->filled('cc_custom_email')) {
+            $ccEmails[] = $request->input('cc_custom_email');
         }
 
         $emailDraft->update([
