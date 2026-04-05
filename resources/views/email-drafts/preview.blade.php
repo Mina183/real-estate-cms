@@ -135,6 +135,19 @@
                     {!! $signature->signature_html !!}
                 </div>
                 @endif
+
+                <div style="margin-top:32px;padding:16px;background:#f8f9fa;border:1px solid #e2e4e8;border-radius:4px;font-size:11px;color:#666;line-height:1.5;">
+                    <strong style="display:block;margin-bottom:6px;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:#444;">Important Notice</strong>
+                    This communication is confidential and intended solely for persons who qualify as Professional Clients
+                    as defined by the Dubai Financial Services Authority (DFSA). It is not directed at, and must not be
+                    relied upon by, Retail Clients. This document does not constitute an offer, invitation, inducement or
+                    recommendation to subscribe for or purchase any interest in the Triton Real Estate Fund (CEIC) Limited
+                    (the "Fund"). The DFSA has not approved or endorsed this document or the Fund. Any investment in the
+                    Fund may only be made on the basis of the Private Placement Memorandum (PPM), the Fund's constitutional
+                    documents and the Subscription Agreement. Investment in the Fund involves significant risks, including
+                    the potential loss of capital, illiquidity and leverage. Past performance, targets or projections are
+                    not reliable indicators of future results.
+                </div>
             </div>
             <div style="background:#f8f8f8;padding:16px 32px;font-size:11px;color:#999;border-top:1px solid #eee;">
                 This email and any attachments are confidential and intended solely for the named recipient.

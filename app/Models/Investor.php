@@ -25,6 +25,8 @@ class Investor extends Model
         // Relationship
         'source_of_introduction',
         'referral_source',
+        'placement_agent_name',
+        'placement_agent_email',
         'assigned_to_user_id',
         
         // Financial

@@ -8,13 +8,14 @@ class EmailDraft extends Model
 {
     protected $fillable = [
         'investor_id', 'template_key', 'on_behalf_of_id', 'signature_id',
-        'subject', 'body', 'document_ids', 'status',
+        'subject', 'body', 'document_ids', 'cc_emails', 'status',
         'created_by_user_id', 'approved_by_user_id', 'approved_at',
     ];
 
     protected $casts = [
         'document_ids' => 'array',
-        'approved_at' => 'datetime',
+        'cc_emails'    => 'array',
+        'approved_at'  => 'datetime',
     ];
 
     public function investor() { return $this->belongsTo(Investor::class); }

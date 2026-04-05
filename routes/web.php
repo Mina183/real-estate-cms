@@ -254,6 +254,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     | Email Drafts
     |--------------------------------------------------------------------------
     */
+    Route::prefix('reports')->controller(\App\Http\Controllers\ReportsController::class)->group(function () {
+        Route::get('/', 'index')->name('reports.index');
+        Route::get('/placement-agents', 'placementAgentsExport')->name('reports.placement-agents-export');
+    });
+
     Route::prefix('email-drafts')->controller(EmailDraftController::class)->group(function () {
         Route::get('/', 'index')->name('email-drafts.index');
         Route::get('/create', 'create')->name('email-drafts.create');

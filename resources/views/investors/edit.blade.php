@@ -180,6 +180,23 @@
                                            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
                                 </div>
 
+                                <div id="placement-agent-fields" style="display: {{ $investor->source_of_introduction === 'placement_agent' ? 'block' : 'none' }};" class="space-y-3">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Placement Agent Name</label>
+                                        <input type="text" name="placement_agent_name"
+                                               value="{{ old('placement_agent_name', $investor->placement_agent_name) }}"
+                                               placeholder="Placement agent company or individual name"
+                                               class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Placement Agent Email</label>
+                                        <input type="email" name="placement_agent_email"
+                                               value="{{ old('placement_agent_email', $investor->placement_agent_email) }}"
+                                               placeholder="agent@example.com"
+                                               class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                                    </div>
+                                </div>
+
                                 <div>
                                     <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
                                     <textarea name="notes" id="notes" rows="3"
@@ -678,8 +695,12 @@
         }
 
         // Source of introduction toggle
+        function updateSourceFields(value) {
+            document.getElementById('referral-source-field').style.display    = value === 'referral'         ? 'block' : 'none';
+            document.getElementById('placement-agent-fields').style.display   = value === 'placement_agent'  ? 'block' : 'none';
+        }
         document.getElementById('source_of_introduction').addEventListener('change', function () {
-            document.getElementById('referral-source-field').style.display = this.value === 'referral' ? 'block' : 'none';
+            updateSourceFields(this.value);
         });
 
         // Side letter terms toggle

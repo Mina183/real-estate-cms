@@ -68,17 +68,7 @@
                                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-dark focus:ring-brand-dark">{{ old('description', $distribution->description) }}</textarea>
                             </div>
 
-                            {{-- Type --}}
-                            <div>
-                                <label for="type" class="block text-sm font-medium text-gray-700">Distribution Type *</label>
-                                <select name="type" id="type" required
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-dark focus:ring-brand-dark">
-                                    <option value="dividend" {{ old('type', $distribution->type) === 'dividend' ? 'selected' : '' }}>Dividend</option>
-                                    <option value="return_of_capital" {{ old('type', $distribution->type) === 'return_of_capital' ? 'selected' : '' }}>Return of Capital</option>
-                                    <option value="profit_share" {{ old('type', $distribution->type) === 'profit_share' ? 'selected' : '' }}>Profit Share</option>
-                                    <option value="other" {{ old('type', $distribution->type) === 'other' ? 'selected' : '' }}>Other</option>
-                                </select>
-                            </div>
+                            <input type="hidden" name="type" value="{{ $distribution->type ?? 'profit_share' }}">
 
                             {{-- Total Amount --}}
                             <div>

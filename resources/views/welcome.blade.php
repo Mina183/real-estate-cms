@@ -30,18 +30,6 @@
             <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-6 leading-tight">
                 Your Investors. Your Fund. Fully Secure.
             </h1>
-        <div class="border-b-2 border-brand-darker text-left mb-1">
-            <p class="mb-1 text-sm sm:text-base md:text-lg max-w-prose">
-                Manage investor relationships, commitments, and compliance — all securely stored with role-based access control.
-            </p>
-        </div>
-            <ul class="list-disc list-inside space-y-2 mb-8 text-sm sm:text-base md:text-lg text-left">
-                <li>Secure investor data room with document management</li>
-                <li>Track investment stages from prospect to funded</li>
-                <li>Automated validation and compliance checks</li>
-                <li>Role-based access for fund managers and relationship teams</li>
-            </ul>
-
             @auth
                 @php
                     $role = auth()->user()->role;

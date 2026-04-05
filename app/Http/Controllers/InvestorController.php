@@ -50,9 +50,11 @@ class InvestorController extends Controller
             'assigned_to_user_id' => 'required|exists:users,id', // REQUIRED
             'target_commitment_amount' => 'nullable|numeric|min:1000000', // $1M minimum
             'currency' => 'nullable|string|max:3',
-            'source_of_introduction' => 'nullable|in:direct,advisor,placement_agent,referral,event,other',
-            'referral_source' => 'nullable|string|max:255',
-            'notes' => 'nullable|string',
+            'source_of_introduction'  => 'nullable|in:direct,advisor,placement_agent,referral,event,other',
+            'referral_source'         => 'nullable|string|max:255',
+            'placement_agent_name'    => 'nullable|string|max:255',
+            'placement_agent_email'   => 'nullable|email|max:255',
+            'notes'                   => 'nullable|string',
         ]);
 
         // Set defaults
@@ -116,9 +118,11 @@ class InvestorController extends Controller
         'final_commitment_amount' => 'nullable|numeric',
         'funded_amount' => 'nullable|numeric',
         'currency' => 'nullable|string|max:3',
-        'source_of_introduction' => 'nullable|in:direct,advisor,placement_agent,referral,event,other',
-        'referral_source' => 'nullable|string|max:255',
-        'notes' => 'nullable|string',
+        'source_of_introduction'  => 'nullable|in:direct,advisor,placement_agent,referral,event,other',
+        'referral_source'         => 'nullable|string|max:255',
+        'placement_agent_name'    => 'nullable|string|max:255',
+        'placement_agent_email'   => 'nullable|email|max:255',
+        'notes'                   => 'nullable|string',
 
         // Compliance checkboxes
         'is_professional_client' => 'nullable|boolean',

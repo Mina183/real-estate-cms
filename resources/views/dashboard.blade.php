@@ -51,9 +51,12 @@
                        class="block bg-white text-brand-darker px-4 py-2 rounded hover:bg-brand-light/20 font-semibold transition">
                         🔒 Data Room
                     </a>
-                    <a href="#" class="block bg-gray-300 text-gray-500 px-4 py-2 rounded cursor-not-allowed font-semibold">
-                        📈 Reports <span class="text-xs">(Coming Soon)</span>
+                    @can('manage-settings')
+                    <a href="{{ route('reports.index') }}"
+                       class="block bg-white text-brand-darker px-4 py-2 rounded hover:bg-brand-light/20 font-semibold transition">
+                        📈 Reports
                     </a>
+                    @endcan
 
                     @if(auth()->user()->can('manage-settings') || auth()->user()->can('manage-access-requests'))
                     <div class="pt-2 border-t border-white/20">

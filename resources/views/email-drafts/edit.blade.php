@@ -155,6 +155,24 @@
                                 </select>
                             </div>
 
+                            {{-- CC Placement Agent --}}
+                            @php $investor = $emailDraft->investor; @endphp
+                            @if($investor->source_of_introduction === 'placement_agent' && $investor->placement_agent_email)
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">CC</label>
+                                <label class="flex items-center space-x-2 p-3 bg-gray-50 border border-gray-200 rounded-md">
+                                    <input type="checkbox" name="cc_placement_agent" value="1"
+                                           {{ in_array($investor->placement_agent_email, old('cc_emails', $emailDraft->cc_emails ?? [])) ? 'checked' : '' }}
+                                           class="rounded border-gray-300 text-blue-600">
+                                    <span class="text-sm text-gray-700">
+                                        CC Placement Agent:
+                                        <strong>{{ $investor->placement_agent_name }}</strong>
+                                        ({{ $investor->placement_agent_email }})
+                                    </span>
+                                </label>
+                            </div>
+                            @endif
+
                             {{-- Documents --}}
                             @if($documents->count() > 0)
                             <div>

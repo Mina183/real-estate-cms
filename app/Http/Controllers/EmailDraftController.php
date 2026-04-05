@@ -66,26 +66,33 @@ class EmailDraftController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'investor_id'       => 'required|exists:investors,id',
-            'on_behalf_of_id'   => 'nullable|exists:email_on_behalf,id',
-            'signature_id'      => 'nullable|exists:email_signatures,id',
-            'subject'           => 'required|string|max:255',
-            'body'              => 'required|string',
-            'document_ids'      => 'nullable|array',
-            'document_ids.*'    => 'exists:data_room_documents,id',
-            'submit_for_approval' => 'boolean',
+            'investor_id'        => 'required|exists:investors,id',
+            'on_behalf_of_id'    => 'nullable|exists:email_on_behalf,id',
+            'signature_id'       => 'nullable|exists:email_signatures,id',
+            'subject'            => 'required|string|max:255',
+            'body'               => 'required|string',
+            'document_ids'       => 'nullable|array',
+            'document_ids.*'     => 'exists:data_room_documents,id',
+            'submit_for_approval'=> 'boolean',
         ]);
 
+        $investor = Investor::find($validated['investor_id']);
+        $ccEmails = [];
+        if ($request->boolean('cc_placement_agent') && $investor?->placement_agent_email) {
+            $ccEmails[] = $investor->placement_agent_email;
+        }
+
         $draft = EmailDraft::create([
-            'investor_id'       => $validated['investor_id'],
-            'template_key'      => 'custom',
-            'on_behalf_of_id'   => $validated['on_behalf_of_id'] ?? null,
-            'signature_id'      => $validated['signature_id'] ?? null,
-            'subject'           => $validated['subject'],
-            'body'              => $validated['body'],
-            'document_ids'      => $validated['document_ids'] ?? [],
-            'status'            => $request->boolean('submit_for_approval') ? 'pending_approval' : 'draft',
-            'created_by_user_id' => auth()->id(),
+            'investor_id'        => $validated['investor_id'],
+            'template_key'       => 'custom',
+            'on_behalf_of_id'    => $validated['on_behalf_of_id'] ?? null,
+            'signature_id'       => $validated['signature_id'] ?? null,
+            'subject'            => $validated['subject'],
+            'body'               => $validated['body'],
+            'document_ids'       => $validated['document_ids'] ?? [],
+            'cc_emails'          => $ccEmails,
+            'status'             => $request->boolean('submit_for_approval') ? 'pending_approval' : 'draft',
+            'created_by_user_id' => auth()->user()->id,
         ]);
 
         if ($draft->status === 'pending_approval') {
@@ -150,12 +157,19 @@ class EmailDraftController extends Controller
             $newStatus = 'draft';
         }
 
+        $investor = $emailDraft->investor;
+        $ccEmails = [];
+        if ($request->boolean('cc_placement_agent') && $investor?->placement_agent_email) {
+            $ccEmails[] = $investor->placement_agent_email;
+        }
+
         $emailDraft->update([
             'on_behalf_of_id' => $validated['on_behalf_of_id'] ?? null,
             'signature_id'    => $validated['signature_id'] ?? null,
             'subject'         => $validated['subject'],
             'body'            => $validated['body'],
             'document_ids'    => $validated['document_ids'] ?? [],
+            'cc_emails'       => $ccEmails,
             'status'          => $newStatus,
         ]);
 
@@ -213,9 +227,14 @@ class EmailDraftController extends Controller
         $subject = $this->replacePlaceholders($emailDraft->subject, $investor);
 
         try {
-            Mail::send([], [], function ($message) use ($emailDraft, $primaryContact, $documents, $signature, $onBehalf, $subject, $body) {
+            $ccEmails = $emailDraft->cc_emails ?? [];
+            Mail::send([], [], function ($message) use ($emailDraft, $primaryContact, $documents, $signature, $onBehalf, $subject, $body, $ccEmails) {
                 $message->to($primaryContact->email, $primaryContact->full_name)
-                    ->subject($subject)
+                    ->subject($subject);
+                if (!empty($ccEmails)) {
+                    $message->cc($ccEmails);
+                }
+                $message
                     ->html(
                         view('emails.draft', [
                             'body'      => $body,

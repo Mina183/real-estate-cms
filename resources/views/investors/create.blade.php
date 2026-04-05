@@ -156,10 +156,32 @@
                                 <label for="referral_source" class="block text-sm font-medium text-gray-700">
                                     Referral Source Details
                                 </label>
-                                <input type="text" name="referral_source" id="referral_source" 
+                                <input type="text" name="referral_source" id="referral_source"
                                        value="{{ old('referral_source') }}"
                                        placeholder="Name or organization that referred"
                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            </div>
+
+                            <!-- Placement Agent Fields (if placement_agent) -->
+                            <div id="placement_agent_div" class="hidden space-y-3">
+                                <div>
+                                    <label for="placement_agent_name" class="block text-sm font-medium text-gray-700">
+                                        Placement Agent Name
+                                    </label>
+                                    <input type="text" name="placement_agent_name" id="placement_agent_name"
+                                           value="{{ old('placement_agent_name') }}"
+                                           placeholder="Placement agent company or individual name"
+                                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label for="placement_agent_email" class="block text-sm font-medium text-gray-700">
+                                        Placement Agent Email
+                                    </label>
+                                    <input type="email" name="placement_agent_email" id="placement_agent_email"
+                                           value="{{ old('placement_agent_email') }}"
+                                           placeholder="agent@example.com"
+                                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                </div>
                             </div>
 
                             <!-- Notes -->
@@ -193,8 +215,13 @@
     </div>
 
     <script>
-        // Show/hide referral source field based on selection
+        function updateSourceFields(value) {
+            document.getElementById('referral_source_div').classList.toggle('hidden', value !== 'referral');
+            document.getElementById('placement_agent_div').classList.toggle('hidden', value !== 'placement_agent');
+        }
+
         document.getElementById('source_of_introduction').addEventListener('change', function() {
+            updateSourceFields(this.value);
             const referralDiv = document.getElementById('referral_source_div');
             if (this.value === 'referral') {
                 referralDiv.classList.remove('hidden');
@@ -203,10 +230,8 @@
             }
         });
 
-        // Trigger on page load if old value is referral
-        if (document.getElementById('source_of_introduction').value === 'referral') {
-            document.getElementById('referral_source_div').classList.remove('hidden');
-        }
+        // Trigger on page load for old() value
+        updateSourceFields(document.getElementById('source_of_introduction').value);
     </script>
 
 </x-app-layout>
