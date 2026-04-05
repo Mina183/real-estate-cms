@@ -48,9 +48,15 @@
 
             {{-- Approve action — standalone form, NOT nested inside the edit form --}}
             @can('approve', $emailDraft)
-                @if($emailDraft->status === 'pending_approval')
+                @if(in_array($emailDraft->status, ['pending_approval', 'draft']))
                 <div class="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center justify-between">
-                    <p class="text-sm text-green-800 font-medium">This draft is awaiting your approval.</p>
+                    <p class="text-sm text-green-800 font-medium">
+                        @if($emailDraft->status === 'pending_approval')
+                            This draft is awaiting your approval.
+                        @else
+                            This draft is ready to be approved.
+                        @endif
+                    </p>
                     <form method="POST" action="{{ route('email-drafts.approve', $emailDraft) }}">
                         @csrf
                         <button type="submit"
