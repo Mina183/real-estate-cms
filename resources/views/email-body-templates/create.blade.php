@@ -57,7 +57,7 @@
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                     Body <span class="text-red-500">*</span>
                                 </label>
-                                <textarea name="body" rows="16" required
+                                <textarea name="body" rows="16" id="body-editor"
                                           placeholder="Write the email body here. Use @{{investor_name}} for the investor's name."
                                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 font-mono text-sm">{{ old('body') }}</textarea>
                                 <p class="mt-1 text-xs text-gray-500">Do not include disclaimer or signature — these are added automatically.</p>
@@ -88,19 +88,23 @@
     </div>
 
     <script src="https://cdn.tiny.cloud/1/cpo4gfv8nwq74g9b2ert0jfc2n8tv3z60s2uiqcx4wqovftg/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
-        <script>
-            tinymce.init({
-                selector: 'textarea[name="body"]',
-                plugins: 'lists link',
-                toolbar: 'bold italic underline | bullist numlist | link | removeformat',
-                menubar: false,
-                height: 400,
-                content_style: 'body { font-family: Arial, sans-serif; font-size: 14px; }',
-                branding: false,
-                relative_urls: false,
-                remove_script_host: false,
-                convert_urls: false,
-            });
+    <script>
+        tinymce.init({
+            selector: '#body-editor',
+            plugins: 'lists link',
+            toolbar: 'bold italic underline | bullist numlist | link | removeformat',
+            menubar: false,
+            height: 400,
+            content_style: 'body { font-family: Arial, sans-serif; font-size: 14px; }',
+            branding: false,
+            relative_urls: false,
+            remove_script_host: false,
+            convert_urls: false,
+        });
+
+        document.querySelector('form').addEventListener('submit', function () {
+            tinymce.triggerSave();
+        });
     </script>
 
 </x-app-layout>
