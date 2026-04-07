@@ -28,14 +28,6 @@
                         </p>
                     </div>
 
-                    <div class="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                        <p class="text-sm text-amber-800 font-medium mb-1">DP Notice — for initial outreach emails</p>
-                        <p class="text-xs text-amber-700 mb-2">If this template is used for first contact with a prospect, include a DP notice line. Suggested text to copy into the body:</p>
-                        <div class="p-2 bg-white border border-amber-200 rounded text-xs text-gray-700 select-all font-mono leading-relaxed">
-                            By requesting access to these materials, you consent to the processing of your personal data under DIFC Data Protection Law. View our <a href="{{ route('privacy-notice') }}" target="_blank">Privacy Notice</a>.
-                        </div>
-                    </div>
-
                     <form action="{{ route('email-body-templates.store') }}" method="POST">
                         @csrf
 
