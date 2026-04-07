@@ -82,12 +82,19 @@
                             Request Access
                         </button>
 
-                        <p class="mt-1 text-xs text-gray-500 leading-relaxed">
-                            By requesting access to these materials, you acknowledge the Privacy Notice and consent
-                            to the processing of your personal data for access management, security monitoring,
-                            regulatory compliance, and audit recordkeeping.
-                            <a href="{{ route('privacy-notice') }}" target="_blank" class="underline hover:text-gray-700">Privacy Notice</a>
-                        </p>
+                        <div id="consent-new" class="mt-1 text-xs text-gray-500 leading-relaxed">
+                            By requesting access to the documents, you acknowledge the Privacy Notice and consent
+                            to the processing of your personal data for the purposes of evaluating your interest,
+                            granting access, and maintaining regulatory and audit records.<br>
+                            Your data will be processed in accordance with the DIFC Data Protection Law No. 5 of 2020.<br>
+                            <a href="{{ route('privacy-notice') }}" target="_blank" class="underline hover:text-gray-700">Full Privacy Notice</a>
+                        </div>
+                        <div id="consent-existing" class="mt-1 text-xs text-gray-500 leading-relaxed hidden">
+                            You have previously provided consent to the processing of your personal data in accordance
+                            with the DIFC Data Protection Law No. 5 of 2020. Your consent remains on file
+                            <span id="consent-date" class="font-medium text-gray-700"></span>.<br>
+                            <a href="{{ route('privacy-notice') }}" target="_blank" class="underline hover:text-gray-700">Full Privacy Notice</a>
+                        </div>
 
                     </div>
                 </form>
@@ -101,5 +108,31 @@
         </div>
     </div>
 
+
+<script>
+    const emailInput = document.getElementById('requester_email');
+    const consentNew = document.getElementById('consent-new');
+    const consentExisting = document.getElementById('consent-existing');
+    const consentDate = document.getElementById('consent-date');
+
+    emailInput.addEventListener('blur', function () {
+        const email = this.value.trim();
+        if (!email) return;
+
+        fetch('/doc-access/consent-status?email=' + encodeURIComponent(email))
+            .then(r => r.json())
+            .then(data => {
+                if (data.has_consent) {
+                    consentDate.textContent = 'since ' + data.consented_at;
+                    consentNew.classList.add('hidden');
+                    consentExisting.classList.remove('hidden');
+                } else {
+                    consentNew.classList.remove('hidden');
+                    consentExisting.classList.add('hidden');
+                }
+            })
+            .catch(() => { /* na grešku ostavi default prikaz */ });
+    });
+</script>
 </body>
 </html>

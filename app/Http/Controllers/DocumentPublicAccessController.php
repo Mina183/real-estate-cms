@@ -75,18 +75,24 @@ class DocumentPublicAccessController extends Controller
             return redirect()->route('doc-access.confirmation', $token);
         }
 
-        $accessRequest = DocumentAccessRequest::create([
+        // Only record consent fields on the very first submission — by email, across all links
+        $hasPriorConsent = DocumentAccessRequest::where('requester_email', $validated['requester_email'])
+            ->whereNotNull('consent_recorded_at')
+            ->exists();
+
+        $accessRequest = DocumentAccessRequest::create(array_merge([
             'document_access_link_id' => $link->id,
             'requester_name'          => $validated['requester_name'],
             'requester_email'         => $validated['requester_email'],
             'status'                  => 'pending',
             'ip_address'              => $request->ip(),
             'user_agent'              => $request->header('User-Agent') ?? $request->userAgent(),
-            'consent_recorded_at'     => now(),
-            'consent_source'          => 'document_access_request',
-            'dp_notice_version'       => config('compliance.dp_notice_version'),
-            'privacy_notice_version'  => config('compliance.privacy_notice_version'),
-        ]);
+        ], $hasPriorConsent ? [] : [
+            'consent_recorded_at'    => now(),
+            'consent_source'         => 'document_access_request',
+            'dp_notice_version'      => config('compliance.dp_notice_version'),
+            'privacy_notice_version' => config('compliance.privacy_notice_version'),
+        ]));
 
         session(["doc_access_{$token}" => $accessRequest->id]);
 
@@ -153,6 +159,29 @@ class DocumentPublicAccessController extends Controller
         ]);
 
         return Storage::disk('private')->download($document->file_path, $downloadName);
+    }
+
+    /**
+     * Check if a given email already has a consent record on file.
+     * Used by the public form to adapt the consent notice text.
+     */
+    public function consentStatus(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $email = $request->query('email', '');
+
+        if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return response()->json(['has_consent' => false, 'consented_at' => null]);
+        }
+
+        $record = DocumentAccessRequest::where('requester_email', $email)
+            ->whereNotNull('consent_recorded_at')
+            ->latest('consent_recorded_at')
+            ->first();
+
+        return response()->json([
+            'has_consent'  => (bool) $record,
+            'consented_at' => $record?->consent_recorded_at?->format('d M Y'),
+        ]);
     }
 
     private function resolveSessionRequest(string $token): ?DocumentAccessRequest

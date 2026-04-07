@@ -40,6 +40,7 @@ Route::get('/acknowledge/{token}', [InvestorEmailController::class, 'acknowledge
 
 // Document Access — public link (no auth required)
 Route::prefix('doc-access')->name('doc-access.')->group(function () {
+    Route::get('/consent-status', [DocumentPublicAccessController::class, 'consentStatus'])->name('consent-status');
     Route::get('/{token}', [DocumentPublicAccessController::class, 'show'])->name('show');
     Route::post('/{token}', [DocumentPublicAccessController::class, 'submit'])->name('submit');
     Route::get('/{token}/confirmation', [DocumentPublicAccessController::class, 'confirmation'])->name('confirmation');
