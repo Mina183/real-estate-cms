@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Triton Platform</title>
+    <link rel="icon" type="image/png" href="/images/logo.png">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-gradient-to-br from-brand-accent-light/20 to-brand-light/30 text-brand-darker min-h-screen flex flex-col lg:flex-row">
