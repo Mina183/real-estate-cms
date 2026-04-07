@@ -278,6 +278,13 @@ public function getHasIntroductoryMeetingAttribute(): bool
     return $this->meetings()->exists();
 }
 
+public function getHasConsentRecordAttribute(): bool
+{
+    return \App\Models\DocumentAccessRequest::whereHas('link', function ($q) {
+        $q->where('investor_id', $this->id);
+    })->whereNotNull('consent_recorded_at')->exists();
+}
+
 public function documentAccessLinks()
 {
     return $this->hasMany(DocumentAccessLink::class);

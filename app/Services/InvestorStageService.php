@@ -24,6 +24,7 @@ class InvestorStageService
 
         // STAGE 3: Portal Access Granted
         'portal_access_granted' => [
+            'has_consent_record'        => ['equals', true],
             'has_introductory_meeting'  => ['equals', true],
             'subscription_signed_date'  => ['not_null'],
             'final_commitment_amount'   => ['greater_than', 0],
@@ -57,8 +58,9 @@ class InvestorStageService
     protected array $fieldLabels = [
         'target_commitment_amount' => 'Target Commitment Amount (min $1,000,000)',
         'is_professional_client'   => 'Professional Client Status confirmed',
-        'difc_dp_consent'          => 'DIFC Data Protection Consent confirmed',
+        'difc_dp_consent'          => 'Initial DP notice provided to client',
         'agreed_confidentiality'   => 'NDA / Confidentiality accepted',
+        'has_consent_record'        => 'Consent record on file (investor submitted a document access request)',
         'has_introductory_meeting'  => 'Introductory Meeting held and logged',
         'subscription_signed_date' => 'Subscription Agreement signed & received',
         'final_commitment_amount'  => 'Final Commitment Amount entered',

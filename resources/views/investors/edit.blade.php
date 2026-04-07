@@ -55,6 +55,25 @@
                     </div>
                 </div>
 
+                {{-- Consent record reminder — always visible outside tabs --}}
+                @if($latestConsentRequest)
+                <div class="mb-4 px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg flex items-start gap-3 text-xs text-blue-700">
+                    <span class="mt-0.5 flex-shrink-0">📋</span>
+                    <span>
+                        <strong>Consent record on file</strong> —
+                        {{ $latestConsentRequest->consent_recorded_at?->format('d M Y, H:i') }} &middot;
+                        {{ $latestConsentRequest->requester_email }} &middot;
+                        source: {{ $latestConsentRequest->consent_source }}
+                        <button type="button" class="ml-2 text-blue-500 underline" onclick="switchTab('eligibility');document.getElementById('difc-consent-record').scrollIntoView({behavior:'smooth',block:'center'})">view full record</button>
+                    </span>
+                </div>
+                @else
+                <div class="mb-4 px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg flex items-start gap-3 text-xs text-gray-500">
+                    <span class="mt-0.5 flex-shrink-0">ℹ️</span>
+                    <span>No consent record on file yet — will be recorded automatically when investor submits a document access request form.</span>
+                </div>
+                @endif
+
                 {{-- ===== TABS ===== --}}
                 <div class="bg-white rounded-lg shadow-sm overflow-hidden">
 
@@ -217,11 +236,9 @@
                                         <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
                                     </svg>
                                     <div>
-                                        <p class="text-sm font-semibold text-amber-800">DIFC Data Protection Consent Required</p>
+                                        <p class="text-sm font-semibold text-amber-800">Document Access Request Approved — Consent Record Saved</p>
                                         <p class="text-sm text-amber-700 mt-1">
-                                            This investor has just requested access to documents.
-                                            Under DIFC Data Protection Law, <strong>requesting access to documents constitutes consent</strong> to the processing of their personal data.
-                                            Please confirm by checking the box below.
+                                            A document access request for this investor has been approved. The consent record (name, email, IP, browser, timestamp) has been <strong>automatically saved</strong> — see the record below. Review the details and check <em>Initial DP Notice Provided to Client</em> to confirm.
                                         </p>
                                     </div>
                                 </div>
@@ -277,7 +294,7 @@
 
                                 {{-- Consent audit log — read only, shown before DP consent checkbox --}}
                                 @if($latestConsentRequest)
-                                <div class="mx-4 mb-2 p-3 bg-gray-50 border border-gray-200 rounded-md text-xs text-gray-600 space-y-1">
+                                <div id="difc-consent-record" class="mx-4 mb-2 p-3 bg-gray-50 border border-gray-200 rounded-md text-xs text-gray-600 space-y-1">
                                     <p class="font-semibold text-gray-700 mb-1">Consent Record (from document access request)</p>
                                     <p><span class="text-gray-400 w-28 inline-block">Name</span> {{ $latestConsentRequest->requester_name }}</p>
                                     <p><span class="text-gray-400 w-28 inline-block">Email</span> {{ $latestConsentRequest->requester_email }}</p>
@@ -293,10 +310,10 @@
                                            class="mt-0.5 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
                                     <div class="ml-3">
                                         <label for="difc_dp_consent" class="text-sm font-medium text-gray-700">
-                                            DIFC Data Protection Consent Confirmed
+                                            Initial DP Notice Provided to Client
                                             <span class="ml-2 text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">Gate</span>
                                         </label>
-                                        <p class="text-xs text-gray-500 mt-0.5">Investor has consented to data processing under DIFC DP Law — confirmed by requesting document access</p>
+                                        <p class="text-xs text-gray-500 mt-0.5">Investor has been provided with the initial DIFC Data Protection notice — verbally, via external email, or via document access request link</p>
                                         @if($investor->difc_dp_consent_at)
                                             <p class="text-xs text-green-600 mt-1">✓ Confirmed {{ $investor->difc_dp_consent_at->format('d M Y, H:i') }}</p>
                                         @endif
@@ -352,16 +369,29 @@
 
                             {{-- Gate status summary (read-only) --}}
                             @php
+                                $gateConsentRecord  = $investor->has_consent_record;
                                 $gateIntroMeeting   = $investor->has_introductory_meeting;
                                 $gateSubscription   = (bool) $investor->subscription_signed_date;
                                 $gateFinalAmount    = ($investor->final_commitment_amount ?? 0) > 0;
-                                $allGatesMet        = $gateIntroMeeting && $gateSubscription && $gateFinalAmount;
+                                $allGatesMet        = $gateConsentRecord && $gateIntroMeeting && $gateSubscription && $gateFinalAmount;
                             @endphp
                             <div class="rounded-lg border {{ $allGatesMet ? 'border-green-200 bg-green-50' : 'border-amber-200 bg-amber-50' }} px-4 py-4">
                                 <p class="text-xs font-semibold uppercase tracking-wider {{ $allGatesMet ? 'text-green-700' : 'text-amber-700' }} mb-3">
                                     Portal Access Granted — Gate Status
                                 </p>
                                 <div class="space-y-2 text-sm">
+
+                                    <div class="flex items-start gap-2">
+                                        <span class="{{ $gateConsentRecord ? 'text-green-600' : 'text-red-500' }} font-bold mt-0.5">{{ $gateConsentRecord ? '✓' : '✗' }}</span>
+                                        <div>
+                                            <span class="{{ $gateConsentRecord ? 'text-gray-700' : 'text-gray-600' }}">DIFC DP consent record on file</span>
+                                            @if($gateConsentRecord)
+                                                <span class="ml-2 text-xs text-gray-400">{{ $latestConsentRequest?->consent_recorded_at?->format('d M Y') }} — {{ $latestConsentRequest?->requester_email }}</span>
+                                            @else
+                                                <span class="ml-2 text-xs text-gray-400">— investor must submit a document access request form to generate this record automatically</span>
+                                            @endif
+                                        </div>
+                                    </div>
 
                                     <div class="flex items-start gap-2">
                                         <span class="{{ $gateIntroMeeting ? 'text-green-600' : 'text-red-500' }} font-bold mt-0.5">{{ $gateIntroMeeting ? '✓' : '✗' }}</span>
@@ -407,7 +437,7 @@
 
                                 </div>
                                 @if(!$allGatesMet)
-                                    <p class="mt-3 text-xs text-amber-600">All three gates must be met before this investor can be moved to <strong>Portal Access Granted</strong>.</p>
+                                    <p class="mt-3 text-xs text-amber-600">All four gates must be met before this investor can be moved to <strong>Portal Access Granted</strong>.</p>
                                 @else
                                     <p class="mt-3 text-xs text-green-600">All gates met — investor is eligible to advance to <strong>Portal Access Granted</strong>.</p>
                                 @endif
@@ -417,6 +447,39 @@
                             <div class="border border-gray-200 rounded-lg divide-y divide-gray-100">
                                 <div class="px-4 py-2 bg-gray-50 rounded-t-lg">
                                     <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Subscription Gates</span>
+                                </div>
+
+                                {{-- Consent record gate — read-only, auto-populated --}}
+                                <div class="flex items-start px-4 py-4 {{ $gateConsentRecord ? 'bg-green-50' : 'bg-red-50' }}">
+                                    <span class="mt-0.5 h-4 w-4 flex items-center justify-center flex-shrink-0">
+                                        @if($gateConsentRecord)
+                                            <svg class="h-4 w-4 text-green-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                                        @else
+                                            <svg class="h-4 w-4 text-red-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
+                                        @endif
+                                    </span>
+                                    <div class="ml-3">
+                                        <p class="text-sm font-medium {{ $gateConsentRecord ? 'text-green-800' : 'text-gray-700' }}">
+                                            DIFC DP Consent Record on File
+                                            <span class="ml-2 text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">Gate</span>
+                                            <span class="ml-1 text-xs {{ $gateConsentRecord ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }} px-2 py-0.5 rounded-full">{{ $gateConsentRecord ? 'Met' : 'Not met' }}</span>
+                                        </p>
+                                        <p class="text-xs text-gray-500 mt-0.5">
+                                            This gate is met automatically when the investor submits a document access request form via any shared link.
+                                            The record captures their name, email, IP address, browser, and the exact timestamp of consent.
+                                        </p>
+                                        @if($gateConsentRecord && $latestConsentRequest)
+                                            <p class="text-xs text-green-700 mt-1">
+                                                ✓ Record on file — {{ $latestConsentRequest->requester_email }},
+                                                {{ $latestConsentRequest->consent_recorded_at?->format('d M Y, H:i') }},
+                                                source: {{ $latestConsentRequest->consent_source }}
+                                            </p>
+                                        @elseif(!$gateConsentRecord)
+                                            <p class="text-xs text-red-600 mt-1">
+                                                ✗ No consent record found — send the investor a document access link and ask them to submit the request form.
+                                            </p>
+                                        @endif
+                                    </div>
                                 </div>
 
                                 <div class="flex items-start px-4 py-4">
