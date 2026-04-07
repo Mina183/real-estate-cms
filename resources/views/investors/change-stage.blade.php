@@ -124,7 +124,7 @@
                                         <span class="{{ $investor->difc_dp_consent ? 'text-green-600' : 'text-red-500' }} mr-2 font-bold">
                                             {{ $investor->difc_dp_consent ? '✓' : '✗' }}
                                         </span>
-                                        <span>DIFC Data Protection Consent</span>
+                                        <span>Initial DP notice provided to client</span>
                                     </div>
 
                                     <div class="flex items-center">
@@ -136,6 +136,13 @@
 
                                     {{-- Stage 3: Portal Access gates --}}
                                     <div class="col-span-2 text-gray-400 font-medium uppercase tracking-wide mt-2">Stage 3 — Portal Access</div>
+
+                                    <div class="flex items-center">
+                                        <span class="{{ $investor->has_consent_record ? 'text-green-600' : 'text-red-500' }} mr-2 font-bold">
+                                            {{ $investor->has_consent_record ? '✓' : '✗' }}
+                                        </span>
+                                        <span>DIFC DP consent record on file</span>
+                                    </div>
 
                                     <div class="flex items-center">
                                         <span class="{{ $investor->has_introductory_meeting ? 'text-green-600' : 'text-red-500' }} mr-2 font-bold">
