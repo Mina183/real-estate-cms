@@ -320,21 +320,6 @@
                                     </div>
                                 </div>
 
-                                <div class="flex items-start px-4 py-4">
-                                    <input type="checkbox" name="agreed_confidentiality" id="agreed_confidentiality" value="1"
-                                           {{ $investor->agreed_confidentiality ? 'checked' : '' }}
-                                           class="mt-0.5 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                                    <div class="ml-3">
-                                        <label for="agreed_confidentiality" class="text-sm font-medium text-gray-700">
-                                            NDA / Confidentiality Acknowledged
-                                            <span class="ml-2 text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">Auto</span>
-                                        </label>
-                                        <p class="text-xs text-gray-500 mt-0.5">Implied via PPM — automatically set when investor moves to Portal Access Granted stage</p>
-                                        @if($investor->agreed_confidentiality_at)
-                                            <p class="text-xs text-green-600 mt-1">✓ Confirmed {{ $investor->agreed_confidentiality_at->format('d M Y, H:i') }}</p>
-                                        @endif
-                                    </div>
-                                </div>
                             </div>
 
                             {{-- Risk assessment --}}
@@ -516,33 +501,48 @@
                             <div class="border-t pt-6">
                                 <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold mb-4">PPM &amp; Legal Review</p>
 
+                                {{-- Auto-recorded on Portal Access Granted — read-only info block --}}
+                                <div class="border border-gray-100 rounded-lg bg-gray-50 px-4 py-4 mb-4 space-y-3">
+                                    <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Automatically recorded on Portal Access Granted</p>
+
+                                    <div class="flex items-start gap-3">
+                                        @if($investor->ppm_acknowledged_date)
+                                            <svg class="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                                        @else
+                                            <svg class="h-4 w-4 text-gray-300 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
+                                        @endif
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-700">PPM Acknowledged</p>
+                                            <p class="text-xs text-gray-500">
+                                                @if($investor->ppm_acknowledged_date)
+                                                    Recorded {{ $investor->ppm_acknowledged_date->format('d M Y, H:i') }}
+                                                @else
+                                                    Not yet recorded — set automatically on move to Portal Access Granted
+                                                @endif
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-start gap-3">
+                                        @if($investor->agreed_confidentiality)
+                                            <svg class="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                                        @else
+                                            <svg class="h-4 w-4 text-gray-300 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
+                                        @endif
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-700">NDA / Confidentiality Acknowledged <span class="ml-1 text-xs text-gray-400">(implied via PPM)</span></p>
+                                            <p class="text-xs text-gray-500">
+                                                @if($investor->agreed_confidentiality)
+                                                    Recorded — NDA terms are embedded within the PPM and acknowledged upon access
+                                                @else
+                                                    Not yet recorded — set automatically on move to Portal Access Granted
+                                                @endif
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div class="border border-gray-200 rounded-lg divide-y divide-gray-100 mb-4">
-                                    <div class="flex items-start px-4 py-4">
-                                        <input type="checkbox" name="ppm_acknowledged" id="ppm_acknowledged" value="1"
-                                               {{ $investor->ppm_acknowledged_date ? 'checked' : '' }}
-                                               class="mt-0.5 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                                        <div class="ml-3">
-                                            <label for="ppm_acknowledged" class="text-sm font-medium text-gray-700">PPM Acknowledged</label>
-                                            <p class="text-xs text-gray-500 mt-0.5">Investor has acknowledged PPM — recorded automatically on Portal Access Granted</p>
-                                            @if($investor->ppm_acknowledged_date)
-                                                <p class="text-xs text-green-600 mt-1">✓ Acknowledged {{ $investor->ppm_acknowledged_date->format('d M Y, H:i') }}</p>
-                                            @endif
-                                        </div>
-                                    </div>
-
-                                    <div class="flex items-start px-4 py-4">
-                                        <input type="checkbox" name="acknowledged_ppm_confidential" id="acknowledged_ppm_confidential" value="1"
-                                               {{ $investor->acknowledged_ppm_confidential ? 'checked' : '' }}
-                                               class="mt-0.5 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                                        <div class="ml-3">
-                                            <label for="acknowledged_ppm_confidential" class="text-sm font-medium text-gray-700">PPM Confidentiality Acknowledged</label>
-                                            <p class="text-xs text-gray-500 mt-0.5">Investor acknowledged confidentiality obligations within the PPM</p>
-                                            @if($investor->acknowledged_ppm_confidential_at)
-                                                <p class="text-xs text-green-600 mt-1">✓ Acknowledged {{ $investor->acknowledged_ppm_confidential_at->format('d M Y, H:i') }}</p>
-                                            @endif
-                                        </div>
-                                    </div>
-
                                     <div class="flex items-start px-4 py-4">
                                         <input type="checkbox" name="legal_review_complete" id="legal_review_complete" value="1"
                                                {{ $investor->legal_review_complete ? 'checked' : '' }}

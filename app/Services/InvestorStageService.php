@@ -114,7 +114,7 @@ class InvestorStageService
             'to_stage'           => $newStage,
             'from_status'        => $oldStatus,
             'to_status'          => $investor->status,
-            'changed_by_user_id' => $userId ?? auth()->user()->id,
+            'changed_by_user_id' => $userId ?? auth()->id(),
             'reason'             => $reason,
             'transitioned_at'    => Carbon::now(),
         ]);
@@ -162,9 +162,10 @@ class InvestorStageService
             case 'portal_access_granted':
                 // Record PPM + NDA acknowledged (implied via PPM) and upgrade DR to Qualified
                 $investor->update([
-                    'ppm_acknowledged_date'      => $investor->ppm_acknowledged_date ?? Carbon::now(),
-                    'agreed_confidentiality'     => true,
-                    'data_room_access_level'     => 'qualified',
+                    'ppm_acknowledged_date'         => $investor->ppm_acknowledged_date ?? Carbon::now(),
+                    'agreed_confidentiality'        => true,
+                    'acknowledged_ppm_confidential' => true,
+                    'data_room_access_level'        => 'qualified',
                     'data_room_access_granted'   => true,
                     'data_room_access_granted_at' => Carbon::now(),
                 ]);
@@ -178,7 +179,7 @@ class InvestorStageService
                 $investor->update([
                     'kyc_completed_date'     => Carbon::now(),
                     'approved_date'          => Carbon::now(),
-                    'approved_by_user_id'    => auth()->user()->id,
+                    'approved_by_user_id'    => auth()->id(),
                 ]);
                 break;
 
