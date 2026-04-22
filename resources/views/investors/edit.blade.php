@@ -326,10 +326,10 @@
                                            class="mt-0.5 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
                                     <div class="ml-3">
                                         <label for="agreed_confidentiality" class="text-sm font-medium text-gray-700">
-                                            NDA / Confidentiality Accepted
-                                            <span class="ml-2 text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">Gate</span>
+                                            NDA / Confidentiality Acknowledged
+                                            <span class="ml-2 text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">Auto</span>
                                         </label>
-                                        <p class="text-xs text-gray-500 mt-0.5">Access request logged — investor accepted NDA terms</p>
+                                        <p class="text-xs text-gray-500 mt-0.5">Implied via PPM — automatically set when investor moves to Portal Access Granted stage</p>
                                         @if($investor->agreed_confidentiality_at)
                                             <p class="text-xs text-green-600 mt-1">✓ Confirmed {{ $investor->agreed_confidentiality_at->format('d M Y, H:i') }}</p>
                                         @endif

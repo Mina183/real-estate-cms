@@ -127,13 +127,6 @@
                                         <span>Initial DP notice provided to client</span>
                                     </div>
 
-                                    <div class="flex items-center">
-                                        <span class="{{ $investor->agreed_confidentiality ? 'text-green-600' : 'text-red-500' }} mr-2 font-bold">
-                                            {{ $investor->agreed_confidentiality ? '✓' : '✗' }}
-                                        </span>
-                                        <span>NDA / Confidentiality accepted</span>
-                                    </div>
-
                                     {{-- Stage 3: Portal Access gates --}}
                                     <div class="col-span-2 text-gray-400 font-medium uppercase tracking-wide mt-2">Stage 3 — Portal Access</div>
 
@@ -142,6 +135,11 @@
                                             {{ $investor->has_consent_record ? '✓' : '✗' }}
                                         </span>
                                         <span>DIFC DP consent record on file</span>
+                                    </div>
+
+                                    <div class="flex items-center text-gray-400">
+                                        <span class="mr-2 font-bold">⟳</span>
+                                        <span>NDA implied via PPM — auto-set on move to this stage</span>
                                     </div>
 
                                     <div class="flex items-center">

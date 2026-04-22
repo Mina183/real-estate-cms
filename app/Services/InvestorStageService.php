@@ -19,7 +19,6 @@ class InvestorStageService
             'target_commitment_amount' => ['min', 1000000],
             'is_professional_client'   => ['equals', true],
             'difc_dp_consent'          => ['equals', true],
-            'agreed_confidentiality'   => ['equals', true],
         ],
 
         // STAGE 3: Portal Access Granted
@@ -59,7 +58,7 @@ class InvestorStageService
         'target_commitment_amount' => 'Target Commitment Amount (min $1,000,000)',
         'is_professional_client'   => 'Professional Client Status confirmed',
         'difc_dp_consent'          => 'Initial DP notice provided to client',
-        'agreed_confidentiality'   => 'NDA / Confidentiality accepted',
+        'agreed_confidentiality'   => 'NDA / Confidentiality implied (auto-set on Portal Access)',
         'has_consent_record'        => 'Consent record on file (investor submitted a document access request)',
         'has_introductory_meeting'  => 'Introductory Meeting held and logged',
         'subscription_signed_date' => 'Subscription Agreement signed & received',
@@ -161,9 +160,10 @@ class InvestorStageService
         switch ($newStage) {
 
             case 'portal_access_granted':
-                // Record PPM acknowledged date (if not already set) and upgrade DR to Qualified
+                // Record PPM + NDA acknowledged (implied via PPM) and upgrade DR to Qualified
                 $investor->update([
                     'ppm_acknowledged_date'      => $investor->ppm_acknowledged_date ?? Carbon::now(),
+                    'agreed_confidentiality'     => true,
                     'data_room_access_level'     => 'qualified',
                     'data_room_access_granted'   => true,
                     'data_room_access_granted_at' => Carbon::now(),
