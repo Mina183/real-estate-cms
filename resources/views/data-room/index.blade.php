@@ -133,14 +133,22 @@
             justify-content: center;
             flex-shrink: 0;
         }
+        @media (max-width: 639px) {
+            .folder-row    { grid-template-columns: 20px 1fr auto; }
+            .folder-row    > :last-child { display: none; }
+            .subfolder-row { grid-template-columns: 20px 1fr auto; }
+            .doc-row       { grid-template-columns: 20px 1fr auto; padding-left: 2rem; }
+            .doc-row       > :nth-child(3),
+            .doc-row       > :nth-child(4) { display: none; }
+        }
     </style>
 
     <div class="py-8">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
             {{-- Top Bar --}}
-            <div class="flex items-center justify-between mb-6">
-                <div class="flex items-center gap-4">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+                <div class="flex items-center gap-3">
                     <div class="stat-card">
                         <div class="stat-icon bg-blue-50">
                             <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -165,7 +173,7 @@
                     </div>
                 </div>
 
-                <div class="flex gap-2">
+                <div class="flex flex-wrap gap-2">
                     <button onclick="showReadMe()"
                             class="inline-flex items-center gap-2 px-3 py-2 text-sm text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition font-medium">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -316,7 +324,7 @@
                 </div>
 
                 {{-- Footer Legend --}}
-                <div class="border-t border-gray-100 px-4 py-3 bg-gray-50 flex items-center gap-4 text-xs text-gray-500">
+                <div class="border-t border-gray-100 px-4 py-3 bg-gray-50 flex flex-wrap items-center gap-2 text-xs text-gray-500">
                     <span class="font-medium text-gray-400 uppercase tracking-wide text-[10px]">Access Levels:</span>
                     <span class="badge badge-public">Public</span>
                     <span class="badge badge-restricted">Restricted</span>
