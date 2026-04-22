@@ -197,66 +197,47 @@
             {{-- Main Container --}}
             <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
 
-                {{-- Tab Navigation --}}
+                {{-- Tab Navigation — dynamic from DB --}}
+                @php
+                    $tabIcons = [
+                        '1'  => '📢', '2'  => '📋', '3'  => '👥', '4'  => '🛡️',
+                        '5'  => '🔍', '6'  => '🤝', '7'  => '💧', '8'  => '📄',
+                        '9'  => '📊', '10' => '⚙️', '11' => '🎯', '12' => '🔐',
+                    ];
+                    $tabLabels = [
+                        '1'  => 'Marketing',    '2'  => 'Fund Legal',    '3'  => 'Governance',
+                        '4'  => 'Compliance',   '5'  => 'Research',      '6'  => 'Neptune',
+                        '7'  => 'Waterfall',    '8'  => 'Subscription',  '9'  => 'Reporting',
+                        '10' => 'Operations',   '11' => 'Pipeline',      '12' => 'Inv. Docs',
+                    ];
+                @endphp
                 <div class="border-b border-gray-200 px-4 flex gap-1 overflow-x-auto">
-                    <button class="tab-btn active" data-tab="marketing" onclick="switchTab('marketing', this)">
-                        📢 Marketing
-                    </button>
-                    <button class="tab-btn" data-tab="constitutional" onclick="switchTab('constitutional', this)">
-                        📋 Fund Documents
-                    </button>
-                    <button class="tab-btn" data-tab="offering" onclick="switchTab('offering', this)">
-                        📄 Subscription
-                    </button>
-                    <button class="tab-btn" data-tab="reporting" onclick="switchTab('reporting', this)">
-                        📊 Reporting
-                    </button>
+                    @foreach($folders as $folder)
+                        @php
+                            $tabSlug = 'folder-' . $folder->folder_number;
+                            $icon    = $tabIcons[$folder->folder_number]  ?? '📁';
+                            $label   = $tabLabels[$folder->folder_number] ?? $folder->folder_name;
+                        @endphp
+                        <button class="tab-btn {{ $loop->first ? 'active' : '' }}"
+                                data-tab="{{ $tabSlug }}"
+                                onclick="switchTab('{{ $tabSlug }}', this)">
+                            {{ $icon }} {{ $label }}
+                        </button>
+                    @endforeach
                     <button class="tab-btn" data-tab="investor-specific" onclick="switchTab('investor-specific', this)">
-                        🔐 Investor Documents
+                        🔐 Investor Docs
                     </button>
                 </div>
 
                 <div class="p-4">
 
-                    {{-- MARKETING TAB — Folder 1 --}}
-                    <div id="tab-marketing" class="tab-pane">
-                        @foreach($folders->where('folder_number', '1') as $folder)
+                    {{-- Dynamic folder tabs --}}
+                    @foreach($folders as $folder)
+                        @php $tabSlug = 'folder-' . $folder->folder_number; @endphp
+                        <div id="tab-{{ $tabSlug }}" class="tab-pane {{ $loop->first ? '' : 'hidden' }}">
                             @include('data-room.partials.folder-tree', ['folder' => $folder])
-                        @endforeach
-                        @if($folders->where('folder_number', '1')->isEmpty())
-                            <div class="empty-state">No folders in this section yet.</div>
-                        @endif
-                    </div>
-
-                    {{-- FUND DOCUMENTS TAB — Folder 2 --}}
-                    <div id="tab-constitutional" class="tab-pane hidden">
-                        @foreach($folders->where('folder_number', '2') as $folder)
-                            @include('data-room.partials.folder-tree', ['folder' => $folder])
-                        @endforeach
-                        @if($folders->where('folder_number', '2')->isEmpty())
-                            <div class="empty-state">No folders in this section yet.</div>
-                        @endif
-                    </div>
-
-                    {{-- SUBSCRIPTION TAB — Folder 3 --}}
-                    <div id="tab-offering" class="tab-pane hidden">
-                        @foreach($folders->where('folder_number', '3') as $folder)
-                            @include('data-room.partials.folder-tree', ['folder' => $folder])
-                        @endforeach
-                        @if($folders->where('folder_number', '3')->isEmpty())
-                            <div class="empty-state">No folders in this section yet.</div>
-                        @endif
-                    </div>
-
-                    {{-- REPORTING TAB — Folder 4 --}}
-                    <div id="tab-reporting" class="tab-pane hidden">
-                        @foreach($folders->where('folder_number', '4') as $folder)
-                            @include('data-room.partials.folder-tree', ['folder' => $folder])
-                        @endforeach
-                        @if($folders->where('folder_number', '4')->isEmpty())
-                            <div class="empty-state">No folders in this section yet.</div>
-                        @endif
-                    </div>
+                        </div>
+                    @endforeach
 
                     {{-- INVESTOR DOCUMENTS TAB --}}
                     <div id="tab-investor-specific" class="tab-pane hidden">
@@ -494,11 +475,11 @@
                 <div>
                     <p class="font-medium text-gray-800 mb-2">Folders:</p>
                     <ul class="space-y-1 text-gray-500">
-                        <li>📢 <strong>Marketing</strong> — Teaser, deck, term sheet, investment thesis</li>
-                        <li>📋 <strong>Fund Documents</strong> — Constitutional docs, COI, AOA</li>
-                        <li>📄 <strong>Subscription</strong> — PPM, sub docs, KYC/AML templates</li>
-                        <li>📊 <strong>Reporting</strong> — Quarterly NAV reports, newsletters</li>
-                        <li>🔐 <strong>Investor-Specific</strong> — Personal documents per investor</li>
+                        @foreach($folders as $f)
+                            @php $icon = $tabIcons[$f->folder_number] ?? '📁'; @endphp
+                            <li>{{ $icon }} <strong>{{ $f->folder_name }}</strong></li>
+                        @endforeach
+                        <li>🔐 <strong>Investor Personal Documents</strong> — Private folders per investor</li>
                     </ul>
                 </div>
                 <div>
