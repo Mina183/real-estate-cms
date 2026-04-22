@@ -141,7 +141,7 @@
     </div>
 
     <!-- Responsive Navigation Menu -->
-    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
+    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden bg-white border-t border-brand-dark/30 shadow-lg">
         <div class="pt-2 pb-3 space-y-1">
 
             {{-- Dashboard with collapsible sub-items --}}
