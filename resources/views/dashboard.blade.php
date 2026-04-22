@@ -9,10 +9,10 @@
     </x-slot>
 
     <div class="min-h-screen bg-gradient-to-br from-brand-accent-light/30 to-brand-light/20">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 flex min-h-screen">
-            
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 sm:flex min-h-screen">
+
             {{-- ========================= SIDEBAR NAVIGATION ========================= --}}
-            <aside class="w-72 bg-gradient-to-b from-brand-darker to-brand-dark text-white py-8 px-4 space-y-4 rounded-r-lg shadow-md">
+            <aside class="hidden sm:block w-72 flex-shrink-0 bg-gradient-to-b from-brand-darker to-brand-dark text-white py-8 px-4 space-y-4 rounded-r-lg shadow-md">
                 <h3 class="text-lg font-bold mb-4">Navigation</h3>
                 <nav class="flex flex-col gap-2">
 
@@ -87,7 +87,7 @@
             </aside>
 
             {{-- ========================= MAIN DASHBOARD CONTENT ========================= --}}
-            <main class="flex-1 py-6 px-8 bg-gradient-to-br from-brand-accent-light/25 via-gray-50 to-brand-light/20">
+            <main class="flex-1 min-w-0 py-6 px-0 sm:px-8 bg-gradient-to-br from-brand-accent-light/25 via-gray-50 to-brand-light/20">
                 <div class="max-w-6xl mx-auto">
                     <h3 class="text-2xl font-bold text-brand-darker mb-6">Welcome, {{ auth()->user()->name }}!</h3>
 
