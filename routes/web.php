@@ -103,6 +103,14 @@ Route::prefix('investor')->name('investor.')->group(function () {
      });
 });
 
+// Viewer login — separate URL for sharing with external stakeholders
+Route::prefix('viewer')->name('viewer.')->group(function () {
+    Route::middleware('guest:investor')->group(function () {
+        Route::get('/login',  [InvestorAuthController::class, 'showViewerLoginForm'])->name('login');
+        Route::post('/login', [InvestorAuthController::class, 'login'])->name('login.post');
+    });
+});
+
 /*
 |--------------------------------------------------------------------------
 | Authenticated Staff Routes

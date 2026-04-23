@@ -17,9 +17,9 @@
             <div class="bg-blue-50 border border-blue-200 rounded-lg px-4 py-4 flex flex-col sm:flex-row sm:items-center gap-3">
                 <div class="flex-1">
                     <p class="text-sm font-semibold text-blue-800">Login URL to share with viewers</p>
-                    <p class="text-sm text-blue-700 font-mono mt-1">{{ url('/investor/login') }}</p>
+                    <p class="text-sm text-blue-700 font-mono mt-1">{{ url('/viewer/login') }}</p>
                 </div>
-                <button onclick="navigator.clipboard.writeText('{{ url('/investor/login') }}').then(()=>this.textContent='Copied!')"
+                <button onclick="navigator.clipboard.writeText('{{ url('/viewer/login') }}').then(()=>this.textContent='Copied!')"
                         class="text-xs font-semibold text-blue-700 bg-blue-100 hover:bg-blue-200 px-3 py-2 rounded-lg transition whitespace-nowrap">
                     Copy Link
                 </button>

@@ -24,6 +24,11 @@ class InvestorAuth
                 ->with('error', 'Your account has been deactivated. Please contact support.');
         }
 
+        // Viewer nalozi nemaju 2FA
+        if ($investorUser->investor?->data_room_access_level === 'viewer') {
+            return $next($request);
+        }
+
         // 2FA provjera
         if (!$investorUser->two_factor_enabled) {
             if (!$request->routeIs('investor.2fa.setup') && !$request->routeIs('investor.2fa.enable')) {

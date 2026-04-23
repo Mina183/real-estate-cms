@@ -13,12 +13,17 @@ use Illuminate\Validation\ValidationException;
 
 class InvestorAuthController extends Controller
 {
-    /**
-     * Show investor login form
-     */
     public function showLoginForm()
     {
         return view('investor.auth.login');
+    }
+
+    public function showViewerLoginForm()
+    {
+        return view('investor.auth.login', [
+            'formAction' => route('viewer.login'),
+            'pageTitle'  => 'Data Room Access',
+        ]);
     }
 
     /**
@@ -59,6 +64,11 @@ public function login(Request $request)
             'ip_address' => $request->ip(),
             'user_agent' => $request->userAgent(),
         ]);
+
+        if ($investorUser->investor?->data_room_access_level === 'viewer') {
+            return redirect()->route('investor.documents')
+                ->with('success', 'Welcome, ' . $investorUser->name . '!');
+        }
 
         return redirect()->intended(route('investor.dashboard'))
             ->with('success', 'Welcome back, ' . $investorUser->name . '!');
