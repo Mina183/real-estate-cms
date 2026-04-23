@@ -175,75 +175,51 @@
             {{-- Main Container --}}
             <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
 
-                {{-- Tab Navigation --}}
-                <div class="border-b border-gray-200 px-4 flex gap-1 overflow-x-auto">
+                {{-- Tab Navigation — dynamic --}}
                 @php
-                    $marketingFolder      = $folders->where('folder_number', '1')->first();
-                    $constitutionalFolder = $folders->where('folder_number', '2')->first();
-                    $offeringFolder       = $folders->where('folder_number', '3')->first();
-                    $reportingFolder      = $folders->where('folder_number', '4')->first();
-                    $personalFolder       = $folders->where('folder_number', '5')->first();
+                    $tabIcons = [
+                        '1'=>'📢','2'=>'📋','3'=>'👥','4'=>'🛡️','5'=>'🔍',
+                        '6'=>'🤝','7'=>'💧','8'=>'📄','9'=>'📊','10'=>'⚙️','11'=>'🎯',
+                    ];
+                    $tabLabels = [
+                        '1'=>'Marketing',  '2'=>'Fund Legal',   '3'=>'Governance',
+                        '4'=>'Compliance', '5'=>'Research',     '6'=>'Neptune',
+                        '7'=>'Waterfall',  '8'=>'Subscription', '9'=>'Reporting',
+                        '10'=>'Operations','11'=>'Pipeline',
+                    ];
                 @endphp
-
-                <button class="tab-btn active" data-tab="marketing" onclick="switchTab('marketing', this)">
-                    📢 Marketing
-                </button>
-                <button class="tab-btn" data-tab="constitutional" onclick="switchTab('constitutional', this)">
-                    📋 Fund Documents
-                </button>
-                <button class="tab-btn" data-tab="offering" onclick="switchTab('offering', this)">
-                    📄 Subscription
-                </button>
-                @if($reportingFolder)
-                <button class="tab-btn" data-tab="reporting" onclick="switchTab('reporting', this)">
-                    📊 Reporting
-                </button>
-                @endif
-                @if($personalFolder)
-                <button class="tab-btn" data-tab="my-docs" onclick="switchTab('my-docs', this)">
-                    🔐 My Documents
-                </button>
-                @endif
+                <div class="border-b border-gray-200 px-4 flex gap-1 overflow-x-auto">
+                    @foreach($folders as $folder)
+                        @php
+                            $slug  = 'folder-' . $folder->folder_number;
+                            $icon  = $tabIcons[$folder->folder_number]  ?? '📁';
+                            $label = $tabLabels[$folder->folder_number] ?? $folder->folder_name;
+                        @endphp
+                        <button class="tab-btn {{ $loop->first ? 'active' : '' }}"
+                                data-tab="{{ $slug }}"
+                                onclick="switchTab('{{ $slug }}', this)">
+                            {{ $icon }} {{ $label }}
+                        </button>
+                    @endforeach
+                    @if($personalFolder && $personalFolder->documents->isNotEmpty())
+                        <button class="tab-btn" data-tab="my-docs" onclick="switchTab('my-docs', this)">
+                            🔐 My Documents
+                        </button>
+                    @endif
                 </div>
 
                 <div class="p-4">
 
-                {{-- MARKETING TAB --}}
-                <div id="tab-marketing" class="tab-pane">
-                    @if($marketingFolder)
-                        @include('investor.partials.folder-tree', ['folder' => $marketingFolder])
-                    @else
-                        <div class="empty-state">No documents available yet.</div>
-                    @endif
-                </div>
+                {{-- Dynamic folder tabs --}}
+                @foreach($folders as $folder)
+                    @php $slug = 'folder-' . $folder->folder_number; @endphp
+                    <div id="tab-{{ $slug }}" class="tab-pane {{ $loop->first ? '' : 'hidden' }}">
+                        @include('investor.partials.folder-tree', ['folder' => $folder])
+                    </div>
+                @endforeach
 
-                {{-- CONSTITUTIONAL TAB --}}
-                <div id="tab-constitutional" class="tab-pane hidden">
-                    @if($constitutionalFolder)
-                        @include('investor.partials.folder-tree', ['folder' => $constitutionalFolder])
-                    @else
-                        <div class="empty-state">No documents available yet.</div>
-                    @endif
-                </div>
-
-                {{-- OFFERING TAB --}}
-                <div id="tab-offering" class="tab-pane hidden">
-                    @if($offeringFolder)
-                        @include('investor.partials.folder-tree', ['folder' => $offeringFolder])
-                    @else
-                        <div class="empty-state">No documents available yet.</div>
-                    @endif
-                </div>
-
-                {{-- REPORTING TAB --}}
-                @if($reportingFolder)
-                <div id="tab-reporting" class="tab-pane hidden">
-                    @include('investor.partials.folder-tree', ['folder' => $reportingFolder])
-                </div>
-                @endif
-
-                {{-- MY DOCUMENTS TAB --}}
-                @if($personalFolder)
+                {{-- My Documents tab --}}
+                @if($personalFolder && $personalFolder->documents->isNotEmpty())
                 <div id="tab-my-docs" class="tab-pane hidden">
                     <div class="flex items-start gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg mb-4">
                         <svg class="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

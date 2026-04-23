@@ -88,6 +88,9 @@
                                     <x-dropdown-link :href="route('document-packages.index')" :active="request()->routeIs('document-packages.*')">
                                         {{ __('Document Packages') }}
                                     </x-dropdown-link>
+                                    <x-dropdown-link :href="route('data-room-viewers.index')" :active="request()->routeIs('data-room-viewers.*')">
+                                        {{ __('Data Room Viewers') }}
+                                    </x-dropdown-link>
                                 </x-slot>
                             </x-dropdown>
                         @endcan
@@ -202,6 +205,9 @@
                     </x-responsive-nav-link>
                     <x-responsive-nav-link :href="route('document-packages.index')" :active="request()->routeIs('document-packages.*')">
                         {{ __('Document Packages') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('data-room-viewers.index')" :active="request()->routeIs('data-room-viewers.*')">
+                        {{ __('Data Room Viewers') }}
                     </x-responsive-nav-link>
                 @endcan
             @endauth

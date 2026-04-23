@@ -101,6 +101,27 @@ return [
             'public', // Very limited - teaser docs only
         ],
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Investor Portal Folder Access
+    |--------------------------------------------------------------------------
+    |
+    | Maps data_room_access_level on the Investor model to the folder_numbers
+    | visible in the investor portal documents page.
+    | '*' means all non-investor folders.
+    |
+    */
+
+    'investor_folder_access' => [
+        'none'       => [],
+        'prospect'   => ['1', '2', '3', '4'],
+        'qualified'  => ['1', '2', '3', '4'],
+        'subscribed' => ['1', '2', '3', '4'],
+        'viewer'     => ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11'],
+        'internal'   => '*',
+        'external'   => '*',
+    ],
     
     /*
     |--------------------------------------------------------------------------

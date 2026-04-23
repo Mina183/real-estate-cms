@@ -20,6 +20,7 @@ use App\Http\Controllers\EmailBodyTemplateController;
 use App\Http\Controllers\DocumentPackageController;
 use App\Http\Controllers\DocumentAccessLinkController;
 use App\Http\Controllers\DocumentPublicAccessController;
+use App\Http\Controllers\DataRoomViewerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -291,6 +292,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/{documentPackage}/edit', 'edit')->name('document-packages.edit');
             Route::put('/{documentPackage}', 'update')->name('document-packages.update');
             Route::delete('/{documentPackage}', 'destroy')->name('document-packages.destroy');
+        });
+
+        // Data Room Viewers — external stakeholder accounts
+        Route::prefix('data-room-viewers')->controller(DataRoomViewerController::class)->group(function () {
+            Route::get('/',        'index')->name('data-room-viewers.index');
+            Route::post('/',       'store')->name('data-room-viewers.store');
+            Route::delete('/{id}', 'destroy')->name('data-room-viewers.destroy');
         });
 
         // Document Access Links — per investor

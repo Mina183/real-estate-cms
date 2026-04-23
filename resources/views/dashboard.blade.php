@@ -74,6 +74,10 @@
                         class="block bg-white text-brand-darker px-4 py-2 rounded hover:bg-brand-light/20 font-semibold transition mt-1">
                             📦 Document Packages
                         </a>
+                        <a href="{{ route('data-room-viewers.index') }}"
+                        class="block bg-white text-brand-darker px-4 py-2 rounded hover:bg-brand-light/20 font-semibold transition mt-1">
+                            🔗 Data Room Viewers
+                        </a>
                         @endcan
                         @can('manage-access-requests')
                         <a href="{{ route('document-access-requests.index') }}"
