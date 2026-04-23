@@ -28,14 +28,16 @@ class DataRoomViewerController extends Controller
         ]);
 
         $investor = Investor::create([
-            'legal_entity_name'           => $validated['name'],
-            'data_room_access_level'      => 'viewer',
-            'data_room_access_granted'    => true,
-            'data_room_access_granted_at' => now(),
-            'stage'                       => 'prospect',
-            'is_professional_client'      => true,
-            'difc_dp_consent'             => true,
-            'agreed_confidentiality'      => true,
+            'legal_entity_name'             => $validated['name'],
+            'investor_type'                 => 'individual',
+            'jurisdiction'                  => 'N/A',
+            'data_room_access_level'        => 'viewer',
+            'data_room_access_granted'      => true,
+            'data_room_access_granted_at'   => now(),
+            'stage'                         => 'prospect',
+            'is_professional_client'        => true,
+            'difc_dp_consent'               => true,
+            'agreed_confidentiality'        => true,
             'acknowledged_ppm_confidential' => true,
             'confirmed_professional_client' => true,
         ]);

@@ -269,6 +269,11 @@ public function meetings()
     return $this->hasMany(InvestorMeeting::class)->orderBy('meeting_date', 'desc');
 }
 
+public function scopeNotViewers($query)
+{
+    return $query->where('data_room_access_level', '!=', 'viewer');
+}
+
 public function getHasIntroductoryMeetingAttribute(): bool
 {
     // Uses loaded relation if available, otherwise queries

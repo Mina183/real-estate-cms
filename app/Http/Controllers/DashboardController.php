@@ -20,21 +20,23 @@ public function index()
 
     // Investment Fund CRM Dashboard
     $stats = [
-        'totalInvestors' => \App\Models\Investor::count(),
-        'activeInvestors' => \App\Models\Investor::where('lifecycle_status', 'active')->count(),
-        'prospectInvestors' => \App\Models\Investor::where('stage', 'prospect')->count(),
-        'activeStageInvestors' => \App\Models\Investor::where('stage', 'active')->count(),
+        'totalInvestors'      => \App\Models\Investor::notViewers()->count(),
+        'activeInvestors'     => \App\Models\Investor::notViewers()->where('lifecycle_status', 'active')->count(),
+        'prospectInvestors'   => \App\Models\Investor::notViewers()->where('stage', 'prospect')->count(),
+        'activeStageInvestors'=> \App\Models\Investor::notViewers()->where('stage', 'active')->count(),
     ];
 
     // Recent investors
-    $recentInvestors = \App\Models\Investor::with(['fund', 'assignedTo'])
+    $recentInvestors = \App\Models\Investor::notViewers()
+        ->with(['fund', 'assignedTo'])
         ->orderBy('created_at', 'desc')
         ->limit(5)
         ->get();
 
     // User-specific data
     if ($user->role === 'relationship_manager') {
-        $myInvestors = \App\Models\Investor::where('assigned_to_user_id', $user->id)
+        $myInvestors = \App\Models\Investor::notViewers()
+            ->where('assigned_to_user_id', $user->id)
             ->with('fund')
             ->orderBy('created_at', 'desc')
             ->limit(10)

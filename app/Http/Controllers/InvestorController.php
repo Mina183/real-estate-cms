@@ -23,7 +23,8 @@ class InvestorController extends Controller
 
     public function index()
     {
-        $investors = Investor::with(['fund', 'assignedTo'])
+        $investors = Investor::notViewers()
+            ->with(['fund', 'assignedTo'])
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
