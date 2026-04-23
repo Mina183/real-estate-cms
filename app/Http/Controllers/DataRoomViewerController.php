@@ -44,6 +44,7 @@ class DataRoomViewerController extends Controller
 
         InvestorUser::create([
             'investor_id' => $investor->id,
+            'name'        => $validated['name'],
             'email'       => $validated['email'],
             'password'    => Hash::make($validated['password']),
             'is_active'   => true,
