@@ -166,12 +166,35 @@ class InvestorStageService
                     'agreed_confidentiality'        => true,
                     'acknowledged_ppm_confidential' => true,
                     'data_room_access_level'        => 'qualified',
-                    'data_room_access_granted'   => true,
-                    'data_room_access_granted_at' => Carbon::now(),
+                    'data_room_access_granted'      => true,
+                    'data_room_access_granted_at'   => Carbon::now(),
                 ]);
                 app(\App\Services\DataRoomService::class)->upgradeAccess(
                     $investor, 'qualified', 'Auto-upgraded on Portal Access Granted'
                 );
+
+                // Auto-create investor portal account if one doesn't exist yet
+                $investor->loadMissing('contacts', 'investorUser');
+                if (! $investor->investorUser) {
+                    $primaryContact = $investor->contacts->where('is_primary', true)->first()
+                        ?? $investor->contacts->first();
+
+                    if ($primaryContact && $primaryContact->email) {
+                        $tempPassword = \Illuminate\Support\Str::random(12);
+                        $investorUser = \App\Models\InvestorUser::create([
+                            'investor_id' => $investor->id,
+                            'name'        => $primaryContact->full_name,
+                            'email'       => $primaryContact->email,
+                            'password'    => \Illuminate\Support\Facades\Hash::make($tempPassword),
+                            'is_active'   => true,
+                        ]);
+                        $investorUser->notify(new \App\Notifications\InvestorPortalAccessNotification(
+                            email: $primaryContact->email,
+                            password: $tempPassword,
+                            loginUrl: route('investor.login')
+                        ));
+                    }
+                }
                 break;
 
             case 'kyc_completed':

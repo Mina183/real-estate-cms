@@ -44,21 +44,21 @@
                     <ul class="divide-y divide-gray-200">
                         @foreach($items as $item)
                             @if($item->document)
-                                <li class="py-4 flex items-center justify-between">
-                                    <div>
-                                        <p class="text-sm font-medium text-gray-900">{{ $item->document->document_name }}</p>
+                                <li class="py-4 flex items-center gap-3">
+                                    <div class="min-w-0 flex-1">
+                                        <p class="text-sm font-medium text-gray-900 truncate">{{ $item->document->document_name }}</p>
                                         @if($item->document->folder)
-                                            <p class="text-xs text-gray-400">{{ $item->document->folder->folder_name }}</p>
+                                            <p class="text-xs text-gray-400 truncate">{{ $item->document->folder->folder_name }}</p>
                                         @endif
                                     </div>
                                     <a href="{{ route('doc-access.download', [$link->token, $item->document->id]) }}"
-                                       class="ml-4 inline-flex items-center px-3 py-1.5 border border-blue-600 text-sm font-medium rounded-md text-blue-600 hover:bg-blue-50 focus:outline-none">
-                                        <svg class="mr-1.5 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                       class="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-2 border border-blue-600 text-sm font-medium rounded-md text-blue-600 hover:bg-blue-50 focus:outline-none">
+                                        <svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                                         </svg>
-                                        Download
+                                        <span>Download</span>
                                         @if($item->document->file_type)
-                                            <span class="ml-1 text-xs text-gray-400 uppercase">{{ $item->document->file_type }}</span>
+                                            <span class="text-xs text-gray-400 uppercase">{{ $item->document->file_type }}</span>
                                         @endif
                                     </a>
                                 </li>
