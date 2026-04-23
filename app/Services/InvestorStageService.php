@@ -180,19 +180,30 @@ class InvestorStageService
                         ?? $investor->contacts->first();
 
                     if ($primaryContact && $primaryContact->email) {
-                        $tempPassword = \Illuminate\Support\Str::random(12);
-                        $investorUser = \App\Models\InvestorUser::create([
-                            'investor_id' => $investor->id,
-                            'name'        => $primaryContact->full_name,
-                            'email'       => $primaryContact->email,
-                            'password'    => \Illuminate\Support\Facades\Hash::make($tempPassword),
-                            'is_active'   => true,
-                        ]);
-                        $investorUser->notify(new \App\Notifications\InvestorPortalAccessNotification(
-                            email: $primaryContact->email,
-                            password: $tempPassword,
-                            loginUrl: route('investor.login')
-                        ));
+                        $emailTaken = \App\Models\InvestorUser::where('email', $primaryContact->email)->exists();
+
+                        if (! $emailTaken) {
+                            try {
+                                $tempPassword = \Illuminate\Support\Str::random(12);
+                                $investorUser = \App\Models\InvestorUser::create([
+                                    'investor_id' => $investor->id,
+                                    'name'        => $primaryContact->full_name,
+                                    'email'       => $primaryContact->email,
+                                    'password'    => \Illuminate\Support\Facades\Hash::make($tempPassword),
+                                    'is_active'   => true,
+                                ]);
+                                $investorUser->notify(new \App\Notifications\InvestorPortalAccessNotification(
+                                    email: $primaryContact->email,
+                                    password: $tempPassword,
+                                    loginUrl: route('investor.login')
+                                ));
+                            } catch (\Throwable $e) {
+                                \Illuminate\Support\Facades\Log::warning('Portal access auto-create failed on stage transition', [
+                                    'investor_id' => $investor->id,
+                                    'error'       => $e->getMessage(),
+                                ]);
+                            }
+                        }
                     }
                 }
                 break;
