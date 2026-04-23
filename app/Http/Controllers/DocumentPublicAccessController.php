@@ -68,6 +68,16 @@ class DocumentPublicAccessController extends Controller
         if ($existing) {
             session(["doc_access_{$token}" => $existing->id]);
 
+            // Backfill consent if missing — handles re-submissions and legacy records
+            if (is_null($existing->consent_recorded_at)) {
+                $existing->update([
+                    'consent_recorded_at'    => now(),
+                    'consent_source'         => 'document_access_request',
+                    'dp_notice_version'      => config('compliance.dp_notice_version'),
+                    'privacy_notice_version' => config('compliance.privacy_notice_version'),
+                ]);
+            }
+
             if ($existing->isActive()) {
                 return redirect()->route('doc-access.show', $token);
             }
