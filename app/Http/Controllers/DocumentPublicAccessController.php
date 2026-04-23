@@ -38,8 +38,18 @@ class DocumentPublicAccessController extends Controller
         }
 
         if ($accessRequest && $accessRequest->isActive()) {
+            $backfill = [];
             if (is_null($accessRequest->first_accessed_at)) {
-                $accessRequest->update(['first_accessed_at' => now()]);
+                $backfill['first_accessed_at'] = now();
+            }
+            if (is_null($accessRequest->consent_recorded_at)) {
+                $backfill['consent_recorded_at']    = now();
+                $backfill['consent_source']         = 'document_access_request';
+                $backfill['dp_notice_version']      = config('compliance.dp_notice_version');
+                $backfill['privacy_notice_version'] = config('compliance.privacy_notice_version');
+            }
+            if ($backfill) {
+                $accessRequest->update($backfill);
             }
             return view('doc-access.downloads', compact('link', 'accessRequest'));
         }
