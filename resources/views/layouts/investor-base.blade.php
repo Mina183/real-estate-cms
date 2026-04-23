@@ -26,21 +26,25 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-h-[80px] py-4">
                 <div class="flex justify-between h-16">
                     <div class="flex">
+                        @php $isViewer = Auth::guard('investor')->user()?->investor?->data_room_access_level === 'viewer'; @endphp
+
                         <!-- Logo -->
                         <div class="shrink-0 flex items-center">
-                            <a href="{{ route('investor.dashboard') }}">
+                            <a href="{{ $isViewer ? route('investor.documents') : route('investor.dashboard') }}">
                                 <img src="/images/logo.png" alt="Logo" class="h-20 w-auto">
                             </a>
                         </div>
 
                         <!-- Navigation Links -->
                         <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-                            <a href="{{ route('investor.dashboard') }}" 
+                            @if(!$isViewer)
+                            <a href="{{ route('investor.dashboard') }}"
                                class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out text-white hover:text-brand-accent
                                       {{ request()->routeIs('investor.dashboard') ? 'border-brand-accent' : 'border-transparent' }}">
                                 Dashboard
                             </a>
-                            <a href="{{ route('investor.documents') }}" 
+                            @endif
+                            <a href="{{ route('investor.documents') }}"
                                class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out text-white hover:text-brand-accent
                                       {{ request()->routeIs('investor.documents') ? 'border-brand-accent' : 'border-transparent' }}">
                                 Documents
@@ -89,9 +93,11 @@
             <!-- Responsive Navigation Menu -->
             <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
                 <div class="pt-2 pb-3 space-y-1">
+                    @if(!$isViewer)
                     <a href="{{ route('investor.dashboard') }}" class="block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition duration-150 ease-in-out text-white hover:bg-brand-dark/20 {{ request()->routeIs('investor.dashboard') ? 'border-brand-accent bg-brand-dark/20' : 'border-transparent' }}">
                         Dashboard
                     </a>
+                    @endif
                     <a href="{{ route('investor.documents') }}" class="block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition duration-150 ease-in-out text-white hover:bg-brand-dark/20 {{ request()->routeIs('investor.documents') ? 'border-brand-accent bg-brand-dark/20' : 'border-transparent' }}">
                         Documents
                     </a>
