@@ -117,6 +117,60 @@
         padding: 3rem 1rem;
         color: #94a3b8;
     }
+
+    /* ── Mobile layout ── */
+    @media (max-width: 639px) {
+        /* Stat cards: stack vertically, no icon */
+        .stat-card {
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 0.625rem 0.625rem;
+            gap: 0.2rem;
+        }
+        .stat-icon { display: none; }
+        .stat-card .text-xl { font-size: 1.25rem; line-height: 1.2; }
+        .stat-card .text-xs { line-height: 1.4; }
+
+        /* Folder rows: 2 cols (chevron + name), hide doc count */
+        .folder-row {
+            grid-template-columns: 18px minmax(0, 1fr) !important;
+            padding: 0.875rem 0.625rem;
+            gap: 0.5rem;
+        }
+        .folder-row > :last-child { display: none !important; }
+        .folder-row .text-sm { font-size: 15px; }
+
+        /* Subfolder rows: 2 cols, hide count */
+        .subfolder-row {
+            grid-template-columns: 16px minmax(0, 1fr) !important;
+            padding: 0.75rem 0.625rem 0.75rem 0.875rem;
+            gap: 0.5rem;
+        }
+        .subfolder-row > :last-child { display: none !important; }
+
+        /* Doc rows: 3 cols (icon + name + download), hide version & date */
+        .doc-row {
+            grid-template-columns: 20px minmax(0, 1fr) auto !important;
+            padding: 0.75rem 0.5rem 0.75rem 0.75rem !important;
+            gap: 0.5rem;
+        }
+        .doc-row > :nth-child(3),
+        .doc-row > :nth-child(4) { display: none !important; }
+
+        /* Reduce nesting indent */
+        .collapsible {
+            margin-left: 0 !important;
+            padding-left: 0.25rem !important;
+            border-left-width: 2px;
+        }
+
+        /* Download button: keep label but tighter */
+        .download-btn {
+            padding: 6px 10px;
+            font-size: 12px;
+            gap: 3px;
+        }
+    }
 </style>
 
 <div class="py-8">
@@ -134,7 +188,7 @@
         @else
 
             {{-- Stats --}}
-            <div class="flex items-center gap-4 mb-6">
+            <div class="grid grid-cols-3 gap-2 mb-5 sm:flex sm:items-center sm:gap-4 sm:mb-6">
                 <div class="stat-card">
                     <div class="stat-icon bg-blue-50">
                         <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
