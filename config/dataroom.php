@@ -115,9 +115,9 @@ return [
 
     'investor_folder_access' => [
         'none'       => [],
-        'prospect'   => ['1', '2', '3', '4'],
-        'qualified'  => ['1', '2', '3', '4'],
-        'subscribed' => ['1', '2', '3', '4'],
+        'prospect'   => ['1', '2', '3', '5', '6', '8'],
+        'qualified'  => ['1', '2', '3', '5', '6', '8'],
+        'subscribed' => ['1', '2', '3', '5', '6', '8'],
         'viewer'     => ['1', '2', '3', '5', '6', '8'],
         'internal'   => '*',
         'external'   => '*',
