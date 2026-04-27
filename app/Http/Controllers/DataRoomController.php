@@ -19,6 +19,7 @@ class DataRoomController extends Controller
     {
         $folders = DataRoomFolder::whereNull('parent_folder_id')
             ->whereNull('investor_id')
+            ->where('folder_number', '!=', '12')
             ->with(['children.documents', 'documents'])
             ->orderBy('order')
             ->get();

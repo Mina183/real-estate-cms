@@ -189,11 +189,13 @@ class InvestorPortalController extends Controller
             ->orderBy('order')
             ->get();
 
-        // Investor personal folder (folder_number = 12) — tylko dokumenti za ovog investitora
-        $personalFolder = \App\Models\DataRoomFolder::where('folder_number', '12')
-            ->with(['documents' => function ($q) use ($investor) {
-                $q->where('status', 'approved')->where('investor_id', $investor->id);
-            }])
+        // Investor personal folder — auto-created per investor
+        $personalFolder = \App\Models\DataRoomFolder::where('investor_id', $investor->id)
+            ->whereNull('parent_folder_id')
+            ->with([
+                'documents'       => fn($q) => $q->where('status', 'approved'),
+                'children.documents' => fn($q) => $q->where('status', 'approved'),
+            ])
             ->first();
 
         return view('investor.documents', compact('investor', 'folders', 'accessLevel', 'personalFolder'));
@@ -217,9 +219,9 @@ class InvestorPortalController extends Controller
         $accessLevel    = $investor->data_room_access_level ?? 'none';
         $allowedFolders = config("dataroom.investor_folder_access.{$accessLevel}", []);
 
-        // Investor personal folder (12) — samo njihovi dokumenti
-        if ($folder->folder_number === '12') {
-            if ($document->investor_id !== $investor->id) {
+        // Personal folder: folder belongs to this investor (auto-created system)
+        if ($folder->investor_id !== null) {
+            if ($folder->investor_id !== $investor->id) {
                 abort(403, 'You do not have access to this document.');
             }
         } else {

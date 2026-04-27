@@ -294,4 +294,9 @@ public function documentAccessLinks()
 {
     return $this->hasMany(DocumentAccessLink::class);
 }
+
+public function dataRoomFolders()
+{
+    return $this->hasMany(\App\Models\DataRoomFolder::class)->whereNull('parent_folder_id');
+}
 }

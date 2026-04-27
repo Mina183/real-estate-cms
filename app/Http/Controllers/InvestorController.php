@@ -252,10 +252,28 @@ class InvestorController extends Controller
 
     public function destroy(Investor $investor)
     {
+        // Delete storage files for all investor-specific documents before DB cascade
+        $investor->loadMissing('dataRoomFolders.documents', 'dataRoomFolders.children.documents');
+
+        foreach ($investor->dataRoomFolders as $folder) {
+            foreach ($folder->documents as $doc) {
+                if ($doc->file_path && \Illuminate\Support\Facades\Storage::disk('private')->exists($doc->file_path)) {
+                    \Illuminate\Support\Facades\Storage::disk('private')->delete($doc->file_path);
+                }
+            }
+            foreach ($folder->children as $child) {
+                foreach ($child->documents as $doc) {
+                    if ($doc->file_path && \Illuminate\Support\Facades\Storage::disk('private')->exists($doc->file_path)) {
+                        \Illuminate\Support\Facades\Storage::disk('private')->delete($doc->file_path);
+                    }
+                }
+            }
+        }
+
         $investor->delete();
 
         return redirect()->route('investors.index')
-            ->with('success', 'Investor archived successfully!');
+            ->with('success', 'Investor deleted successfully.');
     }
 
     public function changeStageForm(Investor $investor)
