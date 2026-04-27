@@ -154,9 +154,9 @@
                 $pdfCount   = (int) $typeCounts->get('pdf', 0);
                 $wordCount  = (int) $typeCounts->get('doc', 0) + (int) $typeCounts->get('docx', 0);
                 $excelCount = (int) $typeCounts->get('xls', 0) + (int) $typeCounts->get('xlsx', 0);
-                $envCount   = (int) $typeCounts->get('env', 0);
+                $emlCount   = (int) $typeCounts->get('eml', 0);
                 $totalCount = (int) $typeCounts->sum();
-                $otherCount = $totalCount - $pdfCount - $wordCount - $excelCount - $envCount;
+                $otherCount = $totalCount - $pdfCount - $wordCount - $excelCount - $emlCount;
             @endphp
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
                 <div class="flex items-start gap-3 flex-wrap">
@@ -179,8 +179,8 @@
                                 @if($excelCount)
                                     <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium bg-green-50 text-green-700">📊 Excel {{ $excelCount }}</span>
                                 @endif
-                                @if($envCount)
-                                    <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium bg-yellow-50 text-yellow-700">⚙️ .env {{ $envCount }}</span>
+                                @if($emlCount)
+                                    <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium bg-yellow-50 text-yellow-700">✉️ Comm. Log {{ $emlCount }}</span>
                                 @endif
                                 @if($otherCount > 0)
                                     <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600">📎 Other {{ $otherCount }}</span>
