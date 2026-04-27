@@ -87,6 +87,17 @@
                     @endif
                 @endcan
 
+                @can('approve', $doc)
+                    <form method="POST" action="{{ route('data-room.destroy', $doc->id) }}">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="download-btn" style="background:#991b1b;"
+                                onclick="return confirm('Permanently delete \"{{ addslashes($doc->document_name) }}\"? This cannot be undone.')">
+                            Delete
+                        </button>
+                    </form>
+                @endcan
+
                 {{-- Download samo za approved --}}
                 @if($doc->status === 'approved')
                     <a href="{{ route('data-room.download', $doc->id) }}" class="download-btn">
@@ -182,6 +193,17 @@
                                     </button>
                                 </form>
                             @endif
+                        @endcan
+
+                        @can('approve', $doc)
+                            <form method="POST" action="{{ route('data-room.destroy', $doc->id) }}">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="download-btn" style="background:#991b1b;"
+                                        onclick="return confirm('Permanently delete \"{{ addslashes($doc->document_name) }}\"? This cannot be undone.')">
+                                    Delete
+                                </button>
+                            </form>
                         @endcan
 
                         {{-- Download samo za approved --}}

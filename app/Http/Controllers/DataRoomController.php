@@ -209,4 +209,20 @@ class DataRoomController extends Controller
 
         return back()->with('success', 'Document archived.');
     }
+
+    /**
+     * Permanently delete a document and its file from storage.
+     */
+    public function destroy(DataRoomDocument $document)
+    {
+        $this->authorize('approve', $document);
+
+        if ($document->file_path && Storage::disk('private')->exists($document->file_path)) {
+            Storage::disk('private')->delete($document->file_path);
+        }
+
+        $document->delete();
+
+        return back()->with('success', 'Document deleted.');
+    }
 }

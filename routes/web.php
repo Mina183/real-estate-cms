@@ -248,6 +248,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/documents/{document}/approve', [DataRoomController::class, 'approve'])->name('data-room.approve');
         Route::post('/documents/{document}/reject', [DataRoomController::class, 'reject'])->name('data-room.reject');
         Route::post('/documents/{document}/archive', [DataRoomController::class, 'archive'])->name('data-room.archive');
+        Route::delete('/documents/{document}', [DataRoomController::class, 'destroy'])->name('data-room.destroy');
     });
 
     /*
