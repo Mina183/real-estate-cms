@@ -147,8 +147,19 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
             {{-- Top Bar --}}
+            @php
+                $typeCounts = \App\Models\DataRoomDocument::selectRaw('file_type, count(*) as cnt')
+                    ->groupBy('file_type')
+                    ->pluck('cnt', 'file_type');
+                $pdfCount   = (int) $typeCounts->get('pdf', 0);
+                $wordCount  = (int) $typeCounts->get('doc', 0) + (int) $typeCounts->get('docx', 0);
+                $excelCount = (int) $typeCounts->get('xls', 0) + (int) $typeCounts->get('xlsx', 0);
+                $envCount   = (int) $typeCounts->get('env', 0);
+                $totalCount = (int) $typeCounts->sum();
+                $otherCount = $totalCount - $pdfCount - $wordCount - $excelCount - $envCount;
+            @endphp
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
-                <div class="flex items-center gap-3">
+                <div class="flex items-start gap-3 flex-wrap">
                     <div class="stat-card">
                         <div class="stat-icon bg-blue-50">
                             <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -156,8 +167,25 @@
                             </svg>
                         </div>
                         <div>
-                            <div class="text-xl font-bold text-gray-800">{{ \App\Models\DataRoomDocument::count() }}</div>
-                            <div class="text-xs text-gray-500">Total Documents</div>
+                            <div class="text-xl font-bold text-gray-800">{{ $totalCount }}</div>
+                            <div class="text-xs text-gray-500 mb-1.5">Total Documents</div>
+                            <div class="flex flex-wrap gap-1">
+                                @if($pdfCount)
+                                    <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium bg-red-50 text-red-700">📄 PDF {{ $pdfCount }}</span>
+                                @endif
+                                @if($wordCount)
+                                    <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700">📝 Word {{ $wordCount }}</span>
+                                @endif
+                                @if($excelCount)
+                                    <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium bg-green-50 text-green-700">📊 Excel {{ $excelCount }}</span>
+                                @endif
+                                @if($envCount)
+                                    <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium bg-yellow-50 text-yellow-700">⚙️ .env {{ $envCount }}</span>
+                                @endif
+                                @if($otherCount > 0)
+                                    <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600">📎 Other {{ $otherCount }}</span>
+                                @endif
+                            </div>
                         </div>
                     </div>
                     <div class="stat-card">
