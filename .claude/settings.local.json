@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-ChildItem \"c:\\\\wamp64\\\\www\\\\laravel\\\\property-decision-engine\\\\app\\\\Http\" -Recurse | Where-Object {$_.Extension -eq \".php\"} | ForEach-Object { $_.FullName })"
+    ]
+  }
+}
