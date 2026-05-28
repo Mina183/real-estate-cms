@@ -2,30 +2,21 @@
 
 namespace App\Policies;
 
+use App\Helpers\DataRoomHelper;
 use App\Models\User;
 use App\Models\DataRoomDocument;
 use App\Models\DataRoomFolder;
 
 class DataRoomPolicy
 {
-    /**
-     * Determine if user can view document
-     */
     public function view(User $user, DataRoomDocument $document): bool
     {
-        // Everyone can view documents they have access to
-        // (actual folder-level access will be checked separately in Phase 5)
-        return true;
+        return DataRoomHelper::canAccessDocument($user, $document);
     }
 
-    /**
-     * Determine if user can download document
-     */
     public function download(User $user, DataRoomDocument $document): bool
     {
-        // For now: all authenticated users can download
-        // In Phase 5 we'll add folder-level security checks based on role
-        return true;
+        return DataRoomHelper::canDownloadDocument($user, $document);
     }
 
     /**

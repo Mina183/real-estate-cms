@@ -183,8 +183,12 @@ class InvestorPortalController extends Controller
 
         $folders = $folderQuery
             ->with([
-                'children.documents' => fn($q) => $q->where('status', 'approved')->whereNull('investor_id'),
-                'documents'          => fn($q) => $q->where('status', 'approved')->whereNull('investor_id'),
+                'children.documents' => fn($q) => $q->where('status', 'approved')
+                    ->whereNull('investor_id')
+                    ->whereIn('access_level', ['public', 'restricted']),
+                'documents'          => fn($q) => $q->where('status', 'approved')
+                    ->whereNull('investor_id')
+                    ->whereIn('access_level', ['public', 'restricted']),
             ])
             ->orderBy('order')
             ->get();
@@ -229,6 +233,13 @@ class InvestorPortalController extends Controller
             if (!$allowed) {
                 abort(403, 'You do not have access to this document.');
             }
+        }
+
+        // Investors can only access public and restricted documents.
+        // Confidential / highly_confidential documents are staff-only regardless of folder.
+        $investorAllowedDocLevels = ['public', 'restricted'];
+        if (!in_array($document->access_level ?? 'restricted', $investorAllowedDocLevels)) {
+            abort(403, 'You do not have access to this document.');
         }
 
         if ($document->status !== 'approved') {

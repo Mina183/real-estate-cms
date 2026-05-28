@@ -31,12 +31,30 @@ class DataRoomHelper
     }
     
     /**
-     * Check if user can access a specific document
+     * Check if user can access a specific document.
+     * Effective level = most restrictive of folder and document access_level.
      */
     public static function canAccessDocument(User $user, DataRoomDocument $document): bool
     {
-        // Document inherits security from its folder
-        return self::canAccessFolder($user, $document->folder);
+        if ($user->role === 'superadmin') {
+            return true;
+        }
+
+        $folder = $document->folder;
+
+        if (self::hasFolderException($user, $folder)) {
+            if (!self::checkFolderException($user, $folder)) {
+                return false;
+            }
+        }
+
+        $levels    = ['public', 'restricted', 'confidential', 'highly_confidential'];
+        $folderIdx = (int) array_search($folder->access_level   ?? 'restricted', $levels);
+        $docIdx    = (int) array_search($document->access_level ?? 'restricted', $levels);
+        $effective = $levels[max($folderIdx, $docIdx)];
+
+        $allowed = config('dataroom.access_matrix.' . $user->role, []);
+        return in_array($effective, $allowed);
     }
     
     /**
