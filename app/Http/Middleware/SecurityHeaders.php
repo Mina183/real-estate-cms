@@ -11,12 +11,22 @@ class SecurityHeaders
     {
         $response = $next($request);
 
-        // Extract storage origin for CSP connect-src (allows direct browser-to-S3 uploads)
+        // Extract storage origin for CSP connect-src (allows direct browser-to-S3 uploads).
+        // R2 presigned URLs use virtual-hosted style: https://{bucket}.{account}.r2.cloudflarestorage.com
+        // so we need a wildcard subdomain (*.r2.cloudflarestorage.com) not just the endpoint host.
         $storageEndpoint = config('filesystems.disks.private.endpoint', '');
         $storageOrigin   = '';
         if ($storageEndpoint) {
-            $parsed        = parse_url($storageEndpoint);
-            $storageOrigin = ($parsed['scheme'] ?? 'https') . '://' . ($parsed['host'] ?? '');
+            $parsed = parse_url($storageEndpoint);
+            $scheme = $parsed['scheme'] ?? 'https';
+            $host   = $parsed['host'] ?? '';
+            $parts  = explode('.', $host);
+            if (count($parts) > 2) {
+                array_shift($parts); // strip first label to get parent domain
+                $storageOrigin = $scheme . '://*.' . implode('.', $parts);
+            } else {
+                $storageOrigin = $scheme . '://' . $host;
+            }
         }
 
         $response->headers->set('X-Content-Type-Options', 'nosniff');
