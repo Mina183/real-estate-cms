@@ -242,6 +242,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('data-room')->controller(DataRoomController::class)->group(function () {
         Route::get('/', 'index')->name('data-room.index');
         Route::post('/upload', 'upload')->name('data-room.upload');
+        Route::post('/presign', 'presign')->name('data-room.presign');
+        Route::post('/confirm', 'confirm')->name('data-room.confirm');
         Route::get('/download/{document}', 'download')->name('data-room.download');
         Route::get('/export-index', 'exportIndex')->name('data-room.export-index');
         Route::post('/documents/{document}/submit', [DataRoomController::class, 'submitForReview'])->name('data-room.submit');

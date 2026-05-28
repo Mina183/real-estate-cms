@@ -6,6 +6,8 @@ use App\Models\DataRoomFolder;
 use App\Models\DataRoomDocument;
 use App\Models\DocumentApprovalWorkflow;
 use App\Exports\DocumentIndexExport;
+use Aws\S3\S3Client;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
@@ -124,6 +126,81 @@ class DataRoomController extends Controller
             'version'       => $request->version ?? '1.0',
             'description'   => $request->description,
             'status' => 'approved',
+            'uploaded_by'   => auth()->id(),
+        ]);
+
+        return redirect()->route('data-room.index')
+            ->with('upload_success', 'Document uploaded: ' . $request->document_name);
+    }
+
+    /**
+     * Generate a presigned S3 URL for direct browser-to-S3 upload (bypasses nginx size limit)
+     */
+    public function presign(Request $request): JsonResponse
+    {
+        $this->authorize('upload', DataRoomDocument::class);
+
+        $request->validate([
+            'folder_id' => 'required|exists:data_room_folders,id',
+            'file_name' => 'required|string|max:255',
+            'file_size' => 'required|integer|max:524288000',
+        ]);
+
+        $folder = DataRoomFolder::findOrFail($request->folder_id);
+        $key    = 'data-room/' . $folder->folder_number . '/' . $request->file_name;
+        $disk   = config('filesystems.disks.private');
+
+        $client = new S3Client([
+            'version'                 => 'latest',
+            'region'                  => $disk['region'],
+            'endpoint'                => $disk['endpoint'] ?? null,
+            'use_path_style_endpoint' => $disk['use_path_style_endpoint'] ?? false,
+            'credentials'             => [
+                'key'    => $disk['key'],
+                'secret' => $disk['secret'],
+            ],
+        ]);
+
+        $cmd     = $client->getCommand('PutObject', [
+            'Bucket' => $disk['bucket'],
+            'Key'    => $key,
+        ]);
+        $signed  = $client->createPresignedRequest($cmd, '+20 minutes');
+
+        return response()->json([
+            'url' => (string) $signed->getUri(),
+            'key' => $key,
+        ]);
+    }
+
+    /**
+     * Save document metadata after direct S3 upload
+     */
+    public function confirm(Request $request)
+    {
+        $this->authorize('upload', DataRoomDocument::class);
+
+        $request->validate([
+            'folder_id'     => 'required|exists:data_room_folders,id',
+            'investor_id'   => 'nullable|exists:investors,id',
+            'document_name' => 'required|string|max:255',
+            'file_path'     => 'required|string',
+            'file_type'     => 'required|string',
+            'file_size'     => 'required|integer',
+            'version'       => 'nullable|string',
+            'description'   => 'nullable|string',
+        ]);
+
+        DataRoomDocument::create([
+            'folder_id'     => $request->folder_id,
+            'investor_id'   => $request->investor_id,
+            'document_name' => $request->document_name,
+            'file_path'     => $request->file_path,
+            'file_type'     => $request->file_type,
+            'file_size'     => $request->file_size,
+            'version'       => $request->version ?? '1.0',
+            'description'   => $request->description,
+            'status'        => 'approved',
             'uploaded_by'   => auth()->id(),
         ]);
 

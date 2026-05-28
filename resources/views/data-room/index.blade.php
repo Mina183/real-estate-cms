@@ -409,9 +409,12 @@
                     </div>
                 @endif
 
-                <form action="{{ route('data-room.upload') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+                <form id="uploadForm" action="{{ route('data-room.confirm') }}" method="POST" class="space-y-4">
                     @csrf
                     <input type="hidden" name="investor_id" id="investor_id_upload" value="">
+                    <input type="hidden" name="file_path" id="upload_file_path">
+                    <input type="hidden" name="file_type" id="upload_file_type">
+                    <input type="hidden" name="file_size" id="upload_file_size">
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">
@@ -492,12 +495,25 @@
                                   class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
                     </div>
 
+                    {{-- Progress bar (hidden until upload starts) --}}
+                    <div id="uploadProgress" class="hidden">
+                        <div class="flex justify-between text-xs text-gray-500 mb-1">
+                            <span id="uploadProgressLabel">Uploading...</span>
+                            <span id="uploadProgressPct">0%</span>
+                        </div>
+                        <div class="w-full bg-gray-100 rounded-full h-2">
+                            <div id="uploadProgressBar" class="bg-blue-500 h-2 rounded-full transition-all duration-200" style="width:0%"></div>
+                        </div>
+                    </div>
+
+                    <div id="uploadError" class="hidden p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg"></div>
+
                     <div class="flex justify-end gap-2 pt-2">
-                        <button type="button" onclick="closeUploadModal()"
+                        <button type="button" id="uploadCancelBtn" onclick="closeUploadModal()"
                                 class="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition font-medium">
                             Cancel
                         </button>
-                        <button type="submit"
+                        <button type="submit" id="uploadSubmitBtn"
                                 class="px-5 py-2 text-sm text-white bg-brand-darker rounded-lg hover:opacity-90 transition font-semibold shadow-sm">
                             Upload
                         </button>
@@ -610,7 +626,104 @@
     }
 
     function showUploadModal() { document.getElementById('uploadModal').classList.remove('hidden'); }
-    function closeUploadModal() { document.getElementById('uploadModal').classList.add('hidden'); }
+    function closeUploadModal() {
+        document.getElementById('uploadModal').classList.add('hidden');
+        // Reset form state
+        document.getElementById('uploadForm').reset();
+        document.getElementById('uploadProgress').classList.add('hidden');
+        document.getElementById('uploadError').classList.add('hidden');
+        document.getElementById('uploadSubmitBtn').disabled = false;
+        document.getElementById('uploadSubmitBtn').textContent = 'Upload';
+    }
+
+    document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const fileInput = this.querySelector('input[type="file"]');
+        const file = fileInput?.files[0];
+        if (!file) return;
+
+        const folderId    = document.getElementById('folder_id').value;
+        const submitBtn   = document.getElementById('uploadSubmitBtn');
+        const cancelBtn   = document.getElementById('uploadCancelBtn');
+        const progressBox = document.getElementById('uploadProgress');
+        const progressBar = document.getElementById('uploadProgressBar');
+        const progressPct = document.getElementById('uploadProgressPct');
+        const progressLbl = document.getElementById('uploadProgressLabel');
+        const errorBox    = document.getElementById('uploadError');
+
+        const showError = (msg) => {
+            errorBox.textContent = msg;
+            errorBox.classList.remove('hidden');
+            progressBox.classList.add('hidden');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Upload';
+            cancelBtn.disabled = false;
+        };
+
+        // Disable buttons, show progress
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Uploading...';
+        cancelBtn.disabled = true;
+        errorBox.classList.add('hidden');
+        progressBox.classList.remove('hidden');
+        progressLbl.textContent = 'Requesting upload URL...';
+        progressBar.style.width = '0%';
+        progressPct.textContent = '0%';
+
+        try {
+            // Step 1: get presigned URL from Laravel
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content
+                           || document.querySelector('input[name="_token"]')?.value;
+
+            const presignRes = await fetch('{{ route('data-room.presign') }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+                body: JSON.stringify({ folder_id: folderId, file_name: file.name, file_size: file.size }),
+            });
+
+            if (!presignRes.ok) {
+                const err = await presignRes.json().catch(() => ({}));
+                throw new Error(err.message || 'Could not get upload URL. Please try again.');
+            }
+
+            const { url, key } = await presignRes.json();
+
+            // Step 2: upload file directly to S3 with progress tracking
+            progressLbl.textContent = 'Uploading file...';
+
+            await new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open('PUT', url, true);
+                xhr.upload.onprogress = (ev) => {
+                    if (ev.lengthComputable) {
+                        const pct = Math.round((ev.loaded / ev.total) * 100);
+                        progressBar.style.width = pct + '%';
+                        progressPct.textContent = pct + '%';
+                    }
+                };
+                xhr.onload = () => xhr.status === 200 ? resolve() : reject(new Error('Upload to storage failed (HTTP ' + xhr.status + ')'));
+                xhr.onerror = () => reject(new Error('Network error during upload.'));
+                xhr.send(file);
+            });
+
+            // Step 3: save metadata via Laravel confirm endpoint
+            progressLbl.textContent = 'Saving...';
+            progressBar.style.width = '100%';
+            progressPct.textContent = '100%';
+
+            document.getElementById('upload_file_path').value = key;
+            document.getElementById('upload_file_type').value = file.name.split('.').pop().toLowerCase();
+            document.getElementById('upload_file_size').value = file.size;
+
+            // Remove the file input so it's not sent in the form POST
+            fileInput.disabled = true;
+            this.submit();
+
+        } catch (err) {
+            showError(err.message);
+        }
+    });
 
     // Auto-populate investor_id when an investor sub-folder is selected
     document.getElementById('folder_id')?.addEventListener('change', function() {
