@@ -11,6 +11,14 @@ class SecurityHeaders
     {
         $response = $next($request);
 
+        // Extract storage origin for CSP connect-src (allows direct browser-to-S3 uploads)
+        $storageEndpoint = config('filesystems.disks.private.endpoint', '');
+        $storageOrigin   = '';
+        if ($storageEndpoint) {
+            $parsed        = parse_url($storageEndpoint);
+            $storageOrigin = ($parsed['scheme'] ?? 'https') . '://' . ($parsed['host'] ?? '');
+        }
+
         $response->headers->set('X-Content-Type-Options', 'nosniff');
         $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
         $response->headers->set('X-XSS-Protection', '1; mode=block');
@@ -20,22 +28,11 @@ class SecurityHeaders
         $response->headers->set(
             'Content-Security-Policy',
             "default-src 'self'; " .
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdn.jsdelivr.net; " .
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdn.jsdelivr.net https://code.jquery.com; " .
-            "style-src 'self' 'unsafe-inline' https://fonts.bunny.net https://cdn.jsdelivr.net; " .
-            "font-src 'self' https://fonts.bunny.net; " .
-            "img-src 'self' data: blob:; " .
-            "connect-src 'self'; " .
-            "frame-ancestors 'none';"
-        );
-        $response->headers->set(
-            'Content-Security-Policy',
-            "default-src 'self'; " .
             "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdn.jsdelivr.net https://code.jquery.com https://cdn.tiny.cloud; " .
             "style-src 'self' 'unsafe-inline' https://fonts.bunny.net https://cdn.jsdelivr.net https://cdn.tiny.cloud; " .
             "font-src 'self' https://fonts.bunny.net https://cdn.tiny.cloud; " .
             "img-src 'self' data: blob: https://cdn.tiny.cloud https://sp.tinymce.com; " .
-            "connect-src 'self' https://cdn.tiny.cloud https://sp.tinymce.com; " .
+            "connect-src 'self' https://cdn.tiny.cloud https://sp.tinymce.com" . ($storageOrigin ? " $storageOrigin" : '') . "; " .
             "frame-ancestors 'none';"
         );
 
