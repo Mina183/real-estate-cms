@@ -676,7 +676,7 @@
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content
                            || document.querySelector('input[name="_token"]')?.value;
 
-            const presignRes = await fetch('{{ route('data-room.presign') }}', {
+            const presignRes = await fetch("{{ route('data-room.presign') }}", {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
                 body: JSON.stringify({ folder_id: folderId, file_name: file.name, file_size: file.size }),
@@ -702,8 +702,8 @@
                         progressPct.textContent = pct + '%';
                     }
                 };
-                xhr.onload = () => xhr.status === 200 ? resolve() : reject(new Error('Upload to storage failed (HTTP ' + xhr.status + ')'));
-                xhr.onerror = () => reject(new Error('Network error during upload.'));
+                xhr.onload = () => xhr.status === 200 ? resolve() : reject(new Error('Storage rejected upload — HTTP ' + xhr.status + '. ' + xhr.responseText.substring(0, 300)));
+                xhr.onerror = () => reject(new Error('CORS or network error — storage bucket is not allowing direct uploads from this domain. Check browser console (F12) for details.'));
                 xhr.send(file);
             });
 
