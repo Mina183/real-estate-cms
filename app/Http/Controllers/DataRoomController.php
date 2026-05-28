@@ -108,6 +108,7 @@ class DataRoomController extends Controller
             'document'      => 'required|file|max:512000',
             'version'       => 'nullable|string',
             'description'   => 'nullable|string',
+            'access_level'  => 'nullable|in:public,restricted,confidential,highly_confidential',
         ]);
 
         $file        = $request->file('document');
@@ -125,7 +126,8 @@ class DataRoomController extends Controller
             'file_size'     => $file->getSize(),
             'version'       => $request->version ?? '1.0',
             'description'   => $request->description,
-            'status' => 'approved',
+            'access_level'  => $request->access_level ?? 'restricted',
+            'status'        => 'approved',
             'uploaded_by'   => auth()->id(),
         ]);
 
@@ -189,6 +191,7 @@ class DataRoomController extends Controller
             'file_size'     => 'required|integer',
             'version'       => 'nullable|string',
             'description'   => 'nullable|string',
+            'access_level'  => 'nullable|in:public,restricted,confidential,highly_confidential',
         ]);
 
         DataRoomDocument::create([
@@ -200,6 +203,7 @@ class DataRoomController extends Controller
             'file_size'     => $request->file_size,
             'version'       => $request->version ?? '1.0',
             'description'   => $request->description,
+            'access_level'  => $request->access_level ?? 'restricted',
             'status'        => 'approved',
             'uploaded_by'   => auth()->id(),
         ]);

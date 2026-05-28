@@ -18,6 +18,7 @@ class DataRoomDocument extends Model
         'file_size',
         'version',
         'description',
+        'access_level',
         'status',
         'uploaded_by',
         'approved_at',

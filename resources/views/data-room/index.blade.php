@@ -456,12 +456,22 @@
                 {{-- File queue — populated by JS when files are chosen --}}
                 <ul id="fileQueue" class="hidden space-y-2 max-h-48 overflow-y-auto pr-1"></ul>
 
-                {{-- Version --}}
+                {{-- Version + Access Level --}}
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">Version</label>
                         <input type="text" id="batch_version" value="1.0"
                                class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Access Level</label>
+                        <select id="batch_access_level"
+                                class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 bg-white">
+                            <option value="public">🟢 Public</option>
+                            <option value="restricted" selected>🔵 Restricted</option>
+                            <option value="confidential">🟠 Confidential</option>
+                            <option value="highly_confidential">🔴 Highly Confidential</option>
+                        </select>
                     </div>
                 </div>
 
@@ -685,8 +695,9 @@
         document.getElementById('fileQueue').classList.add('hidden');
         const zone = document.getElementById('dropZone');
         if (zone) zone.querySelector('p.font-medium').textContent = 'Drag files here, or click to browse';
-        document.getElementById('batch_version').value     = '1.0';
-        document.getElementById('batch_description').value = '';
+        document.getElementById('batch_version').value      = '1.0';
+        document.getElementById('batch_description').value  = '';
+        document.getElementById('batch_access_level').value = 'restricted';
         document.getElementById('uploadError').classList.add('hidden');
         document.getElementById('uploadSubmitBtn').disabled    = false;
         document.getElementById('uploadSubmitBtn').textContent = 'Upload';
@@ -695,10 +706,11 @@
     }
 
     async function startBatchUpload() {
-        const folderId   = document.getElementById('folder_id').value;
-        const files      = document.getElementById('batchFileInput').files;
-        const version    = document.getElementById('batch_version').value  || '1.0';
-        const desc       = document.getElementById('batch_description').value || null;
+        const folderId    = document.getElementById('folder_id').value;
+        const files       = document.getElementById('batchFileInput').files;
+        const version     = document.getElementById('batch_version').value      || '1.0';
+        const desc        = document.getElementById('batch_description').value  || null;
+        const accessLevel = document.getElementById('batch_access_level').value || 'restricted';
         const submitBtn  = document.getElementById('uploadSubmitBtn');
         const cancelBtn  = document.getElementById('uploadCancelBtn');
         const errorBox   = document.getElementById('uploadError');
@@ -789,6 +801,7 @@
                         file_size:     file.size,
                         version:       version,
                         description:   desc,
+                        access_level:  accessLevel,
                     }),
                 });
                 if (!confirmRes.ok) {
