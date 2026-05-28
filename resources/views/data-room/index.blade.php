@@ -434,15 +434,23 @@
                     Uploading to investor folder: <strong id="investor-folder-name"></strong>
                 </div>
 
-                {{-- File picker (multiple) --}}
+                {{-- Drag & drop zone --}}
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1.5">
                         Files <span class="text-red-500">*</span>
                     </label>
                     <input type="file" id="batchFileInput" multiple
                            accept=".pdf,.doc,.docx,.xlsx,.xls,.pptx,.ppt,.eml"
-                           class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 file:mr-3 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-medium file:bg-blue-50 file:text-blue-700">
-                    <p class="text-xs text-gray-400 mt-1">PDF, Word, Excel, PowerPoint, EML · Max 500MB per file · Select multiple with Ctrl/Cmd+click</p>
+                           class="hidden">
+                    <div id="dropZone"
+                         onclick="document.getElementById('batchFileInput').click()"
+                         class="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-gray-300 rounded-xl px-4 py-8 cursor-pointer transition hover:border-blue-400 hover:bg-blue-50 select-none">
+                        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                        </svg>
+                        <p class="text-sm font-medium text-gray-600">Drag files here, or click to browse</p>
+                        <p class="text-xs text-gray-400">PDF, Word, Excel, PowerPoint, EML · Max 500 MB per file</p>
+                    </div>
                 </div>
 
                 {{-- File queue — populated by JS when files are chosen --}}
@@ -594,10 +602,51 @@
         return '📎';
     }
 
+    // Drag & drop on the drop zone
+    (function () {
+        const zone = document.getElementById('dropZone');
+        if (!zone) return;
+
+        zone.addEventListener('dragover', function (e) {
+            e.preventDefault();
+            zone.classList.add('border-blue-400', 'bg-blue-50');
+        });
+        zone.addEventListener('dragleave', function (e) {
+            if (!zone.contains(e.relatedTarget)) {
+                zone.classList.remove('border-blue-400', 'bg-blue-50');
+            }
+        });
+        zone.addEventListener('drop', function (e) {
+            e.preventDefault();
+            zone.classList.remove('border-blue-400', 'bg-blue-50');
+            const dt    = e.dataTransfer;
+            const input = document.getElementById('batchFileInput');
+            // Transfer the dropped FileList into the hidden input via DataTransfer
+            try {
+                const transfer = new DataTransfer();
+                Array.from(dt.files).forEach(function (f) { transfer.items.add(f); });
+                input.files = transfer.files;
+            } catch (_) {
+                // fallback: set directly (works in most browsers)
+                input.files = dt.files;
+            }
+            input.dispatchEvent(new Event('change'));
+        });
+    })();
+
     document.getElementById('batchFileInput')?.addEventListener('change', function () {
         const queue = document.getElementById('fileQueue');
+        const zone  = document.getElementById('dropZone');
         queue.innerHTML = '';
-        if (!this.files.length) { queue.classList.add('hidden'); return; }
+        if (!this.files.length) {
+            queue.classList.add('hidden');
+            if (zone) zone.querySelector('p.font-medium').textContent = 'Drag files here, or click to browse';
+            return;
+        }
+        if (zone) {
+            const n = this.files.length;
+            zone.querySelector('p.font-medium').textContent = n + ' file' + (n > 1 ? 's' : '') + ' selected — drop more or click to change';
+        }
         queue.classList.remove('hidden');
         Array.from(this.files).forEach((file, i) => {
             const ext = file.name.split('.').pop().toLowerCase();
@@ -634,6 +683,8 @@
         document.getElementById('batchFileInput').value = '';
         document.getElementById('fileQueue').innerHTML  = '';
         document.getElementById('fileQueue').classList.add('hidden');
+        const zone = document.getElementById('dropZone');
+        if (zone) zone.querySelector('p.font-medium').textContent = 'Drag files here, or click to browse';
         document.getElementById('batch_version').value     = '1.0';
         document.getElementById('batch_description').value = '';
         document.getElementById('uploadError').classList.add('hidden');
