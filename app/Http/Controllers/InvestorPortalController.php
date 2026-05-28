@@ -185,10 +185,10 @@ class InvestorPortalController extends Controller
             ->with([
                 'children.documents' => fn($q) => $q->where('status', 'approved')
                     ->whereNull('investor_id')
-                    ->whereIn('access_level', ['public', 'restricted']),
+                    ->where('access_level', 'public'),
                 'documents'          => fn($q) => $q->where('status', 'approved')
                     ->whereNull('investor_id')
-                    ->whereIn('access_level', ['public', 'restricted']),
+                    ->where('access_level', 'public'),
             ])
             ->orderBy('order')
             ->get();
@@ -235,10 +235,9 @@ class InvestorPortalController extends Controller
             }
         }
 
-        // Investors can only access public and restricted documents.
-        // Confidential / highly_confidential documents are staff-only regardless of folder.
-        $investorAllowedDocLevels = ['public', 'restricted'];
-        if (!in_array($document->access_level ?? 'restricted', $investorAllowedDocLevels)) {
+        // Investors can only download public documents.
+        // Restricted / confidential / highly_confidential are staff-only.
+        if (($document->access_level ?? 'restricted') !== 'public') {
             abort(403, 'You do not have access to this document.');
         }
 
