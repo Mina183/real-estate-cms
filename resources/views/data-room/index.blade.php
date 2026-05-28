@@ -474,7 +474,7 @@
                         <input type="file" name="document" required
                                accept=".pdf,.doc,.docx,.xlsx,.xls,.pptx,.ppt,.eml"
                                class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 file:mr-3 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-medium file:bg-blue-50 file:text-blue-700">
-                        <p class="text-xs text-gray-400 mt-1">PDF, Word, Excel, PowerPoint, EML · Max 100MB</p>
+                        <p class="text-xs text-gray-400 mt-1">PDF, Word, Excel, PowerPoint, EML · Max 500MB</p>
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">
