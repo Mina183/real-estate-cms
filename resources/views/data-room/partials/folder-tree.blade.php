@@ -46,6 +46,10 @@
             <span class="text-sm text-gray-700 truncate" title="{{ $doc->document_name }}">{{ $doc->document_name }}</span>
             <span class="text-xs text-gray-400">v{{ $doc->version }}</span>
 
+            <span class="badge badge-{{ $doc->access_level ?? 'restricted' }}">
+                {{ $doc->access_level === 'highly_confidential' ? 'Highly Conf.' : ucfirst(str_replace('_', ' ', $doc->access_level ?? 'restricted')) }}
+            </span>
+
             <span class="badge badge-{{ $doc->status }}">
                 {{ ucfirst(str_replace('_', ' ', $doc->status)) }}
             </span>
@@ -153,6 +157,10 @@
                     </span>
                     <span class="text-sm text-gray-700 truncate" title="{{ $doc->document_name }}">{{ $doc->document_name }}</span>
                     <span class="text-xs text-gray-400">v{{ $doc->version }}</span>
+
+                    <span class="badge badge-{{ $doc->access_level ?? 'restricted' }}">
+                        {{ $doc->access_level === 'highly_confidential' ? 'Highly Conf.' : ucfirst(str_replace('_', ' ', $doc->access_level ?? 'restricted')) }}
+                    </span>
 
                     <span class="badge badge-{{ $doc->status }}">
                         {{ ucfirst(str_replace('_', ' ', $doc->status)) }}

@@ -40,7 +40,7 @@
         .subfolder-row:hover { background: #f8fafc; }
         .doc-row {
             display: grid;
-            grid-template-columns: 24px 1fr auto auto auto;
+            grid-template-columns: 24px 1fr auto auto auto auto;
             gap: 0.5rem;
             align-items: center;
             padding: 0.5rem 0.75rem 0.5rem 3.5rem;
