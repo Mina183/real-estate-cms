@@ -77,10 +77,10 @@
                                                 @endif
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {{ $req->expires_at ? $req->expires_at->format('d M Y, H:i') : '—' }}
+                                                {{ fmt_datetime($req->expires_at) }}
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {{ $req->created_at->format('d M Y, H:i') }}
+                                                {{ fmt_datetime($req->created_at) }}
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                                                 @if($req->status === 'pending')

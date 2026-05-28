@@ -56,7 +56,7 @@
                                                 {{ $package->createdBy->name ?? '—' }}
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {{ $package->created_at->format('d M Y') }}
+                                                {{ fmt_datetime($package->created_at) }}
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
                                                 <a href="{{ route('document-packages.show', $package) }}" class="text-blue-600 hover:text-blue-900">View</a>

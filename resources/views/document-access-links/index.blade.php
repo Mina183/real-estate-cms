@@ -54,7 +54,7 @@
                                             </p>
                                             <p class="text-xs text-gray-500 mt-0.5">
                                                 Package: {{ $link->package->name }} &bull;
-                                                Created by {{ $link->createdBy->name ?? '—' }} on {{ $link->created_at->format('d M Y') }}
+                                                Created by {{ $link->createdBy->name ?? '—' }} on {{ fmt_date($link->created_at) }}
                                             </p>
                                         </div>
                                         <form action="{{ route('document-access-links.destroy', $link) }}" method="POST"
@@ -105,9 +105,9 @@
                                                                 </span>
                                                             </td>
                                                             <td class="py-1 pr-4 text-gray-500 text-xs">
-                                                                {{ $req->expires_at ? $req->expires_at->format('d M Y, H:i') : '—' }}
+                                                                {{ fmt_datetime($req->expires_at) }}
                                                             </td>
-                                                            <td class="py-1 text-gray-500 text-xs">{{ $req->created_at->format('d M Y') }}</td>
+                                                            <td class="py-1 text-gray-500 text-xs">{{ fmt_datetime($req->created_at) }}</td>
                                                         </tr>
                                                     @endforeach
                                                 </tbody>

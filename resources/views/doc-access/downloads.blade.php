@@ -30,8 +30,7 @@
                 <div class="bg-blue-50 border border-blue-200 rounded-md px-4 py-3 mb-6 text-sm text-blue-800">
                     <p>
                         Access expires on
-                        <strong>{{ $accessRequest->expires_at->format('d M Y \a\t H:i') }}</strong>
-                        ({{ $accessRequest->expires_at->diffForHumans() }}).
+                        <strong>{{ fmt_datetime($accessRequest->expires_at) }}</strong>.
                     </p>
                 </div>
 

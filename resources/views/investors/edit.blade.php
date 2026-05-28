@@ -61,7 +61,7 @@
                     <span class="mt-0.5 flex-shrink-0">📋</span>
                     <span>
                         <strong>Consent record on file</strong> —
-                        {{ $latestConsentRequest->consent_recorded_at?->format('d M Y, H:i') }} &middot;
+                        {{ fmt_datetime($latestConsentRequest->consent_recorded_at) }} &middot;
                         {{ $latestConsentRequest->requester_email }} &middot;
                         source: {{ $latestConsentRequest->consent_source }}
                         <button type="button" class="ml-2 text-blue-500 underline" onclick="switchTab('eligibility');document.getElementById('difc-consent-record').scrollIntoView({behavior:'smooth',block:'center'})">view full record</button>
@@ -287,7 +287,7 @@
                                         </label>
                                         <p class="text-xs text-gray-500 mt-0.5">Investor meets professional/qualified investor criteria (verbally confirmed)</p>
                                         @if($investor->confirmed_professional_client_at)
-                                            <p class="text-xs text-green-600 mt-1">✓ Confirmed {{ $investor->confirmed_professional_client_at->format('d M Y, H:i') }}</p>
+                                            <p class="text-xs text-green-600 mt-1">✓ Confirmed {{ fmt_datetime($investor->confirmed_professional_client_at) }}</p>
                                         @endif
                                     </div>
                                 </div>
@@ -300,7 +300,7 @@
                                     <p><span class="text-gray-400 w-28 inline-block">Email</span> {{ $latestConsentRequest->requester_email }}</p>
                                     <p><span class="text-gray-400 w-28 inline-block">IP Address</span> {{ $latestConsentRequest->ip_address ?? '—' }}</p>
                                     <p><span class="text-gray-400 w-28 inline-block">User Agent</span> <span class="break-all">{{ $latestConsentRequest->user_agent ?? '—' }}</span></p>
-                                    <p><span class="text-gray-400 w-28 inline-block">Consented At</span> {{ $latestConsentRequest->consent_recorded_at?->format('d M Y, H:i') ?? '—' }}</p>
+                                    <p><span class="text-gray-400 w-28 inline-block">Consented At</span> {{ fmt_datetime($latestConsentRequest->consent_recorded_at) }}</p>
                                 </div>
                                 @endif
 
@@ -315,7 +315,7 @@
                                         </label>
                                         <p class="text-xs text-gray-500 mt-0.5">Investor has been provided with the initial DIFC Data Protection notice — verbally, via external email, or via document access request link</p>
                                         @if($investor->difc_dp_consent_at)
-                                            <p class="text-xs text-green-600 mt-1">✓ Confirmed {{ $investor->difc_dp_consent_at->format('d M Y, H:i') }}</p>
+                                            <p class="text-xs text-green-600 mt-1">✓ Confirmed {{ fmt_datetime($investor->difc_dp_consent_at) }}</p>
                                         @endif
                                     </div>
                                 </div>
@@ -371,7 +371,7 @@
                                         <div>
                                             <span class="{{ $gateConsentRecord ? 'text-gray-700' : 'text-gray-600' }}">DIFC DP consent record on file</span>
                                             @if($gateConsentRecord)
-                                                <span class="ml-2 text-xs text-gray-400">{{ $latestConsentRequest?->consent_recorded_at?->format('d M Y') }} — {{ $latestConsentRequest?->requester_email }}</span>
+                                                <span class="ml-2 text-xs text-gray-400">{{ fmt_datetime($latestConsentRequest?->consent_recorded_at) }} — {{ $latestConsentRequest?->requester_email }}</span>
                                             @else
                                                 <span class="ml-2 text-xs text-gray-400">— investor must submit a document access request form to generate this record automatically</span>
                                             @endif
@@ -456,7 +456,7 @@
                                         @if($gateConsentRecord && $latestConsentRequest)
                                             <p class="text-xs text-green-700 mt-1">
                                                 ✓ Record on file — {{ $latestConsentRequest->requester_email }},
-                                                {{ $latestConsentRequest->consent_recorded_at?->format('d M Y, H:i') }},
+                                                {{ fmt_datetime($latestConsentRequest->consent_recorded_at) }},
                                                 source: {{ $latestConsentRequest->consent_source }}
                                             </p>
                                         @elseif(!$gateConsentRecord)
@@ -478,7 +478,7 @@
                                         </label>
                                         <p class="text-xs text-gray-500 mt-0.5">Investor has signed and returned the subscription agreement</p>
                                         @if($investor->subscription_signed_date)
-                                            <p class="text-xs text-green-600 mt-1">✓ Signed {{ $investor->subscription_signed_date->format('d M Y, H:i') }}</p>
+                                            <p class="text-xs text-green-600 mt-1">✓ Signed {{ fmt_datetime($investor->subscription_signed_date) }}</p>
                                         @endif
                                     </div>
                                 </div>
@@ -515,7 +515,7 @@
                                             <p class="text-sm font-medium text-gray-700">PPM Acknowledged</p>
                                             <p class="text-xs text-gray-500">
                                                 @if($investor->ppm_acknowledged_date)
-                                                    Recorded {{ $investor->ppm_acknowledged_date->format('d M Y, H:i') }}
+                                                    Recorded {{ fmt_datetime($investor->ppm_acknowledged_date) }}
                                                 @else
                                                     Not yet recorded — set automatically on move to Portal Access Granted
                                                 @endif
@@ -629,7 +629,7 @@
                                         </label>
                                         <p class="text-xs text-gray-500 mt-0.5">Investor cleared sanctions and PEP screening</p>
                                         @if($investor->sanctions_checked_at)
-                                            <p class="text-xs text-green-600 mt-1">✓ Checked {{ $investor->sanctions_checked_at->format('d M Y, H:i') }}</p>
+                                            <p class="text-xs text-green-600 mt-1">✓ Checked {{ fmt_datetime($investor->sanctions_checked_at) }}</p>
                                         @endif
                                     </div>
                                 </div>
@@ -645,7 +645,7 @@
                                         </label>
                                         <p class="text-xs text-gray-500 mt-0.5">Investor has signed the formal commitment letter</p>
                                         @if($investor->commitment_letter_signed_at)
-                                            <p class="text-xs text-green-600 mt-1">✓ Signed {{ $investor->commitment_letter_signed_at->format('d M Y, H:i') }}</p>
+                                            <p class="text-xs text-green-600 mt-1">✓ Signed {{ fmt_datetime($investor->commitment_letter_signed_at) }}</p>
                                         @endif
                                     </div>
                                 </div>
@@ -717,7 +717,7 @@
                                         </label>
                                         <p class="text-xs text-gray-500 mt-0.5">Bank account details confirmed and validated</p>
                                         @if($investor->bank_verified_date)
-                                            <p class="text-xs text-green-600 mt-1">✓ Verified {{ $investor->bank_verified_date->format('d M Y, H:i') }}</p>
+                                            <p class="text-xs text-green-600 mt-1">✓ Verified {{ fmt_datetime($investor->bank_verified_date) }}</p>
                                         @endif
                                     </div>
                                 </div>

@@ -46,12 +46,12 @@
                             </div>
                             <div class="mb-4">
                                 <label class="block text-sm font-medium text-gray-700">Call Date</label>
-                                <div class="mt-1 text-gray-900">{{ $capitalCall->call_date->format('F d, Y') }}</div>
+                                <div class="mt-1 text-gray-900">{{ fmt_date($capitalCall->call_date, 'F d, Y') }}</div>
                             </div>
                             <div class="mb-4">
                                 <label class="block text-sm font-medium text-gray-700">Due Date</label>
                                 <div class="mt-1 text-gray-900">
-                                    {{ $capitalCall->due_date->format('F d, Y') }}
+                                    {{ fmt_date($capitalCall->due_date, 'F d, Y') }}
                                     @if($capitalCall->isOverdue())
                                         <span class="text-red-600 font-semibold ml-2">(Overdue)</span>
                                     @endif
@@ -176,13 +176,13 @@
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {{ $payment->due_date ? $payment->due_date->format('M d, Y') : '-' }}
+                                        {{ fmt_date($payment->due_date) }}
                                         @if($payment->isOverdue())
                                             <span class="text-red-600 font-semibold">(Overdue)</span>
                                         @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {{ $payment->paid_date ? $payment->paid_date->format('M d, Y') : '-' }}
+                                        {{ fmt_date($payment->paid_date) }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {{ $payment->payment_method_label }}

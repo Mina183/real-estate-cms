@@ -39,7 +39,7 @@
                         </div>
                         <div>
                             <dt class="text-sm font-medium text-gray-500">Created</dt>
-                            <dd class="mt-1 text-sm text-gray-900">{{ $documentPackage->created_at->format('d M Y, H:i') }}</dd>
+                            <dd class="mt-1 text-sm text-gray-900">{{ fmt_datetime($documentPackage->created_at) }}</dd>
                         </div>
                         <div>
                             <dt class="text-sm font-medium text-gray-500">Notify on Approval</dt>
@@ -139,7 +139,7 @@
                                                        onclick="this.select()"
                                                        class="w-64 text-xs border-gray-300 rounded bg-gray-50 focus:outline-none">
                                             </td>
-                                            <td class="px-4 py-3 text-sm text-gray-500">{{ $link->created_at->format('d M Y') }}</td>
+                                            <td class="px-4 py-3 text-sm text-gray-500">{{ fmt_datetime($link->created_at) }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>

@@ -50,11 +50,11 @@
                             </div>
                             <div class="mb-4">
                                 <label class="block text-sm font-medium text-gray-700">Record Date</label>
-                                <div class="mt-1 text-gray-900">{{ $distribution->record_date->format('F d, Y') }}</div>
+                                <div class="mt-1 text-gray-900">{{ fmt_date($distribution->record_date, 'F d, Y') }}</div>
                             </div>
                             <div class="mb-4">
                                 <label class="block text-sm font-medium text-gray-700">Distribution Date</label>
-                                <div class="mt-1 text-gray-900">{{ $distribution->distribution_date->format('F d, Y') }}</div>
+                                <div class="mt-1 text-gray-900">{{ fmt_date($distribution->distribution_date, 'F d, Y') }}</div>
                             </div>
                         </div>
                         
@@ -180,10 +180,10 @@
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {{ $payment->due_date ? $payment->due_date->format('M d, Y') : '-' }}
+                                        {{ fmt_date($payment->due_date) }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {{ $payment->paid_date ? $payment->paid_date->format('M d, Y') : '-' }}
+                                        {{ fmt_date($payment->paid_date) }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {{ $payment->payment_method_label }}

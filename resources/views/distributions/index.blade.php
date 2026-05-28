@@ -72,7 +72,7 @@
                                         {{ $distribution->type_label }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {{ $distribution->distribution_date->format('M d, Y') }}
+                                        {{ fmt_date($distribution->distribution_date) }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                         ${{ number_format($distribution->total_amount, 2) }}

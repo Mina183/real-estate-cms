@@ -41,7 +41,7 @@
                     @endif">
                     Status: {{ ucfirst(str_replace('_', ' ', $emailDraft->status)) }}
                     @if($emailDraft->status === 'approved' && $emailDraft->approvedBy)
-                        — Approved by {{ $emailDraft->approvedBy->name }} on {{ $emailDraft->approved_at->format('M d, Y H:i') }}
+                        — Approved by {{ $emailDraft->approvedBy->name }} on {{ fmt_datetime($emailDraft->approved_at) }}
                     @endif
                 </p>
             </div>

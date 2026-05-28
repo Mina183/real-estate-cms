@@ -42,7 +42,7 @@
                                         </div>
                                         <div class="text-right text-sm text-gray-500">
                                             <p>{{ $transition->changedBy->name ?? 'System' }}</p>
-                                            <p>{{ $transition->transitioned_at->format('M d, Y H:i') }}</p>
+                                            <p>{{ fmt_datetime($transition->transitioned_at) }}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -117,7 +117,7 @@
                                                 {{ $activity->ip_address ?? '—' }}
                                             </td>
                                             <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
-                                                {{ $activity->activity_at->format('M d, Y H:i:s') }}
+                                                {{ fmt_datetime_audit($activity->activity_at) }}
                                             </td>
                                         </tr>
                                     @endforeach

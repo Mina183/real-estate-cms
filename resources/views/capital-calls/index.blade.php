@@ -73,10 +73,10 @@
                                         {{ $call->title }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {{ $call->call_date->format('M d, Y') }}
+                                        {{ fmt_date($call->call_date) }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {{ $call->due_date->format('M d, Y') }}
+                                        {{ fmt_date($call->due_date) }}
                                         @if($call->isOverdue())
                                             <span class="text-red-600 font-semibold">(Overdue)</span>
                                         @endif

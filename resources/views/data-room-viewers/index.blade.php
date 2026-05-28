@@ -94,9 +94,9 @@
                                 <tr class="{{ $viewer->is_active ? '' : 'opacity-50' }}">
                                     <td class="px-6 py-4 font-medium text-gray-800">{{ $viewer->investor->legal_entity_name }}</td>
                                     <td class="px-6 py-4 text-gray-600">{{ $viewer->email }}</td>
-                                    <td class="px-6 py-4 text-gray-500">{{ $viewer->created_at->format('d M Y') }}</td>
+                                    <td class="px-6 py-4 text-gray-500">{{ fmt_datetime($viewer->created_at) }}</td>
                                     <td class="px-6 py-4 text-gray-500">
-                                        {{ $viewer->last_login_at ? $viewer->last_login_at->format('d M Y, H:i') : '—' }}
+                                        {{ fmt_datetime($viewer->last_login_at) }}
                                     </td>
                                     <td class="px-6 py-4">
                                         @if($viewer->is_active)

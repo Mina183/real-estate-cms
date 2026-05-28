@@ -53,7 +53,7 @@
                                         </td>
                                         <td class="px-4 py-3 text-gray-700">{{ $draft->subject }}</td>
                                         <td class="px-4 py-3 text-gray-500">{{ $draft->createdBy->name ?? '—' }}</td>
-                                        <td class="px-4 py-3 text-gray-500">{{ $draft->created_at->format('M d, Y H:i') }}</td>
+                                        <td class="px-4 py-3 text-gray-500">{{ fmt_datetime($draft->created_at) }}</td>
                                         <td class="px-4 py-3">
                                             <div class="flex space-x-2">
                                                 <a href="{{ route('email-drafts.edit', $draft) }}"
@@ -115,7 +115,7 @@
                                                 {{ ucfirst(str_replace('_', ' ', $draft->status)) }}
                                             </span>
                                         </td>
-                                        <td class="px-4 py-3 text-gray-500">{{ $draft->created_at->format('M d, Y H:i') }}</td>
+                                        <td class="px-4 py-3 text-gray-500">{{ fmt_datetime($draft->created_at) }}</td>
                                         <td class="px-4 py-3">
                                             <div class="flex space-x-2">
                                                 <a href="{{ route('email-drafts.preview', $draft) }}" target="_blank"

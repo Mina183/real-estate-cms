@@ -403,7 +403,7 @@
                                                     </p>
                                                 @endif
                                                 <p class="text-xs text-gray-400 mt-2">
-                                                    Logged by {{ $meeting->createdBy->name ?? '—' }} on {{ $meeting->created_at->format('M d, Y') }}
+                                                    Logged by {{ $meeting->createdBy->name ?? '—' }} on {{ fmt_datetime($meeting->created_at) }}
                                                 </p>
                                             </div>
                                             @can('update', $investor)
@@ -483,9 +483,9 @@
                         <div class="flex-1">
                             <p class="text-sm font-medium text-gray-900">{{ $draft->subject }}</p>
                             <p class="text-xs text-gray-500 mt-1">
-                                Created by {{ $draft->createdBy->name ?? '—' }} on {{ $draft->created_at->format('M d, Y H:i') }}
+                                Created by {{ $draft->createdBy->name ?? '—' }} on {{ fmt_datetime($draft->created_at) }}
                                 @if($draft->status === 'approved' && $draft->approvedBy)
-                                    · Approved by {{ $draft->approvedBy->name }} on {{ $draft->approved_at->format('M d, Y H:i') }}
+                                    · Approved by {{ $draft->approvedBy->name }} on {{ fmt_datetime($draft->approved_at) }}
                                 @endif
                             </p>
                         </div>
@@ -582,7 +582,7 @@
                             @foreach($emailLogs as $log)
                             <tr>
                                 <td class="px-4 py-3 text-gray-900 whitespace-nowrap">
-                                    {{ \Carbon\Carbon::parse($log->sent_at)->timezone('Asia/Dubai')->format('M d, Y H:i') }} <span class="text-xs text-gray-400">GST</span>
+                                    {{ fmt_datetime($log->sent_at) }}
                                 </td>
                                 <td class="px-4 py-3 text-gray-900">{{ $log->email_subject }}</td>
                                 <td class="px-4 py-3 text-gray-500">{{ ucfirst(str_replace('_', ' ', $log->template)) }}</td>
@@ -602,7 +602,7 @@
                                         <span class="text-gray-400 text-xs">Not required</span>
                                     @elseif($log->acknowledged_at)
                                         <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                                            ✓ {{ \Carbon\Carbon::parse($log->acknowledged_at)->timezone('Asia/Dubai')->format('M d, Y H:i') }} <span class="text-xs text-gray-400">GST</span>
+                                            ✓ {{ fmt_datetime($log->acknowledged_at) }}
                                         </span>
                                     @else
                                         <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
@@ -657,7 +657,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
                             <div>
                                 <label class="block text-sm font-medium text-gray-500">Created At</label>
-                                <p class="mt-1 text-gray-900">{{ $investor->created_at->format('M d, Y H:i') }}</p>
+                                <p class="mt-1 text-gray-900">{{ fmt_datetime($investor->created_at) }}</p>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-500">Created By</label>
@@ -665,7 +665,7 @@
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-500">Last Updated</label>
-                                <p class="mt-1 text-gray-900">{{ $investor->updated_at->format('M d, Y H:i') }}</p>
+                                <p class="mt-1 text-gray-900">{{ fmt_datetime($investor->updated_at) }}</p>
                             </div>
                             @if($investor->investor_id_number)
                             <div>
@@ -708,7 +708,7 @@
                                                     @if(Str::startsWith($link->package->name, '[Custom]'))
                                                         <span class="ml-1 px-1.5 py-0.5 rounded text-xs bg-purple-100 text-purple-700">custom</span>
                                                     @endif
-                                                    &bull; Created by {{ $link->createdBy->name ?? '—' }} on {{ $link->created_at->format('d M Y') }}
+                                                    &bull; Created by {{ $link->createdBy->name ?? '—' }} on {{ fmt_date($link->created_at) }}
                                                 </p>
                                             </div>
                                             <form action="{{ route('document-access-links.destroy', $link) }}" method="POST"

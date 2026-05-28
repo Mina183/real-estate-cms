@@ -36,12 +36,12 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Last Login</label>
                         <p class="mt-1 text-gray-900 dark:text-white">
-                            {{ $investorUser->last_login_at ? $investorUser->last_login_at->format('M d, Y g:i A') : 'Never' }}
+                            {{ $investorUser->last_login_at ? fmt_datetime($investorUser->last_login_at) : 'Never' }}
                         </p>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Member Since</label>
-                        <p class="mt-1 text-gray-900 dark:text-white">{{ $investorUser->created_at->format('M d, Y') }}</p>
+                        <p class="mt-1 text-gray-900 dark:text-white">{{ fmt_date($investorUser->created_at) }}</p>
                     </div>
                 </div>
             </div>

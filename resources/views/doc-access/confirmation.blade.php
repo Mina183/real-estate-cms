@@ -55,7 +55,7 @@
                         <div class="mt-4 bg-gray-50 rounded-md px-4 py-3 text-left">
                             <p class="text-xs text-gray-500">
                                 <span class="font-medium">Reference:</span>
-                                Request #{{ $accessRequest->id }} &bull; {{ $accessRequest->created_at->format('d M Y, H:i') }}
+                                Request #{{ $accessRequest->id }} &bull; {{ fmt_datetime($accessRequest->created_at) }}
                             </p>
                         </div>
                     @endif
