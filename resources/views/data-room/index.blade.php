@@ -385,7 +385,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                         </svg>
                     </div>
-                    <h3 class="font-semibold text-gray-800">Upload Document</h3>
+                    <h3 class="font-semibold text-gray-800">Upload Documents</h3>
                 </div>
                 <button onclick="closeUploadModal()" class="text-gray-400 hover:text-gray-600 transition">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -394,131 +394,89 @@
                 </button>
             </div>
 
-            <div class="p-5">
-                @if(session('upload_success'))
-                    <div class="mb-4 p-3 bg-green-50 border border-green-200 text-green-800 rounded-lg text-sm flex items-center gap-2">
-                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                        {{ session('upload_success') }}
-                    </div>
-                @endif
-                @if($errors->any())
-                    <div class="mb-4 p-3 bg-red-50 border border-red-200 text-red-800 rounded-lg text-sm">
-                        {{ $errors->first() }}
-                    </div>
-                @endif
-
-                <form id="uploadForm" action="{{ route('data-room.confirm') }}" method="POST" class="space-y-4">
-                    @csrf
-                    <input type="hidden" name="investor_id" id="investor_id_upload" value="">
-                    <input type="hidden" name="file_path" id="upload_file_path">
-                    <input type="hidden" name="file_type" id="upload_file_type">
-                    <input type="hidden" name="file_size" id="upload_file_size">
-
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1.5">
-                            Folder <span class="text-red-500">*</span>
-                        </label>
-                        <select name="folder_id" id="folder_id" required
-                                class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white">
-                            <option value="">— Select folder —</option>
-
-                            {{-- General fund folders --}}
-                            @foreach($folders as $folder)
-                                <option value="{{ $folder->id }}" data-investor-id="">
-                                    {{ $folder->folder_number }} · {{ $folder->folder_name }}
+            <div class="p-5 space-y-4">
+                {{-- Folder --}}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">
+                        Folder <span class="text-red-500">*</span>
+                    </label>
+                    <select id="folder_id"
+                            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white">
+                        <option value="">— Select folder —</option>
+                        @foreach($folders as $folder)
+                            <option value="{{ $folder->id }}" data-investor-id="" data-investor-name="">
+                                {{ $folder->folder_number }} · {{ $folder->folder_name }}
+                            </option>
+                            @foreach($folder->children as $child)
+                                <option value="{{ $child->id }}" data-investor-id="" data-investor-name="">
+                                    &nbsp;&nbsp;&nbsp;└ {{ $child->folder_number }} · {{ $child->folder_name }}
                                 </option>
-                                @foreach($folder->children as $child)
-                                    <option value="{{ $child->id }}" data-investor-id="">
-                                        &nbsp;&nbsp;&nbsp;└ {{ $child->folder_number }} · {{ $child->folder_name }}
-                                    </option>
-                                @endforeach
                             @endforeach
+                        @endforeach
+                        @foreach($investorFolders as $invRoot)
+                            @php $uploadable = $invRoot->children; @endphp
+                            @if($uploadable->isNotEmpty())
+                                <optgroup label="── {{ $invRoot->folder_name }} ──">
+                                    @foreach($uploadable as $subFolder)
+                                        <option value="{{ $subFolder->id }}"
+                                                data-investor-id="{{ $subFolder->investor_id }}"
+                                                data-investor-name="{{ $invRoot->folder_name }}">
+                                            📁 {{ $subFolder->folder_name }}
+                                        </option>
+                                    @endforeach
+                                </optgroup>
+                            @endif
+                        @endforeach
+                    </select>
+                </div>
 
-                            {{-- Investor sub-folders, grouped by investor, excluding Communication Log --}}
-                            @foreach($investorFolders as $invRoot)
-                                @php
-                                    $uploadable = $invRoot->children;
-                                @endphp
-                                @if($uploadable->isNotEmpty())
-                                    <optgroup label="── {{ $invRoot->folder_name }} ──">
-                                        @foreach($uploadable as $subFolder)
-                                            <option value="{{ $subFolder->id }}"
-                                                    data-investor-id="{{ $subFolder->investor_id }}"
-                                                    data-investor-name="{{ $invRoot->folder_name }}">
-                                                📁 {{ $subFolder->folder_name }}
-                                            </option>
-                                        @endforeach
-                                    </optgroup>
-                                @endif
-                            @endforeach
-                        </select>
-                    </div>
+                <div id="investor-folder-info" class="hidden p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800">
+                    Uploading to investor folder: <strong id="investor-folder-name"></strong>
+                </div>
 
-                    {{-- Investor context — shown automatically when an investor sub-folder is selected --}}
-                    <div id="investor-folder-info" class="hidden p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800">
-                        Uploading to investor folder: <strong id="investor-folder-name"></strong>
-                    </div>
+                {{-- File picker (multiple) --}}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">
+                        Files <span class="text-red-500">*</span>
+                    </label>
+                    <input type="file" id="batchFileInput" multiple
+                           accept=".pdf,.doc,.docx,.xlsx,.xls,.pptx,.ppt,.eml"
+                           class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 file:mr-3 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-medium file:bg-blue-50 file:text-blue-700">
+                    <p class="text-xs text-gray-400 mt-1">PDF, Word, Excel, PowerPoint, EML · Max 500MB per file · Select multiple with Ctrl/Cmd+click</p>
+                </div>
 
+                {{-- File queue — populated by JS when files are chosen --}}
+                <ul id="fileQueue" class="hidden space-y-2 max-h-48 overflow-y-auto pr-1"></ul>
+
+                {{-- Version --}}
+                <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1.5">
-                            Document Name <span class="text-red-500">*</span>
-                        </label>
-                        <input type="text" name="document_name" required
-                               placeholder="e.g., Q4 2025 NAV Report"
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Version</label>
+                        <input type="text" id="batch_version" value="1.0"
                                class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500">
                     </div>
+                </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1.5">
-                            File <span class="text-red-500">*</span>
-                        </label>
-                        <input type="file" name="document" required
-                               accept=".pdf,.doc,.docx,.xlsx,.xls,.pptx,.ppt,.eml"
-                               class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 file:mr-3 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-medium file:bg-blue-50 file:text-blue-700">
-                        <p class="text-xs text-gray-400 mt-1">PDF, Word, Excel, PowerPoint, EML · Max 500MB</p>
-                    </div>
+                {{-- Description --}}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Description</label>
+                    <textarea id="batch_description" rows="2"
+                              placeholder="Brief description (applies to all files)..."
+                              class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
+                </div>
 
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1.5">Version</label>
-                            <input type="text" name="version" value="1.0"
-                                   class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500">
-                        </div>
-                    </div>
+                <div id="uploadError" class="hidden p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg"></div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Description</label>
-                        <textarea name="description" rows="2"
-                                  placeholder="Brief description..."
-                                  class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
-                    </div>
-
-                    {{-- Progress bar (hidden until upload starts) --}}
-                    <div id="uploadProgress" class="hidden">
-                        <div class="flex justify-between text-xs text-gray-500 mb-1">
-                            <span id="uploadProgressLabel">Uploading...</span>
-                            <span id="uploadProgressPct">0%</span>
-                        </div>
-                        <div class="w-full bg-gray-100 rounded-full h-2">
-                            <div id="uploadProgressBar" class="bg-blue-500 h-2 rounded-full transition-all duration-200" style="width:0%"></div>
-                        </div>
-                    </div>
-
-                    <div id="uploadError" class="hidden p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg"></div>
-
-                    <div class="flex justify-end gap-2 pt-2">
-                        <button type="button" id="uploadCancelBtn" onclick="closeUploadModal()"
-                                class="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition font-medium">
-                            Cancel
-                        </button>
-                        <button type="submit" id="uploadSubmitBtn"
-                                class="px-5 py-2 text-sm text-white bg-brand-darker rounded-lg hover:opacity-90 transition font-semibold shadow-sm">
-                            Upload
-                        </button>
-                    </div>
-                </form>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" id="uploadCancelBtn" onclick="closeUploadModal()"
+                            class="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition font-medium">
+                        Cancel
+                    </button>
+                    <button type="button" id="uploadSubmitBtn" onclick="startBatchUpload()"
+                            class="px-5 py-2 text-sm text-white bg-brand-darker rounded-lg hover:opacity-90 transition font-semibold shadow-sm">
+                        Upload
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -625,113 +583,204 @@
         }
     }
 
-    function showUploadModal() { document.getElementById('uploadModal').classList.remove('hidden'); }
-    function closeUploadModal() {
-        document.getElementById('uploadModal').classList.add('hidden');
-        // Reset form state
-        document.getElementById('uploadForm').reset();
-        document.getElementById('uploadProgress').classList.add('hidden');
-        document.getElementById('uploadError').classList.add('hidden');
-        document.getElementById('uploadSubmitBtn').disabled = false;
-        document.getElementById('uploadSubmitBtn').textContent = 'Upload';
+    // ── Upload modal helpers ──────────────────────────────────────────────────
+
+    function fileIcon(ext) {
+        if (ext === 'pdf')                    return '📄';
+        if (['xlsx','xls'].includes(ext))     return '📊';
+        if (['pptx','ppt'].includes(ext))     return '📽️';
+        if (['docx','doc'].includes(ext))     return '📝';
+        if (ext === 'eml')                    return '✉️';
+        return '📎';
     }
 
-    document.getElementById('uploadForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-
-        const fileInput = this.querySelector('input[type="file"]');
-        const file = fileInput?.files[0];
-        if (!file) return;
-
-        const folderId    = document.getElementById('folder_id').value;
-        const submitBtn   = document.getElementById('uploadSubmitBtn');
-        const cancelBtn   = document.getElementById('uploadCancelBtn');
-        const progressBox = document.getElementById('uploadProgress');
-        const progressBar = document.getElementById('uploadProgressBar');
-        const progressPct = document.getElementById('uploadProgressPct');
-        const progressLbl = document.getElementById('uploadProgressLabel');
-        const errorBox    = document.getElementById('uploadError');
-
-        const showError = (msg) => {
-            errorBox.textContent = msg;
-            errorBox.classList.remove('hidden');
-            progressBox.classList.add('hidden');
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Upload';
-            cancelBtn.disabled = false;
-        };
-
-        // Disable buttons, show progress
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Uploading...';
-        cancelBtn.disabled = true;
-        errorBox.classList.add('hidden');
-        progressBox.classList.remove('hidden');
-        progressLbl.textContent = 'Requesting upload URL...';
-        progressBar.style.width = '0%';
-        progressPct.textContent = '0%';
-
-        try {
-            // Step 1: get presigned URL from Laravel
-            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content
-                           || document.querySelector('input[name="_token"]')?.value;
-
-            const presignRes = await fetch("{{ route('data-room.presign') }}", {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
-                body: JSON.stringify({ folder_id: folderId, file_name: file.name, file_size: file.size }),
-            });
-
-            if (!presignRes.ok) {
-                const err = await presignRes.json().catch(() => ({}));
-                throw new Error(err.message || 'Could not get upload URL. Please try again.');
-            }
-
-            const { url, key } = await presignRes.json();
-
-            // Step 2: upload file directly to S3 with progress tracking
-            progressLbl.textContent = 'Uploading file...';
-
-            await new Promise((resolve, reject) => {
-                const xhr = new XMLHttpRequest();
-                xhr.open('PUT', url, true);
-                xhr.upload.onprogress = (ev) => {
-                    if (ev.lengthComputable) {
-                        const pct = Math.round((ev.loaded / ev.total) * 100);
-                        progressBar.style.width = pct + '%';
-                        progressPct.textContent = pct + '%';
-                    }
-                };
-                xhr.onload = () => xhr.status === 200 ? resolve() : reject(new Error('Storage rejected upload — HTTP ' + xhr.status + '. ' + xhr.responseText.substring(0, 300)));
-                xhr.onerror = () => reject(new Error('CORS or network error — storage bucket is not allowing direct uploads from this domain. Check browser console (F12) for details.'));
-                xhr.send(file);
-            });
-
-            // Step 3: save metadata via Laravel confirm endpoint
-            progressLbl.textContent = 'Saving...';
-            progressBar.style.width = '100%';
-            progressPct.textContent = '100%';
-
-            document.getElementById('upload_file_path').value = key;
-            document.getElementById('upload_file_type').value = file.name.split('.').pop().toLowerCase();
-            document.getElementById('upload_file_size').value = file.size;
-
-            // Remove the file input so it's not sent in the form POST
-            fileInput.disabled = true;
-            this.submit();
-
-        } catch (err) {
-            showError(err.message);
-        }
+    document.getElementById('batchFileInput')?.addEventListener('change', function () {
+        const queue = document.getElementById('fileQueue');
+        queue.innerHTML = '';
+        if (!this.files.length) { queue.classList.add('hidden'); return; }
+        queue.classList.remove('hidden');
+        Array.from(this.files).forEach((file, i) => {
+            const ext = file.name.split('.').pop().toLowerCase();
+            const li  = document.createElement('li');
+            li.id     = 'queue-item-' + i;
+            li.className = 'flex items-center gap-3 p-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm';
+            li.innerHTML =
+                '<span class="text-base flex-shrink-0">' + fileIcon(ext) + '</span>' +
+                '<div class="flex-1 min-w-0">' +
+                    '<div class="font-medium text-gray-700 truncate">' + file.name + '</div>' +
+                    '<div class="text-xs text-gray-400">' + (file.size / 1024 / 1024).toFixed(1) + ' MB</div>' +
+                    '<div id="progress-area-' + i + '" class="hidden mt-1">' +
+                        '<div class="flex justify-between text-xs text-gray-400 mb-0.5">' +
+                            '<span id="lbl-' + i + '">Waiting…</span>' +
+                            '<span id="pct-' + i + '">0%</span>' +
+                        '</div>' +
+                        '<div class="w-full bg-gray-200 rounded-full h-1.5">' +
+                            '<div id="bar-' + i + '" class="bg-blue-500 h-1.5 rounded-full transition-all duration-150" style="width:0%"></div>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>' +
+                '<span id="status-' + i + '" class="text-xs flex-shrink-0">⏳</span>';
+            queue.appendChild(li);
+        });
+        const n = this.files.length;
+        document.getElementById('uploadSubmitBtn').textContent = 'Upload ' + n + ' File' + (n > 1 ? 's' : '');
     });
 
-    // Auto-populate investor_id when an investor sub-folder is selected
-    document.getElementById('folder_id')?.addEventListener('change', function() {
-        const selected = this.options[this.selectedIndex];
-        const investorId   = selected?.getAttribute('data-investor-id') || '';
+    function showUploadModal() { document.getElementById('uploadModal').classList.remove('hidden'); }
+
+    function closeUploadModal() {
+        if (document.getElementById('uploadSubmitBtn').disabled) return;
+        document.getElementById('uploadModal').classList.add('hidden');
+        document.getElementById('batchFileInput').value = '';
+        document.getElementById('fileQueue').innerHTML  = '';
+        document.getElementById('fileQueue').classList.add('hidden');
+        document.getElementById('batch_version').value     = '1.0';
+        document.getElementById('batch_description').value = '';
+        document.getElementById('uploadError').classList.add('hidden');
+        document.getElementById('uploadSubmitBtn').disabled    = false;
+        document.getElementById('uploadSubmitBtn').textContent = 'Upload';
+        document.getElementById('folder_id').value = '';
+        document.getElementById('investor-folder-info').classList.add('hidden');
+    }
+
+    async function startBatchUpload() {
+        const folderId   = document.getElementById('folder_id').value;
+        const files      = document.getElementById('batchFileInput').files;
+        const version    = document.getElementById('batch_version').value  || '1.0';
+        const desc       = document.getElementById('batch_description').value || null;
+        const submitBtn  = document.getElementById('uploadSubmitBtn');
+        const cancelBtn  = document.getElementById('uploadCancelBtn');
+        const errorBox   = document.getElementById('uploadError');
+        const selected   = document.getElementById('folder_id').selectedOptions[0];
+        const investorId = selected?.getAttribute('data-investor-id') || null;
+
+        errorBox.classList.add('hidden');
+
+        if (!folderId) {
+            errorBox.textContent = 'Please select a folder.';
+            errorBox.classList.remove('hidden');
+            return;
+        }
+        if (!files.length) {
+            errorBox.textContent = 'Please select at least one file.';
+            errorBox.classList.remove('hidden');
+            return;
+        }
+
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content
+                       || document.querySelector('input[name="_token"]')?.value;
+
+        submitBtn.disabled  = true;
+        cancelBtn.disabled  = true;
+        submitBtn.textContent = 'Uploading 0/' + files.length + '…';
+
+        let successCount = 0;
+        const errors = [];
+
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+
+            document.getElementById('progress-area-' + i)?.classList.remove('hidden');
+            const lbl        = document.getElementById('lbl-' + i);
+            const pct        = document.getElementById('pct-' + i);
+            const bar        = document.getElementById('bar-' + i);
+            const statusIcon = document.getElementById('status-' + i);
+
+            if (lbl) lbl.textContent = 'Requesting URL…';
+            if (statusIcon) statusIcon.textContent = '🔄';
+
+            try {
+                // Step 1 — presign
+                const presignRes = await fetch("{{ route('data-room.presign') }}", {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+                    body:    JSON.stringify({ folder_id: folderId, file_name: file.name, file_size: file.size }),
+                });
+                if (!presignRes.ok) {
+                    const err = await presignRes.json().catch(() => ({}));
+                    throw new Error(err.message || 'Could not get upload URL');
+                }
+                const { url, key } = await presignRes.json();
+
+                // Step 2 — upload to R2
+                if (lbl) lbl.textContent = 'Uploading…';
+                await new Promise((resolve, reject) => {
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('PUT', url, true);
+                    xhr.upload.onprogress = (ev) => {
+                        if (ev.lengthComputable) {
+                            const p = Math.round((ev.loaded / ev.total) * 100);
+                            if (bar) bar.style.width = p + '%';
+                            if (pct) pct.textContent = p + '%';
+                        }
+                    };
+                    xhr.onload  = () => xhr.status === 200 ? resolve() : reject(new Error('Storage error HTTP ' + xhr.status));
+                    xhr.onerror = () => reject(new Error('Network / CORS error'));
+                    xhr.send(file);
+                });
+
+                // Step 3 — confirm metadata
+                if (lbl) lbl.textContent = 'Saving…';
+                if (bar) bar.style.width = '100%';
+                if (pct) pct.textContent = '100%';
+
+                const ext        = file.name.split('.').pop().toLowerCase();
+                const docName    = file.name.replace(/\.[^.]+$/, '');
+                const confirmRes = await fetch("{{ route('data-room.confirm') }}", {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+                    body:    JSON.stringify({
+                        folder_id:     folderId,
+                        investor_id:   investorId || null,
+                        document_name: docName,
+                        file_path:     key,
+                        file_type:     ext,
+                        file_size:     file.size,
+                        version:       version,
+                        description:   desc,
+                    }),
+                });
+                if (!confirmRes.ok) {
+                    const err = await confirmRes.json().catch(() => ({}));
+                    throw new Error(err.message || 'Failed to save document record');
+                }
+
+                successCount++;
+                if (lbl) lbl.textContent = 'Done';
+                if (bar) { bar.style.width = '100%'; bar.classList.replace('bg-blue-500', 'bg-green-500'); }
+                if (statusIcon) statusIcon.textContent = '✅';
+
+            } catch (err) {
+                errors.push(file.name + ': ' + err.message);
+                if (lbl) lbl.textContent = 'Failed';
+                if (bar) bar.classList.replace('bg-blue-500', 'bg-red-400');
+                if (statusIcon) statusIcon.textContent = '❌';
+            }
+
+            submitBtn.textContent = 'Uploading ' + (i + 1) + '/' + files.length + '…';
+        }
+
+        submitBtn.disabled  = false;
+        cancelBtn.disabled  = false;
+        submitBtn.textContent = 'Done';
+
+        if (errors.length) {
+            errorBox.innerHTML = '<strong>' + errors.length + ' file(s) failed:</strong><br>' +
+                errors.map(function(e) { return '• ' + e; }).join('<br>');
+            errorBox.classList.remove('hidden');
+        }
+
+        if (successCount > 0) {
+            setTimeout(function () { window.location.reload(); }, 900);
+        }
+    }
+
+    // Show investor-folder banner when an investor sub-folder is picked
+    document.getElementById('folder_id')?.addEventListener('change', function () {
+        const selected     = this.options[this.selectedIndex];
+        const investorId   = selected?.getAttribute('data-investor-id')   || '';
         const investorName = selected?.getAttribute('data-investor-name') || '';
-        document.getElementById('investor_id_upload').value = investorId;
-        const infoBox = document.getElementById('investor-folder-info');
+        const infoBox      = document.getElementById('investor-folder-info');
         if (investorId) {
             document.getElementById('investor-folder-name').textContent = investorName;
             infoBox.classList.remove('hidden');
@@ -749,15 +798,15 @@
     }
     function closeRejectModal() { document.getElementById('rejectModal').classList.add('hidden'); }
 
-    ['uploadModal', 'readMeModal', 'rejectModal'].forEach(id => {
-        document.getElementById(id)?.addEventListener('click', function(e) {
+    // Backdrop click closes modals (upload modal blocked while uploading)
+    document.getElementById('uploadModal')?.addEventListener('click', function (e) {
+        if (e.target === this && !document.getElementById('uploadSubmitBtn').disabled) closeUploadModal();
+    });
+    ['readMeModal', 'rejectModal'].forEach(function (id) {
+        document.getElementById(id)?.addEventListener('click', function (e) {
             if (e.target === this) this.classList.add('hidden');
         });
     });
-
-    @if($errors->any() || session('upload_success'))
-        showUploadModal();
-    @endif
     </script>
 
 </x-app-layout>

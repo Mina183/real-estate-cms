@@ -204,6 +204,10 @@ class DataRoomController extends Controller
             'uploaded_by'   => auth()->id(),
         ]);
 
+        if ($request->wantsJson()) {
+            return response()->json(['success' => true]);
+        }
+
         return redirect()->route('data-room.index')
             ->with('upload_success', 'Document uploaded: ' . $request->document_name);
     }
