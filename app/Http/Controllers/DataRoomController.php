@@ -126,7 +126,7 @@ class DataRoomController extends Controller
             'file_size'     => $file->getSize(),
             'version'       => $request->version ?? '1.0',
             'description'   => $request->description,
-            'access_level'  => $request->access_level ?? 'restricted',
+            'access_level'  => $request->access_level ?? 'public',
             'status'        => 'approved',
             'uploaded_by'   => auth()->id(),
         ]);
@@ -203,7 +203,7 @@ class DataRoomController extends Controller
             'file_size'     => $request->file_size,
             'version'       => $request->version ?? '1.0',
             'description'   => $request->description,
-            'access_level'  => $request->access_level ?? 'restricted',
+            'access_level'  => $request->access_level ?? 'public',
             'status'        => 'approved',
             'uploaded_by'   => auth()->id(),
         ]);

@@ -467,8 +467,8 @@
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">Access Level</label>
                         <select id="batch_access_level"
                                 class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 bg-white">
-                            <option value="public">🟢 Public</option>
-                            <option value="restricted" selected>🔵 Restricted</option>
+                            <option value="public" selected>🟢 Public</option>
+                            <option value="restricted">🔵 Restricted</option>
                             <option value="confidential">🟠 Confidential</option>
                             <option value="highly_confidential">🔴 Highly Confidential</option>
                         </select>
@@ -697,7 +697,7 @@
         if (zone) zone.querySelector('p.font-medium').textContent = 'Drag files here, or click to browse';
         document.getElementById('batch_version').value      = '1.0';
         document.getElementById('batch_description').value  = '';
-        document.getElementById('batch_access_level').value = 'restricted';
+        document.getElementById('batch_access_level').value = 'public';
         document.getElementById('uploadError').classList.add('hidden');
         document.getElementById('uploadSubmitBtn').disabled    = false;
         document.getElementById('uploadSubmitBtn').textContent = 'Upload';
@@ -710,7 +710,7 @@
         const files       = document.getElementById('batchFileInput').files;
         const version     = document.getElementById('batch_version').value      || '1.0';
         const desc        = document.getElementById('batch_description').value  || null;
-        const accessLevel = document.getElementById('batch_access_level').value || 'restricted';
+        const accessLevel = document.getElementById('batch_access_level').value || 'public';
         const submitBtn  = document.getElementById('uploadSubmitBtn');
         const cancelBtn  = document.getElementById('uploadCancelBtn');
         const errorBox   = document.getElementById('uploadError');
