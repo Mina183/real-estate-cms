@@ -25,6 +25,8 @@ class TwoFactorAuth
             'compliance_officer',
             'data_room_administrator',
             'auditor',
+            'relationship_manager',
+            'fund_manager',
         ];
 
         if (!in_array($user->role, $mfaRoles)) {
