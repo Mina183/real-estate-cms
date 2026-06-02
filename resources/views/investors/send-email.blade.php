@@ -36,41 +36,37 @@
                 <div class="bg-white shadow sm:rounded-lg p-6 mb-6">
                     <h3 class="text-lg font-semibold text-gray-900 mb-4">Recipients</h3>
 
-                    {{-- Filter form — GET reload to update recipient list --}}
-                    <form method="GET" action="{{ route('investors.send-email.bulk') }}" id="filterForm" class="space-y-4">
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Send To</label>
-                                <select name="recipient_type" id="recipient_type"
-                                        onchange="toggleStage(this.value)"
-                                        class="block w-full border-gray-300 rounded-md shadow-sm text-sm">
-                                    <option value="all" {{ $recipients === 'all' ? 'selected' : '' }}>All Investors</option>
-                                    <option value="stage" {{ $recipients === 'stage' ? 'selected' : '' }}>By Stage</option>
-                                </select>
-                            </div>
-                            <div id="stage_select" class="{{ $recipients === 'stage' ? '' : 'invisible' }}">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Stage</label>
-                                <select name="stage" onchange="document.getElementById('filterForm').submit()"
-                                        class="block w-full border-gray-300 rounded-md shadow-sm text-sm">
-                                    <option value="">-- All stages --</option>
-                                    @foreach($stages as $s)
-                                        <option value="{{ $s }}" {{ ($selectedStage ?? '') === $s ? 'selected' : '' }}>
-                                            {{ str_replace('_', ' ', ucfirst($s)) }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="flex items-end pb-0.5">
-                                <label class="flex items-center gap-2 cursor-pointer">
-                                    <input type="checkbox" name="assigned_to_me" value="1"
-                                           onchange="this.form.submit()"
-                                           {{ ($assignedToMe ?? false) ? 'checked' : '' }}
-                                           class="w-4 h-4 text-blue-600 border-gray-300 rounded">
-                                    <span class="text-sm font-medium text-gray-700">Only my assigned investors</span>
-                                </label>
-                            </div>
+                    {{-- Filter controls — JS navigation (cannot nest forms in HTML) --}}
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Send To</label>
+                            <select id="recipient_type" onchange="toggleStage(this.value)"
+                                    class="block w-full border-gray-300 rounded-md shadow-sm text-sm">
+                                <option value="all" {{ $recipients === 'all' ? 'selected' : '' }}>All Investors</option>
+                                <option value="stage" {{ $recipients === 'stage' ? 'selected' : '' }}>By Stage</option>
+                            </select>
                         </div>
-                    </form>
+                        <div id="stage_select" class="{{ $recipients === 'stage' ? '' : 'invisible' }}">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Stage</label>
+                            <select id="stage_filter" onchange="applyFilters()"
+                                    class="block w-full border-gray-300 rounded-md shadow-sm text-sm">
+                                <option value="">-- All stages --</option>
+                                @foreach($stages as $s)
+                                    <option value="{{ $s }}" {{ ($selectedStage ?? '') === $s ? 'selected' : '' }}>
+                                        {{ str_replace('_', ' ', ucfirst($s)) }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="flex items-end pb-0.5">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" id="assigned_to_me" onchange="applyFilters()"
+                                       {{ ($assignedToMe ?? false) ? 'checked' : '' }}
+                                       class="w-4 h-4 text-blue-600 border-gray-300 rounded">
+                                <span class="text-sm font-medium text-gray-700">Only my assigned investors</span>
+                            </label>
+                        </div>
+                    </div>
 
                     {{-- Recipient list --}}
                     <div class="mt-5">
@@ -225,6 +221,21 @@
     </div>
 
     <script>
+        const bulkUrl = '{{ route("investors.send-email.bulk") }}';
+
+        function applyFilters() {
+            const recipientType = document.getElementById('recipient_type').value;
+            const stage         = document.getElementById('stage_filter')?.value || '';
+            const assignedToMe  = document.getElementById('assigned_to_me')?.checked;
+
+            const params = new URLSearchParams();
+            params.set('recipient_type', recipientType);
+            if (recipientType === 'stage' && stage) params.set('stage', stage);
+            if (assignedToMe) params.set('assigned_to_me', '1');
+
+            window.location.href = bulkUrl + '?' + params.toString();
+        }
+
         function toggleStage(value) {
             const stageDiv = document.getElementById('stage_select');
             if (!stageDiv) return;
@@ -232,9 +243,8 @@
                 stageDiv.classList.remove('invisible');
             } else {
                 stageDiv.classList.add('invisible');
-                // Clear stage selection and submit to show all
-                stageDiv.querySelector('select').value = '';
-                document.getElementById('filterForm').submit();
+                document.getElementById('stage_filter').value = '';
+                applyFilters();
             }
         }
 
