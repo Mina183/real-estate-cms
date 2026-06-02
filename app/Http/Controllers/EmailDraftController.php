@@ -135,6 +135,10 @@ class EmailDraftController extends Controller
                 ->with('success', 'Draft submitted for approval.');
         }
 
+        if ($request->boolean('preview_draft')) {
+            return redirect()->route('email-drafts.preview', $draft);
+        }
+
         return redirect()->route('email-drafts.index')
             ->with('success', 'Draft saved.');
     }

@@ -151,19 +151,27 @@
                         </div>
 
                         {{-- Action Buttons --}}
-                        <div class="mt-8 flex items-center justify-end space-x-3">
+                        <div class="mt-8 flex flex-wrap items-center justify-end gap-3">
                             <a href="{{ route('investors.show', $investor) }}"
                                class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-6 rounded">
                                 Cancel
                             </a>
                             <button type="submit" name="submit_for_approval" value="0"
+                                    onclick="document.querySelector('[name=preview_draft]').value='0'"
                                     class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded">
                                 Save as Draft
                             </button>
+                            <button type="submit" name="submit_for_approval" value="0"
+                                    onclick="tinymce.triggerSave(); document.querySelector('[name=preview_draft]').value='1'"
+                                    class="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded">
+                                👁 Save &amp; Preview
+                            </button>
                             <button type="submit" name="submit_for_approval" value="1"
+                                    onclick="document.querySelector('[name=preview_draft]').value='0'"
                                     class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded">
                                 Submit for Approval
                             </button>
+                            <input type="hidden" name="preview_draft" value="0">
                         </div>
 
                     </form>
