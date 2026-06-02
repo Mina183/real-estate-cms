@@ -223,22 +223,24 @@ class InvestorPortalController extends Controller
         $accessLevel    = $investor->data_room_access_level ?? 'none';
         $allowedFolders = config("dataroom.investor_folder_access.{$accessLevel}", []);
 
-        // Personal folder: folder belongs to this investor (auto-created system)
-        if ($folder->investor_id !== null) {
+        $isPersonalFolder = $folder->investor_id !== null;
+
+        if ($isPersonalFolder) {
+            // Section 12: personal folder — access is controlled by folder ownership, not access_level
             if ($folder->investor_id !== $investor->id) {
                 abort(403, 'You do not have access to this document.');
             }
         } else {
+            // Sections 1–11: shared folders — folder must be in investor's allowed list
             $allowed = $allowedFolders === '*' || in_array($folder->folder_number, (array) $allowedFolders);
             if (!$allowed) {
                 abort(403, 'You do not have access to this document.');
             }
-        }
 
-        // Investors can only download public documents.
-        // Restricted / confidential / highly_confidential are staff-only.
-        if (($document->access_level ?? 'restricted') !== 'public') {
-            abort(403, 'You do not have access to this document.');
+            // Shared folders: investors can only download public documents
+            if (($document->access_level ?? 'restricted') !== 'public') {
+                abort(403, 'You do not have access to this document.');
+            }
         }
 
         if ($document->status !== 'approved') {
