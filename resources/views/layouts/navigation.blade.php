@@ -62,9 +62,22 @@
                             {{ __('Data Room') }}
                         </x-nav-link>
 
+                        @cannot('manage-settings')
+                            @can('viewAny', App\Models\EmailDraft::class)
+                                <x-nav-link :href="route('email-drafts.index')" :active="request()->routeIs('email-drafts.*')" class="text-white hover:text-brand-accent">
+                                    {{ __('Email Drafts') }}
+                                </x-nav-link>
+                            @endcan
+                            @can('viewAny', App\Models\DocumentPackage::class)
+                                <x-nav-link :href="route('document-packages.index')" :active="request()->routeIs('document-packages.*')" class="text-white hover:text-brand-accent">
+                                    {{ __('Docs Packs') }}
+                                </x-nav-link>
+                            @endcan
+                        @endcannot
+
                         @can('manage-access-requests')
                             <x-nav-link :href="route('document-access-requests.index')" :active="request()->routeIs('document-access-requests.*')" class="text-white hover:text-brand-accent">
-                                {{ __('Access Requests') }}
+                                {{ __('Docs Access Requests') }}
                             </x-nav-link>
                         @endcan
 
@@ -80,13 +93,13 @@
                                 </x-slot>
                                 <x-slot name="content">
                                     <x-dropdown-link :href="route('email-drafts.index')" :active="request()->routeIs('email-drafts.*')">
-                                        {{ __('Email Draft Approvals') }}
+                                        {{ __('Email Drafts') }}
+                                    </x-dropdown-link>
+                                    <x-dropdown-link :href="route('document-packages.index')" :active="request()->routeIs('document-packages.*')">
+                                        {{ __('Docs Packs') }}
                                     </x-dropdown-link>
                                     <x-dropdown-link :href="route('email-body-templates.index')" :active="request()->routeIs('email-body-templates.*')">
                                         {{ __('Email Templates') }}
-                                    </x-dropdown-link>
-                                    <x-dropdown-link :href="route('document-packages.index')" :active="request()->routeIs('document-packages.*')">
-                                        {{ __('Document Packages') }}
                                     </x-dropdown-link>
                                     <x-dropdown-link :href="route('data-room-viewers.index')" :active="request()->routeIs('data-room-viewers.*')">
                                         {{ __('Data Room Viewers') }}
@@ -187,9 +200,22 @@
                     {{ __('Data Room') }}
                 </x-responsive-nav-link>
 
+                @cannot('manage-settings')
+                    @can('viewAny', App\Models\EmailDraft::class)
+                        <x-responsive-nav-link :href="route('email-drafts.index')" :active="request()->routeIs('email-drafts.*')">
+                            {{ __('Email Drafts') }}
+                        </x-responsive-nav-link>
+                    @endcan
+                    @can('viewAny', App\Models\DocumentPackage::class)
+                        <x-responsive-nav-link :href="route('document-packages.index')" :active="request()->routeIs('document-packages.*')">
+                            {{ __('Docs Packs') }}
+                        </x-responsive-nav-link>
+                    @endcan
+                @endcannot
+
                 @can('manage-access-requests')
                     <x-responsive-nav-link :href="route('document-access-requests.index')" :active="request()->routeIs('document-access-requests.*')">
-                        {{ __('Document Access Requests') }}
+                        {{ __('Docs Access Requests') }}
                     </x-responsive-nav-link>
                 @endcan
 
@@ -198,13 +224,13 @@
                         <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Settings</span>
                     </div>
                     <x-responsive-nav-link :href="route('email-drafts.index')" :active="request()->routeIs('email-drafts.*')">
-                        {{ __('Email Draft Approvals') }}
+                        {{ __('Email Drafts') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('document-packages.index')" :active="request()->routeIs('document-packages.*')">
+                        {{ __('Docs Packs') }}
                     </x-responsive-nav-link>
                     <x-responsive-nav-link :href="route('email-body-templates.index')" :active="request()->routeIs('email-body-templates.*')">
                         {{ __('Email Templates') }}
-                    </x-responsive-nav-link>
-                    <x-responsive-nav-link :href="route('document-packages.index')" :active="request()->routeIs('document-packages.*')">
-                        {{ __('Document Packages') }}
                     </x-responsive-nav-link>
                     <x-responsive-nav-link :href="route('data-room-viewers.index')" :active="request()->routeIs('data-room-viewers.*')">
                         {{ __('Data Room Viewers') }}
