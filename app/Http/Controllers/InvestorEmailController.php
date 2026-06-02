@@ -56,12 +56,17 @@ class InvestorEmailController extends Controller
      */
     public function composeBulk(Request $request)
     {
-        $stage = $request->get('stage');
+        $stage        = $request->get('stage');
+        $assignedToMe = $request->boolean('assigned_to_me');
 
-        $investorsQuery = Investor::with('contacts');
+        $investorsQuery = Investor::notViewers()->with('contacts')->orderBy('organization_name');
 
         if ($stage) {
             $investorsQuery->where('stage', $stage);
+        }
+
+        if ($assignedToMe) {
+            $investorsQuery->where('assigned_to_user_id', auth()->id());
         }
 
         $investors = $investorsQuery->get();
@@ -72,19 +77,19 @@ class InvestorEmailController extends Controller
             ->get();
 
         $stages = [
-            'prospect', 'eligibility_review', 'ppm_issued',
-            'kyc_in_progress', 'subscription_signed', 'approved',
-            'funded', 'active', 'monitored'
+            'prospect', 'eligibility_confirmed', 'portal_access_granted',
+            'kyc_in_progress', 'kyc_completed', 'funded', 'monitored',
         ];
 
         return view('investors.send-email', [
-            'investor' => null,
-            'templates' => $this->templates,
-            'documents' => $documents,
-            'recipients' => $stage ? 'stage' : 'all',
-            'selectedStage' => $stage,
-            'investors' => $investors,
-            'stages' => $stages,
+            'investor'     => null,
+            'templates'    => $this->templates,
+            'documents'    => $documents,
+            'recipients'   => $stage ? 'stage' : 'all',
+            'selectedStage'  => $stage,
+            'assignedToMe'   => $assignedToMe,
+            'investors'    => $investors,
+            'stages'       => $stages,
         ]);
     }
 

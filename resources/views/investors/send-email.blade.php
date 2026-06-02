@@ -23,7 +23,7 @@
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('investors.send-email') }}">
+            <form method="POST" action="{{ route('investors.send-email') }}" id="sendForm">
                 @csrf
 
                 @if($investor)
@@ -35,31 +35,94 @@
                 @if(!$investor)
                 <div class="bg-white shadow sm:rounded-lg p-6 mb-6">
                     <h3 class="text-lg font-semibold text-gray-900 mb-4">Recipients</h3>
-                    
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Send To</label>
-                        <select name="recipient_type" id="recipient_type" class="block w-full border-gray-300 rounded-md shadow-sm">
-                            <option value="all">All Investors</option>
-                            <option value="stage" {{ $recipients === 'stage' ? 'selected' : '' }}>Investors by Stage</option>
-                        </select>
-                    </div>
 
-                    <div id="stage_select" class="{{ $recipients === 'stage' ? '' : 'hidden' }}">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Select Stage</label>
-                        <select name="stage" class="block w-full border-gray-300 rounded-md shadow-sm">
-                            <option value="">-- Select Stage --</option>
-                            @foreach($stages as $stage)
-                                <option value="{{ $stage }}" {{ ($selectedStage ?? '') === $stage ? 'selected' : '' }}>
-                                    {{ str_replace('_', ' ', ucfirst($stage)) }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    @if(isset($investors) && $investors->count() > 0)
-                        <div class="mt-4 p-3 bg-blue-50 rounded-md">
-                            <p class="text-sm text-blue-700">{{ $investors->count() }} investor(s) will receive this email.</p>
+                    {{-- Filter form — GET reload to update recipient list --}}
+                    <form method="GET" action="{{ route('investors.send-email.bulk') }}" id="filterForm" class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Send To</label>
+                                <select name="recipient_type" id="recipient_type" onchange="this.form.submit()"
+                                        class="block w-full border-gray-300 rounded-md shadow-sm text-sm">
+                                    <option value="all" {{ $recipients === 'all' ? 'selected' : '' }}>All Investors</option>
+                                    <option value="stage" {{ $recipients === 'stage' ? 'selected' : '' }}>By Stage</option>
+                                </select>
+                            </div>
+                            <div id="stage_select" class="{{ $recipients === 'stage' ? '' : 'invisible' }}">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Stage</label>
+                                <select name="stage" onchange="this.form.submit()"
+                                        class="block w-full border-gray-300 rounded-md shadow-sm text-sm">
+                                    <option value="">-- All stages --</option>
+                                    @foreach($stages as $s)
+                                        <option value="{{ $s }}" {{ ($selectedStage ?? '') === $s ? 'selected' : '' }}>
+                                            {{ str_replace('_', ' ', ucfirst($s)) }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="flex items-end pb-0.5">
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" name="assigned_to_me" value="1"
+                                           onchange="this.form.submit()"
+                                           {{ ($assignedToMe ?? false) ? 'checked' : '' }}
+                                           class="w-4 h-4 text-blue-600 border-gray-300 rounded">
+                                    <span class="text-sm font-medium text-gray-700">Only my assigned investors</span>
+                                </label>
+                            </div>
                         </div>
+                    </form>
+
+                    {{-- Recipient list --}}
+                    <div class="mt-5">
+                        @if($investors->count() > 0)
+                            <div class="flex items-center justify-between mb-2">
+                                <p class="text-sm font-semibold text-gray-700">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800 mr-1">{{ $investors->count() }}</span>
+                                    investor(s) will receive this email
+                                </p>
+                            </div>
+                            <div class="border border-gray-200 rounded-lg overflow-hidden max-h-56 overflow-y-auto">
+                                <table class="min-w-full divide-y divide-gray-100 text-sm">
+                                    <thead class="bg-gray-50 sticky top-0">
+                                        <tr>
+                                            <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Investor</th>
+                                            <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Email</th>
+                                            <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase">Stage</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-100 bg-white">
+                                        @foreach($investors as $inv)
+                                            @php $contact = $inv->contacts->where('is_primary', true)->first() ?? $inv->contacts->first(); @endphp
+                                            <tr class="{{ $contact ? '' : 'opacity-40' }}">
+                                                <td class="px-4 py-2 font-medium text-gray-800">{{ $inv->organization_name ?? $inv->legal_entity_name }}</td>
+                                                <td class="px-4 py-2 text-gray-500">
+                                                    @if($contact)
+                                                        {{ $contact->email }}
+                                                    @else
+                                                        <span class="text-xs text-red-400 italic">No contact email</span>
+                                                    @endif
+                                                </td>
+                                                <td class="px-4 py-2">
+                                                    <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">
+                                                        {{ str_replace('_', ' ', ucfirst($inv->stage)) }}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @else
+                            <div class="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                                <p class="text-sm text-yellow-700">No investors match the selected filters.</p>
+                            </div>
+                        @endif
+                    </div>
+
+                    {{-- Pass filter params to the POST send form --}}
+                    <input type="hidden" name="recipient_type" value="{{ $recipients }}" form="sendForm">
+                    <input type="hidden" name="stage" value="{{ $selectedStage ?? '' }}" form="sendForm">
+                    @if($assignedToMe ?? false)
+                        <input type="hidden" name="assigned_to_me" value="1" form="sendForm">
                     @endif
                 </div>
                 @endif
@@ -161,10 +224,10 @@
     </div>
 
     <script>
-        // Stage select toggle
+        // Show/hide stage dropdown based on recipient_type
         document.getElementById('recipient_type')?.addEventListener('change', function() {
             const stageDiv = document.getElementById('stage_select');
-            stageDiv.classList.toggle('hidden', this.value !== 'stage');
+            if (stageDiv) stageDiv.classList.toggle('invisible', this.value !== 'stage');
         });
 
         // Document search
