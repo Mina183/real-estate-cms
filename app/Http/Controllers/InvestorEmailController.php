@@ -56,12 +56,13 @@ class InvestorEmailController extends Controller
      */
     public function composeBulk(Request $request)
     {
-        $stage        = $request->get('stage');
-        $assignedToMe = $request->boolean('assigned_to_me');
+        $recipientType = $request->get('recipient_type', 'all');
+        $stage         = $request->get('stage');
+        $assignedToMe  = $request->boolean('assigned_to_me');
 
         $investorsQuery = Investor::notViewers()->with('contacts')->orderBy('organization_name');
 
-        if ($stage) {
+        if ($recipientType === 'stage' && $stage) {
             $investorsQuery->where('stage', $stage);
         }
 
@@ -82,14 +83,14 @@ class InvestorEmailController extends Controller
         ];
 
         return view('investors.send-email', [
-            'investor'     => null,
-            'templates'    => $this->templates,
-            'documents'    => $documents,
-            'recipients'   => $stage ? 'stage' : 'all',
-            'selectedStage'  => $stage,
-            'assignedToMe'   => $assignedToMe,
-            'investors'    => $investors,
-            'stages'       => $stages,
+            'investor'      => null,
+            'templates'     => $this->templates,
+            'documents'     => $documents,
+            'recipients'    => $recipientType,
+            'selectedStage' => $stage,
+            'assignedToMe'  => $assignedToMe,
+            'investors'     => $investors,
+            'stages'        => $stages,
         ]);
     }
 

@@ -41,7 +41,8 @@
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Send To</label>
-                                <select name="recipient_type" id="recipient_type" onchange="this.form.submit()"
+                                <select name="recipient_type" id="recipient_type"
+                                        onchange="toggleStage(this.value)"
                                         class="block w-full border-gray-300 rounded-md shadow-sm text-sm">
                                     <option value="all" {{ $recipients === 'all' ? 'selected' : '' }}>All Investors</option>
                                     <option value="stage" {{ $recipients === 'stage' ? 'selected' : '' }}>By Stage</option>
@@ -49,7 +50,7 @@
                             </div>
                             <div id="stage_select" class="{{ $recipients === 'stage' ? '' : 'invisible' }}">
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Stage</label>
-                                <select name="stage" onchange="this.form.submit()"
+                                <select name="stage" onchange="document.getElementById('filterForm').submit()"
                                         class="block w-full border-gray-300 rounded-md shadow-sm text-sm">
                                     <option value="">-- All stages --</option>
                                     @foreach($stages as $s)
@@ -224,11 +225,18 @@
     </div>
 
     <script>
-        // Show/hide stage dropdown based on recipient_type
-        document.getElementById('recipient_type')?.addEventListener('change', function() {
+        function toggleStage(value) {
             const stageDiv = document.getElementById('stage_select');
-            if (stageDiv) stageDiv.classList.toggle('invisible', this.value !== 'stage');
-        });
+            if (!stageDiv) return;
+            if (value === 'stage') {
+                stageDiv.classList.remove('invisible');
+            } else {
+                stageDiv.classList.add('invisible');
+                // Clear stage selection and submit to show all
+                stageDiv.querySelector('select').value = '';
+                document.getElementById('filterForm').submit();
+            }
+        }
 
         // Document search
         document.getElementById('doc_search')?.addEventListener('input', function() {
