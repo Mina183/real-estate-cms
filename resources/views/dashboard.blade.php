@@ -158,6 +158,51 @@
                         </div>
                     </div>
 
+                    {{-- My Assigned Investors (if Relationship Manager) --}}
+                    @if($myInvestors->count() > 0)
+                        <div class="bg-white rounded-lg shadow mb-6">
+                            <div class="p-6 border-b border-gray-200">
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-gray-900">My Assigned Investors</h4>
+                                        <p class="text-sm text-gray-500 mt-0.5">Manage Information and Stage Changes</p>
+                                    </div>
+                                    <a href="{{ route('investors.index') }}" class="text-brand-accent hover:text-brand-accent-light text-sm font-semibold">
+                                        View All →
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="p-6">
+                                <div class="space-y-3">
+                                    @foreach($myInvestors as $investor)
+                                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                                            <div class="flex-1">
+                                                <p class="font-semibold text-gray-900">
+                                                    {{ $investor->organization_name ?? $investor->legal_entity_name }}
+                                                </p>
+                                                <div class="flex items-center space-x-3 mt-1">
+                                                    <span class="text-sm text-gray-500">{{ $investor->jurisdiction }}</span>
+                                                    <span class="px-2 py-1 text-xs font-semibold rounded bg-brand-dark/10 text-brand-dark">
+                                                        {{ str_replace('_', ' ', ucfirst($investor->stage)) }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="text-right">
+                                                <p class="text-sm font-semibold text-gray-900">
+                                                    {{ $investor->currency }} {{ number_format($investor->target_commitment_amount ?? 0) }}
+                                                </p>
+                                                <a href="{{ route('investors.show', $investor) }}"
+                                                   class="text-sm text-brand-accent hover:text-brand-accent-light">
+                                                    View Details →
+                                                </a>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
                     {{-- Recent Investors --}}
                     <div class="bg-white rounded-lg shadow mb-6">
                         <div class="p-6 border-b border-gray-200">
@@ -192,7 +237,7 @@
                                                 <p class="text-sm font-semibold text-gray-900">
                                                     {{ $investor->currency }} {{ number_format($investor->target_commitment_amount ?? 0) }}
                                                 </p>
-                                                <a href="{{ route('investors.show', $investor) }}" 
+                                                <a href="{{ route('investors.show', $investor) }}"
                                                    class="text-sm text-brand-accent hover:text-brand-accent-light">
                                                     View Details →
                                                 </a>
@@ -206,7 +251,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
                                     </svg>
                                     <p class="mt-2">No investors yet</p>
-                                    <a href="{{ route('investors.create') }}" 
+                                    <a href="{{ route('investors.create') }}"
                                        class="mt-4 inline-block bg-brand-accent hover:bg-brand-accent-light text-white font-bold py-2 px-4 rounded">
                                         + Add First Investor
                                     </a>
@@ -214,33 +259,6 @@
                             @endif
                         </div>
                     </div>
-
-                    {{-- My Investors (if Relationship Manager) --}}
-                    @if($myInvestors->count() > 0)
-                        <div class="bg-white rounded-lg shadow">
-                            <div class="p-6 border-b border-gray-200">
-                                <h4 class="text-lg font-semibold text-gray-900">My Assigned Investors</h4>
-                            </div>
-                            <div class="p-6">
-                                <div class="space-y-3">
-                                    @foreach($myInvestors as $investor)
-                                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded hover:bg-gray-100 transition">
-                                            <div>
-                                                <p class="font-semibold text-gray-900">
-                                                    {{ $investor->organization_name ?? $investor->legal_entity_name }}
-                                                </p>
-                                                <p class="text-sm text-gray-500">{{ $investor->fund->fund_name ?? 'No fund assigned' }}</p>
-                                            </div>
-                                            <a href="{{ route('investors.show', $investor) }}" 
-                                               class="text-brand-accent hover:text-brand-accent-light text-sm font-semibold">
-                                                View →
-                                            </a>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            </div>
-                        </div>
-                    @endif
 
                 </div>
             </main>
