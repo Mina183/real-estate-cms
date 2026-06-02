@@ -255,36 +255,15 @@
                             {{ $icon }} {{ $label }}
                         </button>
                     @endforeach
-                    @if($personalFolder && $personalFolder->documents->isNotEmpty())
-                        <button class="tab-btn" data-tab="my-docs" onclick="switchTab('my-docs', this)">
-                            🔐 My Documents
-                        </button>
-                    @endif
                 </div>
 
                 <div class="p-4">
-
-                {{-- Dynamic folder tabs --}}
-                @foreach($folders as $folder)
-                    @php $slug = 'folder-' . $folder->folder_number; @endphp
-                    <div id="tab-{{ $slug }}" class="tab-pane {{ $loop->first ? '' : 'hidden' }}">
-                        @include('investor.partials.folder-tree', ['folder' => $folder])
-                    </div>
-                @endforeach
-
-                {{-- My Documents tab --}}
-                @if($personalFolder && $personalFolder->documents->isNotEmpty())
-                <div id="tab-my-docs" class="tab-pane hidden">
-                    <div class="flex items-start gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg mb-4">
-                        <svg class="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        <p class="text-sm text-blue-800">These documents have been prepared specifically for you.</p>
-                    </div>
-                    @include('investor.partials.folder-tree', ['folder' => $personalFolder])
-                </div>
-                @endif
-
+                    @foreach($folders as $folder)
+                        @php $slug = 'folder-' . $folder->folder_number; @endphp
+                        <div id="tab-{{ $slug }}" class="tab-pane {{ $loop->first ? '' : 'hidden' }}">
+                            @include('investor.partials.folder-tree', ['folder' => $folder])
+                        </div>
+                    @endforeach
                 </div>
 
                 {{-- Footer --}}
@@ -292,6 +271,124 @@
                     These documents are confidential and for your review only. Please do not share without authorization.
                 </div>
             </div>
+
+            {{-- Personal Folder Section — always visible when investor has a private folder --}}
+            @if($personalFolder)
+            <div class="mt-6 bg-white border border-indigo-200 rounded-xl shadow-sm overflow-hidden">
+
+                {{-- Section Header --}}
+                <div class="px-5 py-4 bg-indigo-50 border-b border-indigo-100 flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-semibold text-indigo-900">Documents Shared With You</h3>
+                        <p class="text-xs text-indigo-600 mt-0.5">This section contains documents prepared specifically for your investment. The fund management team will share relevant materials here as your onboarding progresses.</p>
+                    </div>
+                </div>
+
+                <div class="p-4">
+                    @php
+                        $subfolderIcons = [
+                            'NDA - Populated/Signed' => '✍️',
+                            'Subscription Pack'      => '📝',
+                            'Admission & Activation' => '🎉',
+                            'Monitoring'             => '📊',
+                            'Communication Log'      => '💬',
+                        ];
+                    @endphp
+
+                    @if($personalFolder->children->isEmpty() && $personalFolder->documents->isEmpty())
+                        <div class="text-center py-8 text-gray-400">
+                            <svg class="mx-auto w-10 h-10 mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+                            </svg>
+                            <p class="text-sm">No documents have been shared with you yet.</p>
+                            <p class="text-xs mt-1">Documents will appear here as your onboarding progresses.</p>
+                        </div>
+                    @else
+                        {{-- Subfolders --}}
+                        @foreach($personalFolder->children as $sub)
+                        @php
+                            $subIcon = $subfolderIcons[$sub->folder_name] ?? '📁';
+                            $docCount = $sub->documents->count();
+                        @endphp
+                        <div class="mb-1">
+                            <div class="subfolder-row" onclick="toggleFolder('p{{ $sub->id }}')">
+                                <svg id="chevron-p{{ $sub->id }}" class="w-3.5 h-3.5 chevron {{ $docCount ? '' : 'opacity-0' }}"
+                                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <span class="text-base flex-shrink-0">{{ $subIcon }}</span>
+                                    <span class="text-sm text-gray-700 truncate">{{ $sub->folder_name }}</span>
+                                </div>
+                                <span class="text-xs text-gray-400">
+                                    {{ $docCount ? $docCount . ' ' . ($docCount == 1 ? 'doc' : 'docs') : '' }}
+                                </span>
+                                @if(!$docCount)
+                                <span class="text-xs text-gray-300 italic">empty</span>
+                                @else
+                                <span></span>
+                                @endif
+                            </div>
+
+                            @if($docCount)
+                            <div id="folder-p{{ $sub->id }}" class="collapsible hidden ml-4 border-l border-gray-100 pl-2 mt-0.5">
+                                @foreach($sub->documents as $doc)
+                                <div class="doc-row">
+                                    <span class="file-icon">
+                                        @if($doc->file_type === 'pdf') 📄
+                                        @elseif(in_array($doc->file_type, ['xlsx','xls'])) 📊
+                                        @elseif(in_array($doc->file_type, ['pptx','ppt'])) 📽️
+                                        @elseif(in_array($doc->file_type, ['docx','doc'])) 📝
+                                        @else 📎
+                                        @endif
+                                    </span>
+                                    <span class="text-sm text-gray-700 truncate" title="{{ $doc->document_name }}">{{ $doc->document_name }}</span>
+                                    <span class="text-xs text-gray-400">v{{ $doc->version }}</span>
+                                    <span></span>
+                                    <a href="{{ route('investor.documents.download', $doc->id) }}" class="download-btn">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                        </svg>
+                                        Download
+                                    </a>
+                                </div>
+                                @endforeach
+                            </div>
+                            @endif
+                        </div>
+                        @endforeach
+
+                        {{-- Direct documents in root (edge case) --}}
+                        @foreach($personalFolder->documents as $doc)
+                        <div class="doc-row">
+                            <span class="file-icon">
+                                @if($doc->file_type === 'pdf') 📄
+                                @elseif(in_array($doc->file_type, ['xlsx','xls'])) 📊
+                                @elseif(in_array($doc->file_type, ['pptx','ppt'])) 📽️
+                                @elseif(in_array($doc->file_type, ['docx','doc'])) 📝
+                                @else 📎
+                                @endif
+                            </span>
+                            <span class="text-sm text-gray-700 truncate" title="{{ $doc->document_name }}">{{ $doc->document_name }}</span>
+                            <span class="text-xs text-gray-400">v{{ $doc->version }}</span>
+                            <span></span>
+                            <a href="{{ route('investor.documents.download', $doc->id) }}" class="download-btn">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                </svg>
+                                Download
+                            </a>
+                        </div>
+                        @endforeach
+                    @endif
+                </div>
+            </div>
+            @endif
 
         @endif
     </div>
