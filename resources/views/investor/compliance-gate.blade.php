@@ -9,17 +9,6 @@
 <div class="py-12">
     <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
 
-        {{-- Header Notice --}}
-        <div class="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl mb-6">
-            <svg class="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-            </svg>
-            <div class="text-sm text-amber-800">
-                <p class="font-semibold mb-1">One-time confirmation required</p>
-                <p>Before accessing the Triton Real Estate Fund data room, you must read and confirm the statements below. This is required for regulatory compliance and will be recorded with a timestamp.</p>
-            </div>
-        </div>
-
         <form method="POST" action="{{ route('investor.compliance-gate.submit') }}">
             @csrf
 
@@ -31,48 +20,15 @@
                         <span class="w-6 h-6 bg-brand-darker text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">1</span>
                         About This Data Room
                     </h3>
-                    <div class="text-sm text-gray-600 space-y-2 pl-8">
+                    <div class="text-sm text-gray-600 pl-8">
                         <p>This data room contains confidential documents related to Triton Real Estate Fund operations, legal structure, compliance, and performance reporting.</p>
-                        <p><strong>Document Organization:</strong> Documents are organized by section numbers (0, 1, 2, 3, etc.). Each section contains related folders and subfolders. Security levels indicate access restrictions.</p>
-                        <div class="mt-3 grid grid-cols-2 gap-2 text-xs">
-                            <div class="flex items-center gap-2">
-                                <span class="px-2 py-0.5 rounded-full bg-green-100 text-green-800 font-semibold uppercase tracking-wide">Public</span>
-                                <span class="text-gray-500">Available to all investors</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <span class="px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 font-semibold uppercase tracking-wide">Restricted</span>
-                                <span class="text-gray-500">Authorized investors</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <span class="px-2 py-0.5 rounded-full bg-orange-100 text-orange-800 font-semibold uppercase tracking-wide">Confidential</span>
-                                <span class="text-gray-500">Approved investors only</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <span class="px-2 py-0.5 rounded-full bg-red-100 text-red-800 font-semibold uppercase tracking-wide">Highly Confidential</span>
-                                <span class="text-gray-500">Senior management only</span>
-                            </div>
-                        </div>
-                        <p class="mt-2"><strong>Document Index:</strong> A complete Excel listing of all documents with versions and dates is available in section 0.</p>
                     </div>
                 </div>
 
-                {{-- Section 2: Contact Information --}}
-                <div class="p-6 border-b border-gray-100">
-                    <h3 class="text-base font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                        <span class="w-6 h-6 bg-brand-darker text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">2</span>
-                        Contact Information
-                    </h3>
-                    <div class="text-sm text-gray-600 space-y-1 pl-8">
-                        <p>📧 Legal queries: <a href="mailto:legal@tritonrealestatefund.com" class="text-brand-darker hover:underline">legal@tritonrealestatefund.com</a></p>
-                        <p>📧 Investor relations: <a href="mailto:ir@tritonrealestatefund.com" class="text-brand-darker hover:underline">ir@tritonrealestatefund.com</a></p>
-                        <p>📧 Technical support: <a href="mailto:support@tritonrealestatefund.com" class="text-brand-darker hover:underline">support@tritonrealestatefund.com</a></p>
-                    </div>
-                </div>
-
-                {{-- Section 3: Required Confirmations --}}
+                {{-- Section 2: Required Confirmations --}}
                 <div class="p-6">
                     <h3 class="text-base font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                        <span class="w-6 h-6 bg-brand-darker text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">3</span>
+                        <span class="w-6 h-6 bg-brand-darker text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">2</span>
                         Required Confirmations
                     </h3>
 
