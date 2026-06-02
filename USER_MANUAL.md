@@ -379,16 +379,23 @@ At `/document-access-links/investor/{id}`:
 
 **URL:** `/investors/send-email/bulk` — accessible via **Investors → Bulk Send Email**
 
+Bulk emails follow the **same approval workflow** as single emails — they do not send immediately.
+
+**Step by step:**
+
 1. Use the filters to select recipients:
    - **Send To** — All Investors or By Stage
-   - **Stage** — appears when "By Stage" is selected; select the specific stage
-   - **Only my assigned investors** — checkbox to limit to investors assigned to you
-2. The recipient list updates automatically showing names, emails, and stages.
-3. Select a **template** from the list below.
-4. Optionally add document attachments.
-5. Click **Send Email** — emails are sent to all listed recipients.
+   - **Stage** — appears when "By Stage" is selected
+   - **Only my assigned investors** — checkbox to limit to your assigned investors
+2. The recipient list updates automatically, showing names, emails, and stages.
+3. Select a template and optionally add document attachments.
+4. Click **Submit for Approval** — the bulk draft is saved with a snapshot of the current recipient list and submitted to admin for review.
+5. Admin sees the bulk draft in the **📨 Pending Bulk Emails** section on the Email Drafts page, with the recipient count, stage filter, and creator name.
+6. Admin clicks **Approve**.
+7. Back on the Email Drafts page, the creator sees the bulk draft in **My Bulk Email Drafts** with status `Approved` and a **Send to All** button.
+8. Click **Send to All** — the system sends the email individually to each investor in the snapshot, archives each in their Communication Log (Section 12), and logs each send.
 
-> **Note:** Bulk email sends immediately without an approval step.
+> **Note:** The recipient list is fixed at the moment of submission. If investors are added or removed after submission, the sent list reflects the original snapshot.
 
 ---
 
