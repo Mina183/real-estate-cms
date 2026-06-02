@@ -9,12 +9,26 @@ use Illuminate\Support\Facades\Hash;
 
 class DataRoomViewerController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $viewers = InvestorUser::whereHas('investor', fn($q) => $q->where('data_room_access_level', 'viewer'))
+        $query = InvestorUser::whereHas('investor', fn ($q) => $q->where('data_room_access_level', 'viewer'))
             ->with('investor')
-            ->orderBy('created_at', 'desc')
-            ->get();
+            ->orderBy('created_at', 'desc');
+
+        if ($search = $request->get('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->get('status') === 'active') {
+            $query->where('is_active', true);
+        } elseif ($request->get('status') === 'deactivated') {
+            $query->where('is_active', false);
+        }
+
+        $viewers = $query->get();
 
         return view('data-room-viewers.index', compact('viewers'));
     }

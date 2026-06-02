@@ -30,16 +30,31 @@ class DistributionController extends Controller
     /**
      * Display a listing of distributions
      */
-    public function index()
+    public function index(Request $request)
     {
-        $distributions = Distribution::with('fund')
-            ->orderBy('distribution_date', 'desc')
-            ->paginate(15);
+        $query = Distribution::with('fund')->orderBy('distribution_date', 'desc');
+
+        if ($search = $request->get('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('distribution_number', 'like', "%{$search}%");
+            });
+        }
+
+        if ($status = $request->get('status')) {
+            $query->where('status', $status);
+        }
+
+        if ($type = $request->get('type')) {
+            $query->where('type', $type);
+        }
+
+        $distributions = $query->paginate(15)->withQueryString();
 
         $stats = [
-            'total_distributions' => Distribution::count(),
-            'pending_distributions' => Distribution::pending()->count(),
-            'completed_distributions' => Distribution::completed()->count(),
+            'total_distributions'      => Distribution::count(),
+            'pending_distributions'    => Distribution::pending()->count(),
+            'completed_distributions'  => Distribution::completed()->count(),
             'total_amount_distributed' => Distribution::sum('total_distributed'),
         ];
 

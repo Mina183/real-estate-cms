@@ -20,20 +20,45 @@ class EmailDraftController extends Controller
     /**
      * Show all drafts — for admin approval queue
      */
-    public function index()
+    public function index(Request $request)
     {
         $this->authorize('viewAny', EmailDraft::class);
 
-        $pendingDrafts = EmailDraft::where('status', 'pending_approval')
+        $pendingQuery = EmailDraft::where('status', 'pending_approval')
             ->with(['investor', 'createdBy', 'onBehalfOf'])
-            ->orderBy('created_at', 'desc')
-            ->get();
+            ->orderBy('created_at', 'desc');
 
-        $myDrafts = EmailDraft::where('created_by_user_id', auth()->id())
-            ->whereIn('status', ['draft', 'approved'])
+        if ($pendingSearch = $request->get('pending_search')) {
+            $pendingQuery->where(function ($q) use ($pendingSearch) {
+                $q->where('subject', 'like', "%{$pendingSearch}%")
+                  ->orWhereHas('investor', fn ($iq) => $iq
+                      ->where('organization_name', 'like', "%{$pendingSearch}%")
+                      ->orWhere('legal_entity_name', 'like', "%{$pendingSearch}%"));
+            });
+        }
+
+        $pendingDrafts = $pendingQuery->get();
+
+        $myQuery = EmailDraft::where('created_by_user_id', auth()->id())
             ->with(['investor', 'onBehalfOf'])
-            ->orderBy('created_at', 'desc')
-            ->get();
+            ->orderBy('created_at', 'desc');
+
+        if ($mySearch = $request->get('my_search')) {
+            $myQuery->where(function ($q) use ($mySearch) {
+                $q->where('subject', 'like', "%{$mySearch}%")
+                  ->orWhereHas('investor', fn ($iq) => $iq
+                      ->where('organization_name', 'like', "%{$mySearch}%")
+                      ->orWhere('legal_entity_name', 'like', "%{$mySearch}%"));
+            });
+        }
+
+        if ($myStatus = $request->get('my_status')) {
+            $myQuery->where('status', $myStatus);
+        } else {
+            $myQuery->whereIn('status', ['draft', 'approved']);
+        }
+
+        $myDrafts = $myQuery->get();
 
         return view('email-drafts.index', compact('pendingDrafts', 'myDrafts'));
     }

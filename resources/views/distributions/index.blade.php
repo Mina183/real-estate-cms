@@ -43,6 +43,42 @@
                 </div>
             @endif
 
+            {{-- Filters --}}
+            <div class="bg-white border border-gray-200 rounded-lg shadow-sm p-4 mb-5">
+                <form method="GET" action="{{ route('distributions.index') }}" class="flex flex-wrap gap-3 items-end">
+                    <div class="flex-1 min-w-48">
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Search</label>
+                        <input type="text" name="search" value="{{ request('search') }}"
+                               placeholder="Title or distribution number…"
+                               class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="min-w-36">
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Status</label>
+                        <select name="status" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+                            <option value="">All statuses</option>
+                            @foreach(['draft','approved','processing','completed'] as $s)
+                                <option value="{{ $s }}" {{ request('status') === $s ? 'selected' : '' }}>{{ ucfirst($s) }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="min-w-40">
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Type</label>
+                        <select name="type" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+                            <option value="">All types</option>
+                            @foreach(['dividend','return_of_capital','profit_share','other'] as $t)
+                                <option value="{{ $t }}" {{ request('type') === $t ? 'selected' : '' }}>{{ ucfirst(str_replace('_',' ',$t)) }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="flex gap-2">
+                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-md hover:bg-blue-700 transition">Filter</button>
+                        @if(request()->hasAny(['search','status','type']))
+                            <a href="{{ route('distributions.index') }}" class="px-4 py-2 bg-gray-100 text-gray-600 text-sm font-semibold rounded-md hover:bg-gray-200 transition">Clear</a>
+                        @endif
+                    </div>
+                </form>
+            </div>
+
             {{-- Distributions Table --}}
             <div class="bg-white overflow-auto shadow-sm sm:rounded-lg">
                 <div class="p-6">

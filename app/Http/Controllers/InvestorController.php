@@ -21,14 +21,36 @@ class InvestorController extends Controller
         $this->authorizeResource(Investor::class, 'investor');
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $investors = Investor::notViewers()
+        $query = Investor::notViewers()
             ->with(['fund', 'assignedTo'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(20);
+            ->orderBy('created_at', 'desc');
 
-        return view('investors.index', compact('investors'));
+        if ($search = $request->get('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('organization_name', 'like', "%{$search}%")
+                  ->orWhere('legal_entity_name', 'like', "%{$search}%")
+                  ->orWhere('jurisdiction', 'like', "%{$search}%");
+            });
+        }
+
+        if ($stage = $request->get('stage')) {
+            $query->where('stage', $stage);
+        }
+
+        if ($type = $request->get('type')) {
+            $query->where('investor_type', $type);
+        }
+
+        if ($assignedTo = $request->get('assigned_to')) {
+            $query->where('assigned_to_user_id', $assignedTo);
+        }
+
+        $investors = $query->paginate(20)->withQueryString();
+        $managers  = User::whereIn('role', ['superadmin', 'admin', 'relationship_manager'])->orderBy('name')->get();
+
+        return view('investors.index', compact('investors', 'managers'));
     }
 
     public function create()

@@ -28,9 +28,54 @@
                 </div>
             @endif
 
+            {{-- Filters --}}
+            <div class="bg-white border border-gray-200 rounded-lg shadow-sm p-4 mb-5">
+                <form method="GET" action="{{ route('investors.index') }}" class="flex flex-wrap gap-3 items-end">
+                    <div class="flex-1 min-w-48">
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Search</label>
+                        <input type="text" name="search" value="{{ request('search') }}"
+                               placeholder="Name or jurisdiction…"
+                               class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="min-w-36">
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Stage</label>
+                        <select name="stage" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+                            <option value="">All stages</option>
+                            @foreach(['prospect','eligibility_confirmed','portal_access_granted','kyc_in_progress','kyc_completed','funded','monitored'] as $s)
+                                <option value="{{ $s }}" {{ request('stage') === $s ? 'selected' : '' }}>{{ ucfirst(str_replace('_',' ',$s)) }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="min-w-36">
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Type</label>
+                        <select name="type" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+                            <option value="">All types</option>
+                            @foreach(['individual','corporate','family_office','spv','fund'] as $t)
+                                <option value="{{ $t }}" {{ request('type') === $t ? 'selected' : '' }}>{{ ucfirst(str_replace('_',' ',$t)) }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="min-w-40">
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Assigned To</label>
+                        <select name="assigned_to" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+                            <option value="">Anyone</option>
+                            @foreach($managers as $m)
+                                <option value="{{ $m->id }}" {{ request('assigned_to') == $m->id ? 'selected' : '' }}>{{ $m->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="flex gap-2">
+                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-md hover:bg-blue-700 transition">Filter</button>
+                        @if(request()->hasAny(['search','stage','type','assigned_to']))
+                            <a href="{{ route('investors.index') }}" class="px-4 py-2 bg-gray-100 text-gray-600 text-sm font-semibold rounded-md hover:bg-gray-200 transition">Clear</a>
+                        @endif
+                    </div>
+                </form>
+            </div>
+
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
-                    
+
                     @if($investors->count() > 0)
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">

@@ -69,8 +69,22 @@
 
             {{-- Existing viewers --}}
             <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-                <div class="px-6 py-4 border-b border-gray-100">
+                <div class="px-6 py-4 border-b border-gray-100 flex flex-wrap items-center gap-3">
                     <h3 class="font-semibold text-gray-800">Existing Viewer Accounts</h3>
+                    <form method="GET" action="{{ route('data-room-viewers.index') }}" class="flex gap-2 ml-auto">
+                        <input type="text" name="search" value="{{ request('search') }}"
+                               placeholder="Name or email…"
+                               class="border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-52">
+                        <select name="status" class="border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500">
+                            <option value="">All</option>
+                            <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Active</option>
+                            <option value="deactivated" {{ request('status') === 'deactivated' ? 'selected' : '' }}>Deactivated</option>
+                        </select>
+                        <button type="submit" class="px-3 py-1.5 bg-blue-600 text-white text-sm font-semibold rounded-md hover:bg-blue-700 transition">Search</button>
+                        @if(request('search') || request('status'))
+                            <a href="{{ route('data-room-viewers.index') }}" class="px-3 py-1.5 bg-gray-100 text-gray-600 text-sm font-semibold rounded-md hover:bg-gray-200 transition">Clear</a>
+                        @endif
+                    </form>
                 </div>
 
                 @if($viewers->isEmpty())

@@ -24,8 +24,24 @@
             @can('approve-drafts')
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">
-                        ⏳ Pending Approval
+                    <div class="flex flex-wrap items-center gap-3 mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900">
+                            ⏳ Pending Approval
+                            @if($pendingDrafts->count() > 0)
+                                <span class="ml-2 px-2 py-0.5 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">{{ $pendingDrafts->count() }}</span>
+                            @endif
+                        </h3>
+                        <form method="GET" action="{{ route('email-drafts.index') }}" class="flex gap-2 ml-auto">
+                            <input type="text" name="pending_search" value="{{ request('pending_search') }}"
+                                   placeholder="Search by subject or investor…"
+                                   class="border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-64">
+                            <button type="submit" class="px-3 py-1.5 bg-blue-600 text-white text-sm font-semibold rounded-md hover:bg-blue-700 transition">Search</button>
+                            @if(request('pending_search'))
+                                <a href="{{ route('email-drafts.index') }}" class="px-3 py-1.5 bg-gray-100 text-gray-600 text-sm font-semibold rounded-md hover:bg-gray-200 transition">Clear</a>
+                            @endif
+                        </form>
+                    </div>
+                    @if($pendingDrafts->count() > 0)
                         @if($pendingDrafts->count() > 0)
                             <span class="ml-2 px-2 py-0.5 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
                                 {{ $pendingDrafts->count() }}
@@ -45,6 +61,7 @@
                                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                                     </tr>
                                 </thead>
+
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     @foreach($pendingDrafts as $draft)
                                     <tr>
@@ -85,7 +102,25 @@
             {{-- MY DRAFTS --}}
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">My Drafts</h3>
+                    <div class="flex flex-wrap items-center gap-3 mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900">My Drafts</h3>
+                        <form method="GET" action="{{ route('email-drafts.index') }}" class="flex gap-2 ml-auto">
+                            <input type="text" name="my_search" value="{{ request('my_search') }}"
+                                   placeholder="Search by subject or investor…"
+                                   class="border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-64">
+                            <select name="my_status" class="border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500">
+                                <option value="">All statuses</option>
+                                <option value="draft" {{ request('my_status') === 'draft' ? 'selected' : '' }}>Draft</option>
+                                <option value="pending_approval" {{ request('my_status') === 'pending_approval' ? 'selected' : '' }}>Pending Approval</option>
+                                <option value="approved" {{ request('my_status') === 'approved' ? 'selected' : '' }}>Approved</option>
+                                <option value="sent" {{ request('my_status') === 'sent' ? 'selected' : '' }}>Sent</option>
+                            </select>
+                            <button type="submit" class="px-3 py-1.5 bg-blue-600 text-white text-sm font-semibold rounded-md hover:bg-blue-700 transition">Search</button>
+                            @if(request('my_search') || request('my_status'))
+                                <a href="{{ route('email-drafts.index') }}" class="px-3 py-1.5 bg-gray-100 text-gray-600 text-sm font-semibold rounded-md hover:bg-gray-200 transition">Clear</a>
+                            @endif
+                        </form>
+                    </div>
 
                     @if($myDrafts->count() > 0)
                         <div class="overflow-x-auto">

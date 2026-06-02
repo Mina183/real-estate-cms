@@ -30,17 +30,28 @@ class CapitalCallController extends Controller
     /**
      * Display a listing of capital calls
      */
-    public function index()
+    public function index(Request $request)
     {
-        $capitalCalls = CapitalCall::with('fund')
-            ->orderBy('call_date', 'desc')
-            ->paginate(15);
+        $query = CapitalCall::with('fund')->orderBy('call_date', 'desc');
+
+        if ($search = $request->get('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('call_number', 'like', "%{$search}%");
+            });
+        }
+
+        if ($status = $request->get('status')) {
+            $query->where('status', $status);
+        }
+
+        $capitalCalls = $query->paginate(15)->withQueryString();
 
         $stats = [
-            'total_calls' => CapitalCall::count(),
-            'active_calls' => CapitalCall::active()->count(),
-            'overdue_calls' => CapitalCall::overdue()->count(),
-            'total_amount_called' => CapitalCall::sum('total_amount'),
+            'total_calls'           => CapitalCall::count(),
+            'active_calls'          => CapitalCall::active()->count(),
+            'overdue_calls'         => CapitalCall::overdue()->count(),
+            'total_amount_called'   => CapitalCall::sum('total_amount'),
             'total_amount_received' => CapitalCall::sum('total_received'),
         ];
 

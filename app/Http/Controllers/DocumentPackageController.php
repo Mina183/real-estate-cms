@@ -14,12 +14,17 @@ class DocumentPackageController extends Controller
         $this->authorizeResource(DocumentPackage::class, 'documentPackage');
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $packages = DocumentPackage::with(['createdBy', 'notifyUser'])
+        $query = DocumentPackage::with(['createdBy', 'notifyUser'])
             ->withCount(['items', 'accessLinks'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(20);
+            ->orderBy('created_at', 'desc');
+
+        if ($search = $request->get('search')) {
+            $query->where('name', 'like', "%{$search}%");
+        }
+
+        $packages = $query->paginate(20)->withQueryString();
 
         return view('document-packages.index', compact('packages'));
     }
