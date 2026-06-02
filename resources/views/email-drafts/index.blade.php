@@ -20,6 +20,74 @@
                 </div>
             @endif
 
+            {{-- PENDING BULK DRAFTS --}}
+            @can('approve-drafts')
+            @if($pendingBulk->count() > 0)
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                        📨 Pending Bulk Emails
+                        <span class="ml-2 px-2 py-0.5 text-xs font-semibold rounded-full bg-orange-100 text-orange-800">{{ $pendingBulk->count() }}</span>
+                    </h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200 text-sm">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Subject</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Recipients</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Created By</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                @foreach($pendingBulk as $draft)
+                                <tr>
+                                    <td class="px-4 py-3 font-medium text-gray-900">{{ $draft->subject }}</td>
+                                    <td class="px-4 py-3 text-gray-600">
+                                        <span class="font-semibold text-gray-800">{{ $draft->bulk_recipient_count }}</span> investor(s)
+                                        @if($draft->bulk_recipient_type === 'stage' && $draft->bulk_recipient_stage)
+                                            <span class="text-xs text-gray-400 ml-1">· Stage: {{ str_replace('_',' ',ucfirst($draft->bulk_recipient_stage)) }}</span>
+                                        @elseif($draft->bulk_recipient_type === 'all')
+                                            <span class="text-xs text-gray-400 ml-1">· All investors</span>
+                                        @endif
+                                        @if($draft->bulk_assigned_to_user_id)
+                                            <span class="text-xs text-gray-400 ml-1">· Assigned only</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-3 text-gray-500">{{ $draft->createdBy->name ?? '—' }}</td>
+                                    <td class="px-4 py-3 text-gray-500">{{ fmt_datetime($draft->created_at) }}</td>
+                                    <td class="px-4 py-3">
+                                        <div class="flex space-x-2">
+                                            <form method="POST" action="{{ route('email-drafts.approve', $draft) }}" class="inline">
+                                                @csrf
+                                                <button type="submit"
+                                                        class="bg-green-500 hover:bg-green-700 text-white text-xs font-bold py-1 px-3 rounded"
+                                                        onclick="return confirm('Approve this bulk email for sending to {{ $draft->bulk_recipient_count }} investor(s)?')">
+                                                    Approve
+                                                </button>
+                                            </form>
+                                            <form method="POST" action="{{ route('email-drafts.destroy', $draft) }}" class="inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit"
+                                                        class="bg-red-100 hover:bg-red-200 text-red-700 text-xs font-bold py-1 px-3 rounded"
+                                                        onclick="return confirm('Delete this bulk draft?')">
+                                                    Reject
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            @endif
+            @endcan
+
             {{-- PENDING APPROVAL --}}
             @can('approve-drafts')
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
@@ -211,6 +279,76 @@
                     @endif
                 </div>
             </div>
+
+            {{-- MY BULK DRAFTS --}}
+            @if($myBulkDrafts->count() > 0)
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">My Bulk Email Drafts</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200 text-sm">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Subject</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Recipients</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                @foreach($myBulkDrafts as $draft)
+                                <tr>
+                                    <td class="px-4 py-3 font-medium text-gray-900">{{ $draft->subject }}</td>
+                                    <td class="px-4 py-3 text-gray-600">
+                                        <span class="font-semibold">{{ $draft->bulk_recipient_count }}</span> investor(s)
+                                        @if($draft->bulk_recipient_type === 'stage' && $draft->bulk_recipient_stage)
+                                            <span class="text-xs text-gray-400">· {{ str_replace('_',' ',ucfirst($draft->bulk_recipient_stage)) }}</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <span class="px-2 py-0.5 text-xs font-semibold rounded-full
+                                            @if($draft->status === 'pending_approval') bg-yellow-100 text-yellow-800
+                                            @elseif($draft->status === 'approved') bg-green-100 text-green-800
+                                            @else bg-gray-100 text-gray-700
+                                            @endif">
+                                            {{ ucfirst(str_replace('_', ' ', $draft->status)) }}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3 text-gray-500">{{ fmt_datetime($draft->created_at) }}</td>
+                                    <td class="px-4 py-3">
+                                        <div class="flex space-x-2">
+                                            @if($draft->status === 'approved')
+                                                <form method="POST" action="{{ route('email-drafts.send', $draft) }}" class="inline">
+                                                    @csrf
+                                                    <button type="submit"
+                                                            class="bg-teal-500 hover:bg-teal-700 text-white text-xs font-bold py-1 px-3 rounded"
+                                                            onclick="return confirm('Send this email to {{ $draft->bulk_recipient_count }} investor(s)?')">
+                                                        Send to All
+                                                    </button>
+                                                </form>
+                                            @elseif($draft->status === 'pending_approval')
+                                                <span class="text-xs text-gray-400 italic">Awaiting approval…</span>
+                                            @endif
+                                            <form method="POST" action="{{ route('email-drafts.destroy', $draft) }}" class="inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit"
+                                                        class="bg-red-100 hover:bg-red-200 text-red-700 text-xs font-bold py-1 px-3 rounded"
+                                                        onclick="return confirm('Delete this bulk draft?')">
+                                                    Delete
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            @endif
 
         </div>
     </div>

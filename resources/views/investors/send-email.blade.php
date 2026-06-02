@@ -23,7 +23,9 @@
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('investors.send-email') }}" id="sendForm">
+            <form method="POST"
+                  action="{{ $investor ? route('investors.send-email') : route('email-drafts.store') }}"
+                  id="sendForm">
                 @csrf
 
                 @if($investor)
@@ -200,18 +202,38 @@
                 </div>
 
                 <!-- Submit -->
+                @if(!$investor)
+                {{-- Bulk: hidden inputs for approval flow --}}
+                <input type="hidden" name="is_bulk" value="1">
+                <input type="hidden" name="bulk_recipient_type" value="{{ $recipients }}">
+                <input type="hidden" name="bulk_recipient_stage" value="{{ $selectedStage ?? '' }}">
+                @if($assignedToMe ?? false)
+                    <input type="hidden" name="bulk_assigned_to_me" value="1">
+                @endif
+                <input type="hidden" id="bulk_recipient_ids_input" name="bulk_recipient_ids"
+                       value="{{ json_encode($investors->pluck('id')->values()->all()) }}">
+                @endif
+
                 <div class="bg-white shadow sm:rounded-lg p-6">
+                    @if(!$investor)
+                    <div class="flex items-center gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg mb-4">
+                        <svg class="w-4 h-4 text-amber-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <p class="text-sm text-amber-800">This bulk email will be <strong>submitted for admin approval</strong> before sending. Once approved, you will be able to send it to all {{ $investors->count() }} recipient(s).</p>
+                    </div>
+                    @endif
                     <div class="flex items-center justify-between">
                         <p class="text-sm text-gray-500">
-                            Email will be sent from: <strong>{{ auth()->user()->email }}</strong>
+                            Sent from: <strong>{{ auth()->user()->email }}</strong>
                         </p>
-                        <a href="#" id="preview_btn" target="_blank"
-                        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
-                            👁 Preview
-                        </a>
-                        <button type="submit" 
-                                class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-6 rounded">
-                            Send Email
+                        <button type="submit"
+                                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded">
+                            @if(!$investor)
+                                Submit for Approval
+                            @else
+                                Send Email
+                            @endif
                         </button>
                     </div>
                 </div>
