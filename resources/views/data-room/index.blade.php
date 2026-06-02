@@ -218,7 +218,7 @@
                         Export Index
                     </a>
 
-                    @can('upload-documents')
+                    @can('upload', App\Models\DataRoomDocument::class)
                     <button onclick="showUploadModal()"
                             class="inline-flex items-center gap-2 px-4 py-2 text-sm text-white bg-brand-darker rounded-lg hover:opacity-90 transition font-semibold shadow-sm">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
