@@ -42,14 +42,6 @@
                         </form>
                     </div>
                     @if($pendingDrafts->count() > 0)
-                        @if($pendingDrafts->count() > 0)
-                            <span class="ml-2 px-2 py-0.5 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                {{ $pendingDrafts->count() }}
-                            </span>
-                        @endif
-                    </h3>
-
-                    @if($pendingDrafts->count() > 0)
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200 text-sm">
                                 <thead class="bg-gray-50">
