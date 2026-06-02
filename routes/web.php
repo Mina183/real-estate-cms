@@ -291,20 +291,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Document Packages — admin/superadmin only
+    | Document Packages — all staff that can manage packages (policy-controlled)
     |--------------------------------------------------------------------------
     */
-    Route::middleware(['can:manage-settings'])->group(function () {
-        Route::prefix('document-packages')->controller(DocumentPackageController::class)->group(function () {
-            Route::get('/', 'index')->name('document-packages.index');
-            Route::get('/create', 'create')->name('document-packages.create');
-            Route::post('/', 'store')->name('document-packages.store');
-            Route::get('/{documentPackage}', 'show')->name('document-packages.show');
-            Route::get('/{documentPackage}/edit', 'edit')->name('document-packages.edit');
-            Route::put('/{documentPackage}', 'update')->name('document-packages.update');
-            Route::delete('/{documentPackage}', 'destroy')->name('document-packages.destroy');
-        });
+    Route::prefix('document-packages')->controller(DocumentPackageController::class)->group(function () {
+        Route::get('/', 'index')->name('document-packages.index');
+        Route::get('/create', 'create')->name('document-packages.create');
+        Route::post('/', 'store')->name('document-packages.store');
+        Route::get('/{documentPackage}', 'show')->name('document-packages.show');
+        Route::get('/{documentPackage}/edit', 'edit')->name('document-packages.edit');
+        Route::put('/{documentPackage}', 'update')->name('document-packages.update');
+        Route::delete('/{documentPackage}', 'destroy')->name('document-packages.destroy');
+    });
 
+    Route::middleware(['can:manage-settings'])->group(function () {
         // Data Room Viewers — external stakeholder accounts
         Route::prefix('data-room-viewers')->controller(DataRoomViewerController::class)->group(function () {
             Route::get('/',        'index')->name('data-room-viewers.index');
