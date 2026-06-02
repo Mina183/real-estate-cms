@@ -61,18 +61,22 @@
                     @if(auth()->user()->can('manage-settings') || auth()->user()->can('manage-access-requests'))
                     <div class="pt-2 border-t border-white/20">
                         <p class="text-xs text-white/50 uppercase tracking-wider px-2 mb-2">Settings</p>
-                        @can('manage-settings')
+                        @can('viewAny', App\Models\EmailDraft::class)
                         <a href="{{ route('email-drafts.index') }}"
                         class="block bg-white text-brand-darker px-4 py-2 rounded hover:bg-brand-light/20 font-semibold transition">
-                            ✉️ Draft Approvals
+                            ✉️ Email Drafts
                         </a>
-                        <a href="{{ route('email-body-templates.index') }}"
-                        class="block bg-white text-brand-darker px-4 py-2 rounded hover:bg-brand-light/20 font-semibold transition mt-1">
-                            📝 Email Templates
-                        </a>
+                        @endcan
+                        @can('viewAny', App\Models\DocumentPackage::class)
                         <a href="{{ route('document-packages.index') }}"
                         class="block bg-white text-brand-darker px-4 py-2 rounded hover:bg-brand-light/20 font-semibold transition mt-1">
                             📦 Document Packages
+                        </a>
+                        @endcan
+                        @can('manage-settings')
+                        <a href="{{ route('email-body-templates.index') }}"
+                        class="block bg-white text-brand-darker px-4 py-2 rounded hover:bg-brand-light/20 font-semibold transition mt-1">
+                            📝 Email Templates
                         </a>
                         <a href="{{ route('data-room-viewers.index') }}"
                         class="block bg-white text-brand-darker px-4 py-2 rounded hover:bg-brand-light/20 font-semibold transition mt-1">
