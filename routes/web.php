@@ -184,12 +184,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     | Gate: manage-capital-calls
     |--------------------------------------------------------------------------
     */
-    Route::middleware(['can:manage-capital-calls'])->group(function () {
-        Route::prefix('capital-calls')->controller(CapitalCallController::class)->group(function () {
-            Route::get('/', 'index')->name('capital-calls.index');
+    Route::prefix('capital-calls')->controller(CapitalCallController::class)->group(function () {
+        Route::get('/', 'index')->name('capital-calls.index');
+        Route::get('/{capitalCall}', 'show')->name('capital-calls.show');
+        Route::middleware(['can:manage-capital-calls'])->group(function () {
             Route::get('/create', 'create')->name('capital-calls.create');
             Route::post('/', 'store')->name('capital-calls.store');
-            Route::get('/{capitalCall}', 'show')->name('capital-calls.show');
             Route::get('/{capitalCall}/edit', 'edit')->name('capital-calls.edit');
             Route::put('/{capitalCall}', 'update')->name('capital-calls.update');
             Route::delete('/{capitalCall}', 'destroy')->name('capital-calls.destroy');
@@ -204,12 +204,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     | Gate: manage-distributions
     |--------------------------------------------------------------------------
     */
-    Route::middleware(['can:manage-distributions'])->group(function () {
-        Route::prefix('distributions')->controller(DistributionController::class)->group(function () {
-            Route::get('/', 'index')->name('distributions.index');
+    Route::prefix('distributions')->controller(DistributionController::class)->group(function () {
+        Route::get('/', 'index')->name('distributions.index');
+        Route::get('/{distribution}', 'show')->name('distributions.show');
+        Route::middleware(['can:manage-distributions'])->group(function () {
             Route::get('/create', 'create')->name('distributions.create');
             Route::post('/', 'store')->name('distributions.store');
-            Route::get('/{distribution}', 'show')->name('distributions.show');
             Route::get('/{distribution}/edit', 'edit')->name('distributions.edit');
             Route::put('/{distribution}', 'update')->name('distributions.update');
             Route::delete('/{distribution}', 'destroy')->name('distributions.destroy');
