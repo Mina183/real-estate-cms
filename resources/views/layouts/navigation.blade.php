@@ -41,13 +41,13 @@
                                         {{ __('Investors') }}
                                     </a>
                                 @endcan
-                                @can('manage-capital-calls')
+                                @can('viewAny', App\Models\CapitalCall::class)
                                     <a href="{{ route('capital-calls.index') }}"
                                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ request()->routeIs('capital-calls.*') ? 'font-semibold bg-gray-50' : '' }}">
                                         {{ __('Capital Calls') }}
                                     </a>
                                 @endcan
-                                @can('manage-distributions')
+                                @can('viewAny', App\Models\Distribution::class)
                                     <a href="{{ route('distributions.index') }}"
                                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ request()->routeIs('distributions.*') ? 'font-semibold bg-gray-50' : '' }}">
                                         {{ __('Distributions') }}
@@ -181,12 +181,12 @@
                                 {{ __('Investors') }}
                             </x-responsive-nav-link>
                         @endcan
-                        @can('manage-capital-calls')
+                        @can('viewAny', App\Models\CapitalCall::class)
                             <x-responsive-nav-link :href="route('capital-calls.index')" :active="request()->routeIs('capital-calls.*')">
                                 {{ __('Capital Calls') }}
                             </x-responsive-nav-link>
                         @endcan
-                        @can('manage-distributions')
+                        @can('viewAny', App\Models\Distribution::class)
                             <x-responsive-nav-link :href="route('distributions.index')" :active="request()->routeIs('distributions.*')">
                                 {{ __('Distributions') }}
                             </x-responsive-nav-link>

@@ -32,13 +32,13 @@
                                     👥 Investors
                                 </a>
                             @endcan
-                            @can('manage-capital-calls')
+                            @can('viewAny', App\Models\CapitalCall::class)
                                 <a href="{{ route('capital-calls.index') }}"
                                    class="block bg-white/90 text-brand-darker px-4 py-2 rounded hover:bg-brand-light/20 font-semibold transition text-sm">
                                     💰 Capital Calls
                                 </a>
                             @endcan
-                            @can('manage-distributions')
+                            @can('viewAny', App\Models\Distribution::class)
                                 <a href="{{ route('distributions.index') }}"
                                    class="block bg-white/90 text-brand-darker px-4 py-2 rounded hover:bg-brand-light/20 font-semibold transition text-sm">
                                     📊 Distributions
