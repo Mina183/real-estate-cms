@@ -121,7 +121,7 @@
                                     @endif
                                     <input type="email" name="cc_custom_email"
                                            value="{{ old('cc_custom_email') }}"
-                                           placeholder="Custom CC email address (optional)"
+                                           placeholder="CC email(s) — separate multiple with commas"
                                            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
                                 </div>
                             </div>
