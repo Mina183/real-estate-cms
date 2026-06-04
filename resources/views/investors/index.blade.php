@@ -50,7 +50,7 @@
                         <label class="block text-xs font-medium text-gray-500 mb-1">Type</label>
                         <select name="type" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
                             <option value="">All types</option>
-                            @foreach(['individual','corporate','family_office','spv','fund'] as $t)
+                            @foreach(['individual','corporate','family_office','spv','fund','bank'] as $t)
                                 <option value="{{ $t }}" {{ request('type') === $t ? 'selected' : '' }}>{{ ucfirst(str_replace('_',' ',$t)) }}</option>
                             @endforeach
                         </select>

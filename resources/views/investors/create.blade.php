@@ -40,11 +40,12 @@
                                 <select name="investor_type" id="investor_type" required
                                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                                     <option value="">Select Type</option>
-                                    <option value="individual" {{ old('investor_type') === 'individual' ? 'selected' : '' }}>Individual</option>
-                                    <option value="corporate" {{ old('investor_type') === 'corporate' ? 'selected' : '' }}>Corporate</option>
+                                    <option value="individual"    {{ old('investor_type') === 'individual'    ? 'selected' : '' }}>Individual</option>
+                                    <option value="corporate"     {{ old('investor_type') === 'corporate'     ? 'selected' : '' }}>Corporate</option>
                                     <option value="family_office" {{ old('investor_type') === 'family_office' ? 'selected' : '' }}>Family Office</option>
-                                    <option value="spv" {{ old('investor_type') === 'spv' ? 'selected' : '' }}>SPV</option>
-                                    <option value="fund" {{ old('investor_type') === 'fund' ? 'selected' : '' }}>Fund</option>
+                                    <option value="spv"           {{ old('investor_type') === 'spv'           ? 'selected' : '' }}>SPV</option>
+                                    <option value="fund"          {{ old('investor_type') === 'fund'          ? 'selected' : '' }}>Fund</option>
+                                    <option value="bank"          {{ old('investor_type') === 'bank'          ? 'selected' : '' }}>Bank</option>
                                 </select>
                             </div>
 

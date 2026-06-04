@@ -123,6 +123,7 @@
                                         <option value="family_office" {{ $investor->investor_type === 'family_office' ? 'selected' : '' }}>Family Office</option>
                                         <option value="spv"           {{ $investor->investor_type === 'spv'           ? 'selected' : '' }}>SPV</option>
                                         <option value="fund"          {{ $investor->investor_type === 'fund'          ? 'selected' : '' }}>Fund</option>
+                                        <option value="bank"          {{ $investor->investor_type === 'bank'          ? 'selected' : '' }}>Bank</option>
                                     </select>
                                 </div>
 

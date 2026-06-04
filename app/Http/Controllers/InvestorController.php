@@ -65,7 +65,7 @@ class InvestorController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'investor_type' => 'required|in:individual,corporate,family_office,spv,fund',
+            'investor_type' => 'required|in:individual,corporate,family_office,spv,fund,bank',
             'organization_name' => 'nullable|string|max:255',
             'legal_entity_name' => 'nullable|string|max:255',
             'jurisdiction' => 'required|string|max:100',
@@ -136,7 +136,7 @@ class InvestorController extends Controller
     public function update(Request $request, Investor $investor)
 {
     $validated = $request->validate([
-        'investor_type' => 'required|in:individual,corporate,family_office,spv,fund',
+        'investor_type' => 'required|in:individual,corporate,family_office,spv,fund,bank',
         'organization_name' => 'nullable|string|max:255',
         'legal_entity_name' => 'nullable|string|max:255',
         'jurisdiction' => 'required|string|max:100',
