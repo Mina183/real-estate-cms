@@ -21,10 +21,22 @@
                 
                 <div class="flex space-x-2">
                     @can('update', $investor)
-                        <a href="{{ route('investors.edit', $investor) }}" 
+                        <a href="{{ route('investors.edit', $investor) }}"
                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                             Edit
                         </a>
+                    @endcan
+
+                    @can('delete', $investor)
+                        <form method="POST" action="{{ route('investors.destroy', $investor) }}" class="inline">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit"
+                                    class="bg-red-600 hover:bg-red-800 text-white font-bold py-2 px-4 rounded"
+                                    onclick="return confirm('Permanently delete {{ addslashes($investor->organization_name ?? $investor->legal_entity_name) }} and ALL associated data? This cannot be undone.')">
+                                🗑 Delete
+                            </button>
+                        </form>
                     @endcan
 
                     @can('update', $investor)
