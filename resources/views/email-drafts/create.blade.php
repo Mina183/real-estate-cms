@@ -166,11 +166,19 @@
                                     class="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded">
                                 👁 Save &amp; Preview
                             </button>
+                            @if(in_array(auth()->user()->role, ['superadmin','admin']))
+                            <button type="submit" name="submit_for_approval" value="1"
+                                    onclick="document.querySelector('[name=preview_draft]').value='0'"
+                                    class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded">
+                                ✓ Save as Approved
+                            </button>
+                            @else
                             <button type="submit" name="submit_for_approval" value="1"
                                     onclick="document.querySelector('[name=preview_draft]').value='0'"
                                     class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded">
                                 Submit for Approval
                             </button>
+                            @endif
                             <input type="hidden" name="preview_draft" value="0">
                         </div>
 

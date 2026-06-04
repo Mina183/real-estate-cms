@@ -172,7 +172,7 @@ class EmailDraftController extends Controller
             'body'               => $validated['body'],
             'document_ids'       => $validated['document_ids'] ?? [],
             'cc_emails'          => $ccEmails,
-            'status'             => $request->boolean('submit_for_approval') ? 'pending_approval' : 'draft',
+            'status'             => $this->resolveInitialStatus($request),
             'created_by_user_id' => auth()->user()->id,
         ]);
 
@@ -571,5 +571,17 @@ class EmailDraftController extends Controller
 
         // Use regex so {{ investor_name }} with spaces also matches
         return preg_replace('/\{\{\s*investor_name\s*\}\}/', $investorName, $body);
+    }
+
+    private function resolveInitialStatus(\Illuminate\Http\Request $request): string
+    {
+        $isAdmin = in_array(auth()->user()->role, ['superadmin', 'admin']);
+
+        if (!$request->boolean('submit_for_approval')) {
+            return 'draft';
+        }
+
+        // Admin/superadmin bypass approval — auto-approved
+        return $isAdmin ? 'approved' : 'pending_approval';
     }
 }
