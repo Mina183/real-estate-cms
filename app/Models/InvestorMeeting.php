@@ -11,6 +11,8 @@ class InvestorMeeting extends Model
         'meeting_date',
         'attendees',
         'outcome',
+        'transcript_path',
+        'transcript_name',
         'created_by_user_id',
     ];
 

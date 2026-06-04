@@ -438,19 +438,59 @@ public function storeMeeting(Request $request, Investor $investor)
 {
     $this->authorize('update', $investor);
 
-    $validated = $request->validate([
+    $request->validate([
         'meeting_date' => 'required|date',
-        'attendees' => 'required|string|max:500',
-        'outcome' => 'nullable|string|max:1000',
+        'attendees'    => 'required|string|max:500',
+        'outcome'      => 'nullable|string',
+        'transcript'   => 'nullable|file|max:51200|mimes:pdf,doc,docx,xls,xlsx,txt',
     ]);
 
+    $transcriptPath = null;
+    $transcriptName = null;
+
+    if ($request->hasFile('transcript')) {
+        $file = $request->file('transcript');
+
+        // Find the investor's Communication Log folder
+        $commFolder = \App\Models\DataRoomFolder::where('investor_id', $investor->id)
+            ->where('folder_name', 'Communication Log')
+            ->first();
+
+        if ($commFolder) {
+            $fileName   = 'Meeting_' . $request->meeting_date . '_' . $file->getClientOriginalName();
+            $storagePath = 'data-room/inv-' . $investor->id . '/communication-log';
+            $filePath   = $file->storeAs($storagePath, $fileName, 'private');
+
+            \App\Models\DataRoomDocument::create([
+                'folder_id'     => $commFolder->id,
+                'investor_id'   => $investor->id,
+                'document_name' => 'Meeting Notes — ' . \Carbon\Carbon::parse($request->meeting_date)->format('d M Y') . ' — ' . $file->getClientOriginalName(),
+                'file_path'     => $filePath,
+                'file_type'     => $file->getClientOriginalExtension(),
+                'file_size'     => $file->getSize(),
+                'version'       => '1.0',
+                'description'   => 'Meeting transcript uploaded with meeting log. Attendees: ' . $request->attendees,
+                'access_level'  => 'highly_confidential',
+                'status'        => 'approved',
+                'uploaded_by'   => auth()->id(),
+            ]);
+
+            $transcriptPath = $filePath;
+            $transcriptName = $fileName;
+        }
+    }
+
     $investor->meetings()->create([
-        ...$validated,
-        'created_by_user_id' => auth()->user()->id,
+        'meeting_date'        => $request->meeting_date,
+        'attendees'           => $request->attendees,
+        'outcome'             => $request->outcome,
+        'transcript_path'     => $transcriptPath,
+        'transcript_name'     => $transcriptName,
+        'created_by_user_id'  => auth()->id(),
     ]);
 
     return redirect()->route('investors.show', $investor)
-        ->with('success', 'Meeting logged successfully.');
+        ->with('success', 'Meeting logged successfully.' . ($transcriptPath ? ' Transcript saved to Communication Log.' : ''));
 }
 
 public function destroyMeeting(Investor $investor, \App\Models\InvestorMeeting $meeting)

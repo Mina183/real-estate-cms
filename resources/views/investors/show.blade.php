@@ -388,9 +388,9 @@
                         @if($investor->meetings->count() > 0)
                             <div class="space-y-3 mb-6">
                                 @foreach($investor->meetings as $meeting)
-                                    <div class="border border-gray-200 rounded p-4">
+                                    <div class="border border-gray-200 rounded-lg p-4">
                                         <div class="flex justify-between items-start">
-                                            <div class="flex-1">
+                                            <div class="flex-1 min-w-0">
                                                 <p class="text-sm font-semibold text-gray-900">
                                                     {{ $meeting->meeting_date->format('M d, Y') }}
                                                 </p>
@@ -398,9 +398,26 @@
                                                     <span class="font-medium">Attendees:</span> {{ $meeting->attendees }}
                                                 </p>
                                                 @if($meeting->outcome)
-                                                    <p class="text-sm text-gray-600 mt-1">
-                                                        <span class="font-medium">Outcome:</span> {{ $meeting->outcome }}
-                                                    </p>
+                                                    <div class="mt-2 text-sm text-gray-700 prose prose-sm max-w-none border-l-2 border-gray-200 pl-3">
+                                                        {!! $meeting->outcome !!}
+                                                    </div>
+                                                @endif
+                                                @if($meeting->transcript_name)
+                                                    <div class="mt-2 flex items-center gap-2">
+                                                        <svg class="w-4 h-4 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
+                                                        </svg>
+                                                        @php $docId = \App\Models\DataRoomDocument::where('file_path', $meeting->transcript_path)->value('id'); @endphp
+                                                        @if($docId)
+                                                        <a href="{{ route('data-room.download', $docId) }}"
+                                                           class="text-xs text-blue-600 hover:underline">
+                                                            📎 {{ $meeting->transcript_name }}
+                                                        </a>
+                                                        @else
+                                                        <span class="text-xs text-gray-500">📎 {{ $meeting->transcript_name }}</span>
+                                                        @endif
+                                                        <span class="text-xs text-gray-400">— saved to Communication Log</span>
+                                                    </div>
                                                 @endif
                                                 <p class="text-xs text-gray-400 mt-2">
                                                     Logged by {{ $meeting->createdBy->name ?? '—' }} on {{ fmt_datetime($meeting->created_at) }}
@@ -410,7 +427,7 @@
                                                 <form method="POST" action="{{ route('investors.meetings.destroy', [$investor, $meeting]) }}">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="text-red-600 hover:text-red-800 text-sm ml-4"
+                                                    <button type="submit" class="text-red-600 hover:text-red-800 text-sm ml-4 flex-shrink-0"
                                                             onclick="return confirm('Remove this meeting log?')">
                                                         Remove
                                                     </button>
@@ -427,7 +444,9 @@
                         @can('update', $investor)
                         <div class="border-t pt-4">
                             <h4 class="text-md font-semibold text-gray-700 mb-3">Log Meeting</h4>
-                            <form method="POST" action="{{ route('investors.meetings.store', $investor) }}">
+                            <form method="POST" action="{{ route('investors.meetings.store', $investor) }}"
+                                  enctype="multipart/form-data"
+                                  onsubmit="tinymce.triggerSave(); return true;">
                                 @csrf
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
@@ -442,10 +461,23 @@
                                                class="block w-full border-gray-300 rounded-md shadow-sm text-sm">
                                     </div>
                                     <div class="md:col-span-2">
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Outcome / Next Steps</label>
-                                        <textarea name="outcome" rows="3"
-                                                  placeholder="Summary of meeting outcome and agreed next steps..."
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                                            Notes / Transcript
+                                            <span class="text-xs font-normal text-gray-400 ml-1">— supports formatting, tables, bullet points</span>
+                                        </label>
+                                        <textarea name="outcome" id="meeting_outcome" rows="8"
+                                                  placeholder="Meeting notes, discussion points, action items..."
                                                   class="block w-full border-gray-300 rounded-md shadow-sm text-sm"></textarea>
+                                    </div>
+                                    <div class="md:col-span-2">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                                            Attach Transcript File
+                                            <span class="text-xs font-normal text-gray-400 ml-1">— optional, saved to Communication Log in Data Room</span>
+                                        </label>
+                                        <input type="file" name="transcript"
+                                               accept=".pdf,.doc,.docx,.xls,.xlsx,.txt"
+                                               class="block w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                                        <p class="text-xs text-gray-400 mt-1">Accepted: PDF, Word, Excel, TXT — max 50 MB</p>
                                     </div>
                                 </div>
                                 <div class="mt-4">
@@ -455,6 +487,21 @@
                                 </div>
                             </form>
                         </div>
+
+                        <script src="https://cdn.tiny.cloud/1/cpo4gfv8nwq74g9b2ert0jfc2n8tv3z60s2uiqcx4wqovftg/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+                        <script>
+                        tinymce.init({
+                            selector: '#meeting_outcome',
+                            plugins: 'lists table link',
+                            toolbar: 'bold italic underline | bullist numlist | table | link | removeformat',
+                            menubar: false,
+                            height: 280,
+                            content_style: 'body { font-family: Arial, sans-serif; font-size: 13px; }',
+                            branding: false,
+                            relative_urls: false,
+                            remove_script_host: false,
+                        });
+                        </script>
                         @endcan
                     </div>
                 </div>
