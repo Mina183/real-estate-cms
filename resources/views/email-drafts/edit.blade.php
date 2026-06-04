@@ -218,19 +218,25 @@
                                class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-6 rounded">
                                 Cancel
                             </a>
-                            <button type="submit" name="submit_for_approval" value="0"
-                                    class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded">
-                                Save Changes
-                            </button>
-                            {{-- Submit for Approval: only for non-admins, only when not yet approved --}}
-                            @cannot('approve', $emailDraft)
+                            @can('approve', $emailDraft)
+                                {{-- Admin/superadmin: always saves as approved --}}
+                                <button type="submit" name="submit_for_approval" value="0"
+                                        class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded">
+                                    ✓ Save as Approved
+                                </button>
+                            @else
+                                {{-- Non-admin: save as draft or submit for approval --}}
+                                <button type="submit" name="submit_for_approval" value="0"
+                                        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded">
+                                    Save Changes
+                                </button>
                                 @if($emailDraft->status !== 'approved')
                                 <button type="submit" name="submit_for_approval" value="1"
                                         class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded">
                                     Submit for Approval
                                 </button>
                                 @endif
-                            @endcannot
+                            @endcan
                         </div>
 
                     </form>

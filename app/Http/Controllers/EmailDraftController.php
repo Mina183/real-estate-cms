@@ -24,7 +24,10 @@ class EmailDraftController extends Controller
     {
         $this->authorize('viewAny', EmailDraft::class);
 
+        $adminIds = \App\Models\User::whereIn('role', ['superadmin', 'admin'])->pluck('id');
+
         $pendingQuery = EmailDraft::where('status', 'pending_approval')
+            ->whereNotIn('created_by_user_id', $adminIds)
             ->with(['investor', 'createdBy', 'onBehalfOf'])
             ->orderBy('created_at', 'desc');
 
@@ -242,13 +245,13 @@ class EmailDraftController extends Controller
         $user = auth()->user();
         $isAdmin = in_array($user->role, ['superadmin', 'admin']);
 
-        if ($request->boolean('submit_for_approval')) {
+        if ($isAdmin) {
+            // Admin edits are always auto-approved — never go to pending queue
+            $newStatus = 'approved';
+        } elseif ($request->boolean('submit_for_approval')) {
             $newStatus = 'pending_approval';
-        } elseif ($isAdmin) {
-            // Admins saving edits preserve the current approval status
-            $newStatus = $emailDraft->status;
         } else {
-            // Non-admin edits reset to draft — requires re-approval
+            // Non-admin saves reset to draft — requires re-approval
             $newStatus = 'draft';
         }
 
