@@ -25,7 +25,7 @@
                 </div>
             @endif
 
-            <form id="investor-edit-form" action="{{ route('investors.update', $investor) }}" method="POST">
+            <form id="investor-edit-form" action="{{ route('investors.update', $investor) }}" method="POST" novalidate>
                 @csrf
                 @method('PUT')
 
