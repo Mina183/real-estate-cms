@@ -329,6 +329,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/', 'requests')->name('document-access-requests.index');
             Route::post('/{documentAccessRequest}/approve', 'approve')->name('document-access-requests.approve');
             Route::post('/{documentAccessRequest}/reject', 'reject')->name('document-access-requests.reject');
+            Route::post('/{documentAccessRequest}/extend', 'extend')->name('document-access-requests.extend');
         });
 
     Route::prefix('email-body-templates')->controller(EmailBodyTemplateController::class)

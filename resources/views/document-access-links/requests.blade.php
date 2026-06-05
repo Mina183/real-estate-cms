@@ -99,9 +99,19 @@
                                                         </button>
                                                     </form>
                                                 @elseif($req->status === 'approved')
-                                                    <span class="text-gray-400 text-xs">
-                                                        Approved by {{ $req->approvedBy->name ?? '—' }}
-                                                    </span>
+                                                    <div class="flex items-center gap-2">
+                                                        <span class="text-gray-400 text-xs">
+                                                            Approved by {{ $req->approvedBy->name ?? '—' }}
+                                                        </span>
+                                                        <form action="{{ route('document-access-requests.extend', $req) }}" method="POST" class="inline">
+                                                            @csrf
+                                                            <button type="submit"
+                                                                    class="bg-blue-100 hover:bg-blue-200 text-blue-700 text-xs font-bold py-1 px-3 rounded"
+                                                                    onclick="return confirm('Extend access by 5 days? No new email will be sent.')">
+                                                                +5 days
+                                                            </button>
+                                                        </form>
+                                                    </div>
                                                 @else
                                                     <span class="text-gray-400 text-xs">Rejected</span>
                                                 @endif

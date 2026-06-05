@@ -136,7 +136,7 @@ class DocumentAccessLinkController extends Controller
             'status'               => 'approved',
             'approved_by_user_id'  => auth()->user()->id,
             'approved_at'          => now(),
-            'expires_at'           => now()->addHours(48),
+            'expires_at'           => now()->addDays(5),
         ]);
 
         $notifyUser = $documentAccessRequest->link?->package?->notifyUser;
@@ -149,14 +149,13 @@ class DocumentAccessLinkController extends Controller
             ->notify(new DocumentAccessGrantedNotification($documentAccessRequest));
 
         // If the investor hasn't confirmed DIFC DP consent, redirect RM to the Eligibility tab
-        // to confirm it — requesting document access constitutes DIFC DP consent.
         if ($investor && ! $investor->difc_dp_consent) {
             return redirect(route('investors.edit', $investor))
                 ->with('difc_consent_prompt', true)
-                ->with('success', 'Request approved. Investor access expires in 48 hours.');
+                ->with('success', 'Request approved. Investor access expires in 5 days.');
         }
 
-        return back()->with('success', 'Request approved. Investor access expires in 48 hours.');
+        return back()->with('success', 'Request approved. Investor access expires in 5 days.');
     }
 
     public function reject(DocumentAccessRequest $documentAccessRequest)
@@ -174,5 +173,30 @@ class DocumentAccessLinkController extends Controller
         $documentAccessRequest->update(['status' => 'rejected']);
 
         return back()->with('success', 'Request rejected.');
+    }
+
+    public function extend(DocumentAccessRequest $documentAccessRequest)
+    {
+        $investor = $documentAccessRequest->link?->investor;
+
+        if (auth()->user()->role === 'relationship_manager') {
+            if (! $investor || $investor->assigned_to_user_id !== auth()->user()->id) {
+                abort(403);
+            }
+        } else {
+            $this->authorize('manage-settings');
+        }
+
+        // Extend from now (if expired) or from current expiry (if still active)
+        $base = ($documentAccessRequest->expires_at && $documentAccessRequest->expires_at->isFuture())
+            ? $documentAccessRequest->expires_at
+            : now();
+
+        $documentAccessRequest->update([
+            'status'     => 'approved',
+            'expires_at' => $base->addDays(5),
+        ]);
+
+        return back()->with('success', 'Access extended by 5 days. No new email sent — the original link remains valid.');
     }
 }
