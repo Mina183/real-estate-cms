@@ -241,10 +241,10 @@
                         '9'  => '📄', '10' => '📊', '11' => '⚙️', '12' => '🎯', '13' => '🔐',
                     ];
                     $tabLabels = [
-                        '1'  => 'Marketing',     '2'  => 'Fund Legal',         '3'  => 'Governance',
-                        '4'  => 'Compliance',    '5'  => 'Research',           '6'  => 'Fin. Models',
-                        '7'  => 'Neptune',       '8'  => 'Waterfall',          '9'  => 'Subscription',
-                        '10' => 'Reporting',     '11' => 'Operations',         '12' => 'Pipeline',
+                        '1'  => 'Marketing',   '2'  => 'Fund Legal',   '3'  => 'Governance',
+                        '4'  => 'Compliance',  '5'  => 'Research',     '6'  => 'Fin. Models',
+                        '7'  => 'Neptune',     '8'  => 'Waterfall',    '9'  => 'Subscription',
+                        '10' => 'Reporting',   '11' => 'Operations',   '12' => 'Targeting',
                         '13' => 'Inv. Docs',
                     ];
                 @endphp
