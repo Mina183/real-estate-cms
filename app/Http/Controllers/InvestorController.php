@@ -261,6 +261,10 @@ class InvestorController extends Controller
     unset($validated['ppm_acknowledged']);
     unset($validated['subscription_signed']);
 
+    if ($request->boolean('skip_next_action')) {
+        $validated['next_action']          = $investor->next_action;
+        $validated['next_action_due_date'] = $investor->next_action_due_date;
+    }
 
     // kyc_status column is NOT NULL — default to not_started if empty
     if (empty($validated['kyc_status'])) {
