@@ -30,29 +30,42 @@
                 @method('PUT')
 
                 {{-- ===== CRM: ALWAYS VISIBLE ===== --}}
-                <div class="bg-gray-50 border-l-4 border-gray-300 rounded-lg p-6 mb-6 shadow-sm">
-                    <h3 class="text-sm font-bold text-gray-600 uppercase tracking-wider mb-4">
-                        Next Action
-                    </h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-red-50 border-l-4 border-red-400 rounded-lg p-6 mb-6 shadow-sm" id="next-action-block">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-bold text-red-700 uppercase tracking-wider">
+                            Next Action — Required
+                        </h3>
+                        <button type="button" id="skip-next-action-btn"
+                                onclick="skipNextAction()"
+                                class="text-xs px-3 py-1.5 bg-white border border-gray-300 text-gray-600 rounded-lg hover:bg-gray-50 transition font-medium">
+                            No changes to Next Action
+                        </button>
+                    </div>
+                    <div id="next-action-fields" class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label for="next_action" class="block text-sm font-medium text-gray-700 mb-1">
-                                Next Action
+                                Next Action <span class="text-red-500">*</span>
                             </label>
-                            <textarea name="next_action" id="next_action" rows="2"
+                            <textarea name="next_action" id="next_action" rows="2" required
                                       placeholder="e.g. Schedule KYC review call, Send NDA, Await capital call payment…"
-                                      class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">{{ old('next_action', $investor->next_action) }}</textarea>
+                                      class="block w-full rounded-md border-gray-300 shadow-sm focus:border-red-400 focus:ring-red-400 text-sm">{{ old('next_action', $investor->next_action) }}</textarea>
                         </div>
                         <div>
                             <label for="next_action_due_date" class="block text-sm font-medium text-gray-700 mb-1">
-                                Due Date
+                                Due Date <span class="text-red-500">*</span>
                             </label>
-                            <input type="date" name="next_action_due_date" id="next_action_due_date"
+                            <input type="date" name="next_action_due_date" id="next_action_due_date" required
                                    value="{{ old('next_action_due_date', $investor->next_action_due_date?->format('Y-m-d')) }}"
-                                   class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
-                            <p class="mt-1 text-xs text-gray-500">Optional — set a clear next step and deadline.</p>
+                                   class="block w-full rounded-md border-gray-300 shadow-sm focus:border-red-400 focus:ring-red-400 text-sm">
+                            <p class="mt-1 text-xs text-gray-500">Every investor record must have a clear next step.</p>
                         </div>
                     </div>
+                    <div id="next-action-skipped" class="hidden items-center gap-3 py-2">
+                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span class="text-sm text-gray-500">Existing Next Action will be kept unchanged.</span>
+                        <button type="button" onclick="restoreNextAction()" class="text-xs text-blue-600 underline hover:text-blue-800">Edit it</button>
+                    </div>
+                    <input type="hidden" name="skip_next_action" id="skip_next_action" value="0">
                 </div>
 
                 {{-- Consent record reminder — always visible outside tabs --}}
@@ -872,6 +885,30 @@
     </div>
 
     <script>
+        function skipNextAction() {
+            document.getElementById('next_action').removeAttribute('required');
+            document.getElementById('next_action_due_date').removeAttribute('required');
+            document.getElementById('skip_next_action').value = '1';
+            document.getElementById('next-action-fields').classList.add('hidden');
+            document.getElementById('next-action-skipped').classList.remove('hidden');
+            document.getElementById('next-action-skipped').classList.add('flex');
+            document.getElementById('next-action-block').classList.remove('bg-red-50', 'border-red-400');
+            document.getElementById('next-action-block').classList.add('bg-gray-50', 'border-gray-300');
+            document.getElementById('skip-next-action-btn').classList.add('hidden');
+        }
+
+        function restoreNextAction() {
+            document.getElementById('next_action').setAttribute('required', '');
+            document.getElementById('next_action_due_date').setAttribute('required', '');
+            document.getElementById('skip_next_action').value = '0';
+            document.getElementById('next-action-fields').classList.remove('hidden');
+            document.getElementById('next-action-skipped').classList.add('hidden');
+            document.getElementById('next-action-skipped').classList.remove('flex');
+            document.getElementById('next-action-block').classList.add('bg-red-50', 'border-red-400');
+            document.getElementById('next-action-block').classList.remove('bg-gray-50', 'border-gray-300');
+            document.getElementById('skip-next-action-btn').classList.remove('hidden');
+        }
+
         function switchTab(name) {
             document.querySelectorAll('.tab-pane').forEach(p => p.classList.add('hidden'));
             document.querySelectorAll('.tab-btn').forEach(b => {
