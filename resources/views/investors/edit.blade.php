@@ -173,7 +173,7 @@
                                     <label for="assigned_to_user_id" class="block text-sm font-medium text-gray-700 mb-1">Assigned To</label>
                                     <select name="assigned_to_user_id" id="assigned_to_user_id"
                                             class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
-                                        <option value="">— Select User —</option>
+                                        <option value="" {{ !$investor->assigned_to_user_id ? 'selected' : '' }}>— Unassigned —</option>
                                         @foreach($users as $user)
                                             <option value="{{ $user->id }}" {{ $investor->assigned_to_user_id == $user->id ? 'selected' : '' }}>
                                                 {{ $user->name }}

@@ -70,7 +70,7 @@ class InvestorController extends Controller
             'legal_entity_name' => 'nullable|string|max:255',
             'jurisdiction' => 'required|string|max:100',
             'fund_id' => 'nullable|exists:funds,id',
-            'assigned_to_user_id' => 'required|exists:users,id', // REQUIRED
+            'assigned_to_user_id' => 'nullable|exists:users,id', // REQUIRED
             'target_commitment_amount' => 'nullable|numeric|min:0', // $1M minimum
             'currency' => 'nullable|string|max:3',
             'source_of_introduction'  => 'nullable|in:direct,advisor,placement_agent,referral,event,other',
@@ -141,7 +141,7 @@ class InvestorController extends Controller
         'legal_entity_name' => 'nullable|string|max:255',
         'jurisdiction' => 'required|string|max:100',
         'fund_id' => 'nullable|exists:funds,id',
-        'assigned_to_user_id' => 'required|exists:users,id',
+        'assigned_to_user_id' => 'nullable|exists:users,id',
         'target_commitment_amount' => 'nullable|numeric|min:0',
         'final_commitment_amount' => 'nullable|numeric',
         'funded_amount' => 'nullable|numeric',
