@@ -237,14 +237,15 @@
                 @php
                     $tabIcons = [
                         '1'  => '📢', '2'  => '📋', '3'  => '👥', '4'  => '🛡️',
-                        '5'  => '🔍', '6'  => '🤝', '7'  => '💧', '8'  => '📄',
-                        '9'  => '📊', '10' => '⚙️', '11' => '🎯', '12' => '🔐',
+                        '5'  => '🔍', '6'  => '📈', '7'  => '🤝', '8'  => '💧',
+                        '9'  => '📄', '10' => '📊', '11' => '⚙️', '12' => '🎯', '13' => '🔐',
                     ];
                     $tabLabels = [
-                        '1'  => 'Marketing',    '2'  => 'Fund Legal',    '3'  => 'Governance',
-                        '4'  => 'Compliance',   '5'  => 'Research',      '6'  => 'Neptune',
-                        '7'  => 'Waterfall',    '8'  => 'Subscription',  '9'  => 'Reporting',
-                        '10' => 'Operations',   '11' => 'Pipeline',      '12' => 'Inv. Docs',
+                        '1'  => 'Marketing',     '2'  => 'Fund Legal',         '3'  => 'Governance',
+                        '4'  => 'Compliance',    '5'  => 'Research',           '6'  => 'Fin. Models',
+                        '7'  => 'Neptune',       '8'  => 'Waterfall',          '9'  => 'Subscription',
+                        '10' => 'Reporting',     '11' => 'Operations',         '12' => 'Pipeline',
+                        '13' => 'Inv. Docs',
                     ];
                 @endphp
                 <div class="border-b border-gray-200 px-4 flex gap-1 overflow-x-auto">
