@@ -88,9 +88,13 @@
                                 class="tab-btn whitespace-nowrap border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-4 text-sm font-medium">
                                 Eligibility
                             </button>
-                            <button type="button" onclick="switchTab('subscription')" id="tab-subscription"
+                            <button type="button" onclick="switchTab('portal-access')" id="tab-portal-access"
                                 class="tab-btn whitespace-nowrap border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-4 text-sm font-medium">
-                                Subscription
+                                Portal Access
+                            </button>
+                            <button type="button" onclick="switchTab('subscription-signed')" id="tab-subscription-signed"
+                                class="tab-btn whitespace-nowrap border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-4 text-sm font-medium">
+                                Subscription Signed
                             </button>
                             <button type="button" onclick="switchTab('kyc')" id="tab-kyc"
                                 class="tab-btn whitespace-nowrap border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-4 text-sm font-medium">
@@ -348,94 +352,41 @@
                         </div>
 
                         {{-- ============================================= --}}
-                        {{-- TAB 3: SUBSCRIPTION (→ Portal Access Granted) --}}
+                        {{-- TAB 3: PORTAL ACCESS GRANTED                  --}}
                         {{-- ============================================= --}}
-                        <div id="pane-subscription" class="tab-pane hidden space-y-6">
-                            <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Stage: Portal Access Granted — Subscription &amp; legal documentation</p>
+                        <div id="pane-portal-access" class="tab-pane hidden space-y-6">
+                            <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Stage: Portal Access Granted — DIFC DP consent gate</p>
 
-                            {{-- Gate status summary (read-only) --}}
-                            @php
-                                $gateConsentRecord  = $investor->has_consent_record;
-                                $gateIntroMeeting   = $investor->has_introductory_meeting;
-                                $gateSubscription   = (bool) $investor->subscription_signed_date;
-                                $gateFinalAmount    = ($investor->final_commitment_amount ?? 0) > 0;
-                                $allGatesMet        = $gateConsentRecord && $gateIntroMeeting && $gateSubscription && $gateFinalAmount;
-                            @endphp
-                            <div class="rounded-lg border {{ $allGatesMet ? 'border-green-200 bg-green-50' : 'border-amber-200 bg-amber-50' }} px-4 py-4">
-                                <p class="text-xs font-semibold uppercase tracking-wider {{ $allGatesMet ? 'text-green-700' : 'text-amber-700' }} mb-3">
+                            @php $gateConsentRecord = $investor->has_consent_record; @endphp
+
+                            {{-- Gate summary --}}
+                            <div class="rounded-lg border {{ $gateConsentRecord ? 'border-green-200 bg-green-50' : 'border-amber-200 bg-amber-50' }} px-4 py-4">
+                                <p class="text-xs font-semibold uppercase tracking-wider {{ $gateConsentRecord ? 'text-green-700' : 'text-amber-700' }} mb-1">
                                     Portal Access Granted — Gate Status
                                 </p>
-                                <div class="space-y-2 text-sm">
-
-                                    <div class="flex items-start gap-2">
-                                        <span class="{{ $gateConsentRecord ? 'text-green-600' : 'text-red-500' }} font-bold mt-0.5">{{ $gateConsentRecord ? '✓' : '✗' }}</span>
-                                        <div>
-                                            <span class="{{ $gateConsentRecord ? 'text-gray-700' : 'text-gray-600' }}">DIFC DP consent record on file</span>
-                                            @if($gateConsentRecord)
-                                                <span class="ml-2 text-xs text-gray-400">{{ fmt_datetime($latestConsentRequest?->consent_recorded_at) }} — {{ $latestConsentRequest?->requester_email }}</span>
-                                            @else
-                                                <span class="ml-2 text-xs text-gray-400">— investor must submit a document access request form to generate this record automatically</span>
-                                            @endif
-                                        </div>
+                                <div class="flex items-start gap-2 text-sm mt-2">
+                                    <span class="{{ $gateConsentRecord ? 'text-green-600' : 'text-red-500' }} font-bold mt-0.5">{{ $gateConsentRecord ? '✓' : '✗' }}</span>
+                                    <div>
+                                        <span class="{{ $gateConsentRecord ? 'text-gray-700' : 'text-gray-600' }}">DIFC DP Consent Record on file</span>
+                                        @if($gateConsentRecord)
+                                            <span class="ml-2 text-xs text-gray-400">{{ fmt_datetime($latestConsentRequest?->consent_recorded_at) }} — {{ $latestConsentRequest?->requester_email }}</span>
+                                        @else
+                                            <span class="ml-2 text-xs text-gray-400">— investor must submit a document access request form to generate this automatically</span>
+                                        @endif
                                     </div>
-
-                                    <div class="flex items-start gap-2">
-                                        <span class="{{ $gateIntroMeeting ? 'text-green-600' : 'text-red-500' }} font-bold mt-0.5">{{ $gateIntroMeeting ? '✓' : '✗' }}</span>
-                                        <div>
-                                            <span class="{{ $gateIntroMeeting ? 'text-gray-700' : 'text-gray-600' }}">Introductory Meeting held and logged</span>
-                                            @if($gateIntroMeeting)
-                                                @php $lastMeeting = $investor->meetings->first(); @endphp
-                                                @if($lastMeeting)
-                                                    <span class="ml-2 text-xs text-gray-400">{{ $lastMeeting->meeting_date->format('d M Y') }} — {{ Str::limit($lastMeeting->attendees, 60) }}</span>
-                                                @endif
-                                            @else
-                                                <span class="ml-2 text-xs text-gray-400">— log a meeting on the
-                                                    <a href="{{ route('investors.show', $investor) }}#meetings"
-                                                       class="underline text-blue-500 hover:text-blue-700" target="_blank">Meetings tab</a>
-                                                </span>
-                                            @endif
-                                        </div>
-                                    </div>
-
-                                    <div class="flex items-start gap-2">
-                                        <span class="{{ $gateSubscription ? 'text-green-600' : 'text-red-500' }} font-bold mt-0.5">{{ $gateSubscription ? '✓' : '✗' }}</span>
-                                        <div>
-                                            <span class="{{ $gateSubscription ? 'text-gray-700' : 'text-gray-600' }}">Subscription Agreement signed &amp; received</span>
-                                            @if($gateSubscription)
-                                                <span class="ml-2 text-xs text-gray-400">{{ $investor->subscription_signed_date->format('d M Y') }}</span>
-                                            @else
-                                                <span class="ml-2 text-xs text-gray-400">— tick the checkbox below</span>
-                                            @endif
-                                        </div>
-                                    </div>
-
-                                    <div class="flex items-start gap-2">
-                                        <span class="{{ $gateFinalAmount ? 'text-green-600' : 'text-red-500' }} font-bold mt-0.5">{{ $gateFinalAmount ? '✓' : '✗' }}</span>
-                                        <div>
-                                            <span class="{{ $gateFinalAmount ? 'text-gray-700' : 'text-gray-600' }}">Final Commitment Amount entered</span>
-                                            @if($gateFinalAmount)
-                                                <span class="ml-2 text-xs text-gray-400">{{ $investor->currency }} {{ number_format($investor->final_commitment_amount) }}</span>
-                                            @else
-                                                <span class="ml-2 text-xs text-gray-400">— enter the amount in the field below</span>
-                                            @endif
-                                        </div>
-                                    </div>
-
                                 </div>
-                                @if(!$allGatesMet)
-                                    <p class="mt-3 text-xs text-amber-600">All four gates must be met before this investor can be moved to <strong>Portal Access Granted</strong>.</p>
+                                @if($gateConsentRecord)
+                                    <p class="mt-2 text-xs text-green-600">Gate met — investor is eligible to advance to <strong>Portal Access Granted</strong>.</p>
                                 @else
-                                    <p class="mt-3 text-xs text-green-600">All gates met — investor is eligible to advance to <strong>Portal Access Granted</strong>.</p>
+                                    <p class="mt-2 text-xs text-amber-600">Gate not met — share a document access link with the investor and ask them to submit the form.</p>
                                 @endif
                             </div>
 
-                            {{-- Subscription gates --}}
+                            {{-- DIFC DP Consent Record detail --}}
                             <div class="border border-gray-200 rounded-lg divide-y divide-gray-100">
                                 <div class="px-4 py-2 bg-gray-50 rounded-t-lg">
-                                    <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Subscription Gates</span>
+                                    <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Portal Access Gate</span>
                                 </div>
-
-                                {{-- Consent record gate — read-only, auto-populated --}}
                                 <div class="flex items-start px-4 py-4 {{ $gateConsentRecord ? 'bg-green-50' : 'bg-red-50' }}">
                                     <span class="mt-0.5 h-4 w-4 flex items-center justify-center flex-shrink-0">
                                         @if($gateConsentRecord)
@@ -467,7 +418,133 @@
                                         @endif
                                     </div>
                                 </div>
+                            </div>
 
+                            {{-- Auto-set on Portal Access Granted --}}
+                            <div class="border border-gray-100 rounded-lg bg-gray-50 px-4 py-4 space-y-3">
+                                <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Automatically recorded when moved to Portal Access Granted</p>
+                                <div class="flex items-start gap-3">
+                                    @if($investor->ppm_acknowledged_date)
+                                        <svg class="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                                    @else
+                                        <svg class="h-4 w-4 text-gray-300 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
+                                    @endif
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-700">PPM Acknowledged</p>
+                                        <p class="text-xs text-gray-500">{{ $investor->ppm_acknowledged_date ? 'Recorded ' . fmt_datetime($investor->ppm_acknowledged_date) : 'Set automatically on move to Portal Access Granted' }}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-3">
+                                    @if($investor->agreed_confidentiality)
+                                        <svg class="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                                    @else
+                                        <svg class="h-4 w-4 text-gray-300 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
+                                    @endif
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-700">NDA / Confidentiality Acknowledged <span class="ml-1 text-xs text-gray-400">(implied via PPM)</span></p>
+                                        <p class="text-xs text-gray-500">{{ $investor->agreed_confidentiality ? 'Recorded — NDA terms acknowledged upon portal access' : 'Set automatically on move to Portal Access Granted' }}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-3">
+                                    @if($investor->investorUser)
+                                        <svg class="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                                    @else
+                                        <svg class="h-4 w-4 text-gray-300 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
+                                    @endif
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-700">Investor Portal Account</p>
+                                        <p class="text-xs text-gray-500">{{ $investor->investorUser ? 'Active — ' . $investor->investorUser->email : 'Created automatically when moved to Portal Access Granted (if primary contact has email)' }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- ============================================= --}}
+                        {{-- TAB 4: SUBSCRIPTION SIGNED                    --}}
+                        {{-- ============================================= --}}
+                        <div id="pane-subscription-signed" class="tab-pane hidden space-y-6">
+                            <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Stage: Subscription Signed — Introductory meeting, subscription &amp; commitment</p>
+
+                            @php
+                                $gateIntroMeeting = $investor->has_introductory_meeting;
+                                $gateSubscription = (bool) $investor->subscription_signed_date;
+                                $gateFinalAmount  = ($investor->final_commitment_amount ?? 0) > 0;
+                                $allSubGatesMet   = $gateIntroMeeting && $gateSubscription && $gateFinalAmount;
+                            @endphp
+
+                            {{-- Gate summary --}}
+                            <div class="rounded-lg border {{ $allSubGatesMet ? 'border-green-200 bg-green-50' : 'border-amber-200 bg-amber-50' }} px-4 py-4">
+                                <p class="text-xs font-semibold uppercase tracking-wider {{ $allSubGatesMet ? 'text-green-700' : 'text-amber-700' }} mb-3">
+                                    Subscription Signed — Gate Status
+                                </p>
+                                <div class="space-y-2 text-sm">
+                                    <div class="flex items-start gap-2">
+                                        <span class="{{ $gateIntroMeeting ? 'text-green-600' : 'text-red-500' }} font-bold mt-0.5">{{ $gateIntroMeeting ? '✓' : '✗' }}</span>
+                                        <div>
+                                            <span>Introductory Meeting held and logged</span>
+                                            @if($gateIntroMeeting)
+                                                @php $lastMeeting = $investor->meetings->first(); @endphp
+                                                @if($lastMeeting)<span class="ml-2 text-xs text-gray-400">{{ $lastMeeting->meeting_date->format('d M Y') }} — {{ Str::limit($lastMeeting->attendees, 60) }}</span>@endif
+                                            @else
+                                                <span class="ml-2 text-xs text-gray-400">— log a meeting on the <a href="{{ route('investors.show', $investor) }}#meetings" class="underline text-blue-500" target="_blank">Meetings tab</a></span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start gap-2">
+                                        <span class="{{ $gateSubscription ? 'text-green-600' : 'text-red-500' }} font-bold mt-0.5">{{ $gateSubscription ? '✓' : '✗' }}</span>
+                                        <div>
+                                            <span>Subscription Agreement signed &amp; received</span>
+                                            @if($gateSubscription)<span class="ml-2 text-xs text-gray-400">{{ $investor->subscription_signed_date->format('d M Y') }}</span>
+                                            @else<span class="ml-2 text-xs text-gray-400">— tick the checkbox below</span>@endif
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start gap-2">
+                                        <span class="{{ $gateFinalAmount ? 'text-green-600' : 'text-red-500' }} font-bold mt-0.5">{{ $gateFinalAmount ? '✓' : '✗' }}</span>
+                                        <div>
+                                            <span>Final Commitment Amount entered</span>
+                                            @if($gateFinalAmount)<span class="ml-2 text-xs text-gray-400">{{ $investor->currency }} {{ number_format($investor->final_commitment_amount) }}</span>
+                                            @else<span class="ml-2 text-xs text-gray-400">— enter the amount below</span>@endif
+                                        </div>
+                                    </div>
+                                </div>
+                                @if($allSubGatesMet)
+                                    <p class="mt-3 text-xs text-green-600">All gates met — investor is eligible to advance to <strong>Subscription Signed</strong>.</p>
+                                @else
+                                    <p class="mt-3 text-xs text-amber-600">All three gates must be met before advancing to <strong>Subscription Signed</strong>.</p>
+                                @endif
+                            </div>
+
+                            {{-- Subscription gates --}}
+                            <div class="border border-gray-200 rounded-lg divide-y divide-gray-100">
+                                <div class="px-4 py-2 bg-gray-50 rounded-t-lg">
+                                    <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Subscription Signed Gates</span>
+                                </div>
+
+                                {{-- Intro meeting — read-only --}}
+                                <div class="flex items-start px-4 py-4 {{ $gateIntroMeeting ? 'bg-green-50' : 'bg-red-50' }}">
+                                    <span class="mt-0.5 h-4 w-4 flex items-center justify-center flex-shrink-0">
+                                        @if($gateIntroMeeting)
+                                            <svg class="h-4 w-4 text-green-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                                        @else
+                                            <svg class="h-4 w-4 text-red-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
+                                        @endif
+                                    </span>
+                                    <div class="ml-3">
+                                        <p class="text-sm font-medium {{ $gateIntroMeeting ? 'text-green-800' : 'text-gray-700' }}">
+                                            Introductory Meeting Held &amp; Logged
+                                            <span class="ml-2 text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">Gate</span>
+                                            <span class="ml-1 text-xs {{ $gateIntroMeeting ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }} px-2 py-0.5 rounded-full">{{ $gateIntroMeeting ? 'Met' : 'Not met' }}</span>
+                                        </p>
+                                        <p class="text-xs text-gray-500 mt-0.5">At least one meeting with the investor must be logged in the Meetings tab.</p>
+                                        @if($gateIntroMeeting)
+                                            <p class="text-xs text-green-700 mt-1">✓ {{ $investor->meetings->count() }} meeting(s) logged</p>
+                                        @else
+                                            <p class="text-xs text-red-600 mt-1">✗ No meetings logged yet — go to the <a href="{{ route('investors.show', $investor) }}#meetings" class="underline" target="_blank">Meetings tab</a> to log one.</p>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                {{-- Subscription signed checkbox --}}
                                 <div class="flex items-start px-4 py-4">
                                     <input type="checkbox" name="subscription_signed" id="subscription_signed" value="1"
                                            {{ $investor->subscription_signed_date ? 'checked' : '' }}
@@ -498,50 +575,9 @@
                                 </div>
                             </div>
 
-                            {{-- PPM & Legal --}}
+                            {{-- Legal --}}
                             <div class="border-t pt-6">
-                                <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold mb-4">PPM &amp; Legal Review</p>
-
-                                {{-- Auto-recorded on Portal Access Granted — read-only info block --}}
-                                <div class="border border-gray-100 rounded-lg bg-gray-50 px-4 py-4 mb-4 space-y-3">
-                                    <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Automatically recorded on Portal Access Granted</p>
-
-                                    <div class="flex items-start gap-3">
-                                        @if($investor->ppm_acknowledged_date)
-                                            <svg class="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-                                        @else
-                                            <svg class="h-4 w-4 text-gray-300 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
-                                        @endif
-                                        <div>
-                                            <p class="text-sm font-medium text-gray-700">PPM Acknowledged</p>
-                                            <p class="text-xs text-gray-500">
-                                                @if($investor->ppm_acknowledged_date)
-                                                    Recorded {{ fmt_datetime($investor->ppm_acknowledged_date) }}
-                                                @else
-                                                    Not yet recorded — set automatically on move to Portal Access Granted
-                                                @endif
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <div class="flex items-start gap-3">
-                                        @if($investor->agreed_confidentiality)
-                                            <svg class="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-                                        @else
-                                            <svg class="h-4 w-4 text-gray-300 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
-                                        @endif
-                                        <div>
-                                            <p class="text-sm font-medium text-gray-700">NDA / Confidentiality Acknowledged <span class="ml-1 text-xs text-gray-400">(implied via PPM)</span></p>
-                                            <p class="text-xs text-gray-500">
-                                                @if($investor->agreed_confidentiality)
-                                                    Recorded — NDA terms are embedded within the PPM and acknowledged upon access
-                                                @else
-                                                    Not yet recorded — set automatically on move to Portal Access Granted
-                                                @endif
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
+                                <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold mb-4">Legal Review</p>
 
                                 <div class="border border-gray-200 rounded-lg divide-y divide-gray-100 mb-4">
                                     <div class="flex items-start px-4 py-4">
@@ -577,7 +613,7 @@
                         </div>
 
                         {{-- ============================================= --}}
-                        {{-- TAB 4: KYC & APPROVAL                         --}}
+                        {{-- TAB 5: KYC & APPROVAL                         --}}
                         {{-- ============================================= --}}
                         <div id="pane-kyc" class="tab-pane hidden space-y-6">
                             <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Stages: KYC In Progress → KYC Completed / Approved</p>
@@ -696,7 +732,7 @@
                         </div>
 
                         {{-- ============================================= --}}
-                        {{-- TAB 5: ACTIVATION & MONITORING                --}}
+                        {{-- TAB 6: ACTIVATION & MONITORING                --}}
                         {{-- ============================================= --}}
                         <div id="pane-activation" class="tab-pane hidden space-y-6">
                             <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Stages: Funded / Active → Monitored</p>
