@@ -424,28 +424,6 @@
                             <div class="border border-gray-100 rounded-lg bg-gray-50 px-4 py-4 space-y-3">
                                 <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Automatically recorded when moved to Portal Access Granted</p>
                                 <div class="flex items-start gap-3">
-                                    @if($investor->ppm_acknowledged_date)
-                                        <svg class="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-                                    @else
-                                        <svg class="h-4 w-4 text-gray-300 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
-                                    @endif
-                                    <div>
-                                        <p class="text-sm font-medium text-gray-700">PPM Acknowledged</p>
-                                        <p class="text-xs text-gray-500">{{ $investor->ppm_acknowledged_date ? 'Recorded ' . fmt_datetime($investor->ppm_acknowledged_date) : 'Set automatically on move to Portal Access Granted' }}</p>
-                                    </div>
-                                </div>
-                                <div class="flex items-start gap-3">
-                                    @if($investor->agreed_confidentiality)
-                                        <svg class="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-                                    @else
-                                        <svg class="h-4 w-4 text-gray-300 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
-                                    @endif
-                                    <div>
-                                        <p class="text-sm font-medium text-gray-700">NDA / Confidentiality Acknowledged <span class="ml-1 text-xs text-gray-400">(implied via PPM)</span></p>
-                                        <p class="text-xs text-gray-500">{{ $investor->agreed_confidentiality ? 'Recorded — NDA terms acknowledged upon portal access' : 'Set automatically on move to Portal Access Granted' }}</p>
-                                    </div>
-                                </div>
-                                <div class="flex items-start gap-3">
                                     @if($investor->investorUser)
                                         <svg class="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
                                     @else
@@ -454,6 +432,17 @@
                                     <div>
                                         <p class="text-sm font-medium text-gray-700">Investor Portal Account</p>
                                         <p class="text-xs text-gray-500">{{ $investor->investorUser ? 'Active — ' . $investor->investorUser->email : 'Created automatically when moved to Portal Access Granted (if primary contact has email)' }}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-3">
+                                    @if($investor->data_room_access_level !== 'none')
+                                        <svg class="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                                    @else
+                                        <svg class="h-4 w-4 text-gray-300 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
+                                    @endif
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-700">Data Room Access — Qualified</p>
+                                        <p class="text-xs text-gray-500">{{ $investor->data_room_access_level !== 'none' ? 'Set to: ' . ucfirst($investor->data_room_access_level) : 'Set to Qualified automatically when moved to Portal Access Granted' }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -572,6 +561,33 @@
                                            value="{{ old('final_commitment_amount', $investor->final_commitment_amount) }}"
                                            placeholder="Actual committed amount after subscription"
                                            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                                </div>
+                            </div>
+
+                            {{-- Auto-set on Subscription Signed --}}
+                            <div class="border border-gray-100 rounded-lg bg-gray-50 px-4 py-4 space-y-3">
+                                <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Automatically recorded when moved to Subscription Signed</p>
+                                <div class="flex items-start gap-3">
+                                    @if($investor->ppm_acknowledged_date)
+                                        <svg class="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                                    @else
+                                        <svg class="h-4 w-4 text-gray-300 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
+                                    @endif
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-700">PPM Acknowledged</p>
+                                        <p class="text-xs text-gray-500">{{ $investor->ppm_acknowledged_date ? 'Recorded ' . fmt_datetime($investor->ppm_acknowledged_date) : 'Set automatically on move to Subscription Signed' }}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-3">
+                                    @if($investor->agreed_confidentiality)
+                                        <svg class="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                                    @else
+                                        <svg class="h-4 w-4 text-gray-300 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
+                                    @endif
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-700">NDA / Confidentiality Acknowledged <span class="ml-1 text-xs text-gray-400">(implied via PPM)</span></p>
+                                        <p class="text-xs text-gray-500">{{ $investor->agreed_confidentiality ? 'Recorded — NDA terms acknowledged upon subscription' : 'Set automatically on move to Subscription Signed' }}</p>
+                                    </div>
                                 </div>
                             </div>
 

@@ -170,12 +170,9 @@ class InvestorStageService
             case 'portal_access_granted':
                 // Upgrade Data Room to Qualified and auto-create investor portal account
                 $investor->update([
-                    'ppm_acknowledged_date'         => $investor->ppm_acknowledged_date ?? Carbon::now(),
-                    'agreed_confidentiality'        => true,
-                    'acknowledged_ppm_confidential' => true,
-                    'data_room_access_level'        => 'qualified',
-                    'data_room_access_granted'      => true,
-                    'data_room_access_granted_at'   => Carbon::now(),
+                    'data_room_access_level'      => 'qualified',
+                    'data_room_access_granted'    => true,
+                    'data_room_access_granted_at' => Carbon::now(),
                 ]);
                 app(\App\Services\DataRoomService::class)->upgradeAccess(
                     $investor, 'qualified', 'Auto-upgraded on Portal Access Granted'
@@ -214,6 +211,15 @@ class InvestorStageService
                         }
                     }
                 }
+                break;
+
+            case 'subscription_signed':
+                // Record PPM + NDA acknowledged on subscription
+                $investor->update([
+                    'ppm_acknowledged_date'         => $investor->ppm_acknowledged_date ?? Carbon::now(),
+                    'agreed_confidentiality'        => true,
+                    'acknowledged_ppm_confidential' => true,
+                ]);
                 break;
 
             case 'kyc_completed':

@@ -381,8 +381,8 @@ class InvestorController extends Controller
         return match($stage) {
             'prospect'              => 'No automatic actions',
             'eligibility_confirmed' => 'No automatic actions',
-            'portal_access_granted' => 'Investor portal account created & credentials emailed to primary contact. Data Room upgraded to QUALIFIED level. PPM acknowledgement recorded.',
-            'subscription_signed'   => 'No automatic actions',
+            'portal_access_granted' => 'Investor portal account created & credentials emailed to primary contact. Data Room upgraded to QUALIFIED level.',
+            'subscription_signed'   => 'PPM acknowledgement date recorded. NDA / Confidentiality set.',
             'kyc_in_progress'       => 'No automatic actions',
             'kyc_completed'         => 'KYC completion date, approval date and approver recorded',
             'funded'                => 'Funding date recorded, Data Room upgraded to SUBSCRIBED level, Investor ID generated, Reporting access granted',

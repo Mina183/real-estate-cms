@@ -140,7 +140,14 @@
 
                                     <div class="flex items-center text-gray-400">
                                         <span class="mr-2 font-bold">⟳</span>
-                                        <span>Auto: portal account created & credentials sent, Data Room → Qualified</span>
+                                        <span>Auto: investor portal account created &amp; credentials sent, Data Room → Qualified</span>
+                                    </div>
+
+                                    {{-- Stage 4: Subscription Signed auto-set --}}
+                                    <div class="col-span-2 text-gray-400 font-medium uppercase tracking-wide mt-2">Stage 4 — Subscription Signed (automatic actions)</div>
+                                    <div class="flex items-center text-gray-400 col-span-2">
+                                        <span class="mr-2 font-bold">⟳</span>
+                                        <span>Auto: PPM Acknowledged date recorded, NDA / Confidentiality set</span>
                                     </div>
 
                                     {{-- Stage 4: Subscription Signed gates --}}
