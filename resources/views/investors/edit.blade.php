@@ -30,16 +30,11 @@
                 @method('PUT')
 
                 {{-- ===== CRM: ALWAYS VISIBLE ===== --}}
-                <div class="bg-red-50 border-l-4 border-red-400 rounded-lg p-6 mb-6 shadow-sm" id="next-action-block">
+                <div class="bg-blue-50 border-l-4 border-blue-400 rounded-lg p-6 mb-6 shadow-sm" id="next-action-block">
                     <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-sm font-bold text-red-700 uppercase tracking-wider">
-                            Next Action — Required
+                        <h3 class="text-sm font-bold text-blue-700 uppercase tracking-wider">
+                            Next Action
                         </h3>
-                        <button type="button" id="skip-next-action-btn"
-                                onclick="skipNextAction()"
-                                class="text-xs px-3 py-1.5 bg-white border border-gray-300 text-gray-600 rounded-lg hover:bg-gray-50 transition font-medium">
-                            No changes to Next Action
-                        </button>
                     </div>
                     <div id="next-action-fields" class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
@@ -60,15 +55,6 @@
                             <p class="mt-1 text-xs text-gray-500">Every investor record must have a clear next step.</p>
                         </div>
                     </div>
-                    <div id="next-action-skipped" class="hidden items-center gap-3 py-2">
-                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        <span class="text-sm text-gray-500">Existing Next Action will be kept unchanged.</span>
-                        <button type="button" onclick="restoreNextAction()" class="text-xs text-blue-600 underline hover:text-blue-800">Edit it</button>
-                    </div>
-                    <div id="next-action-error" class="hidden mt-3 p-3 bg-red-100 border border-red-300 rounded-lg text-sm text-red-700">
-                        ✗ Please fill in both <strong>Next Action</strong> and <strong>Due Date</strong>, or click "No changes to Next Action" if you are not updating this section.
-                    </div>
-                    <input type="hidden" name="skip_next_action" id="skip_next_action" value="0">
                 </div>
 
                 {{-- Consent record reminder — always visible outside tabs --}}
@@ -888,44 +874,6 @@
     </div>
 
     <script>
-        function skipNextAction() {
-            document.getElementById('skip_next_action').value = '1';
-            document.getElementById('next-action-fields').classList.add('hidden');
-            document.getElementById('next-action-skipped').classList.remove('hidden');
-            document.getElementById('next-action-skipped').classList.add('flex');
-            document.getElementById('next-action-block').classList.remove('bg-red-50', 'border-red-400');
-            document.getElementById('next-action-block').classList.add('bg-gray-50', 'border-gray-300');
-            document.getElementById('skip-next-action-btn').classList.add('hidden');
-            document.getElementById('next-action-error').classList.add('hidden');
-        }
-
-        function restoreNextAction() {
-            document.getElementById('skip_next_action').value = '0';
-            document.getElementById('next-action-fields').classList.remove('hidden');
-            document.getElementById('next-action-skipped').classList.add('hidden');
-            document.getElementById('next-action-skipped').classList.remove('flex');
-            document.getElementById('next-action-block').classList.add('bg-red-50', 'border-red-400');
-            document.getElementById('next-action-block').classList.remove('bg-gray-50', 'border-gray-300');
-            document.getElementById('skip-next-action-btn').classList.remove('hidden');
-        }
-
-        // Attach JS validation to the form submit
-        document.getElementById('investor-edit-form').addEventListener('submit', function(e) {
-            if (document.getElementById('skip_next_action').value === '1') return; // bypass active
-
-            const action = document.getElementById('next_action').value.trim();
-            const dueDate = document.getElementById('next_action_due_date').value.trim();
-            const errEl = document.getElementById('next-action-error');
-
-            if (!action || !dueDate) {
-                e.preventDefault();
-                errEl.classList.remove('hidden');
-                document.getElementById('next-action-block').scrollIntoView({ behavior: 'smooth', block: 'center' });
-            } else {
-                errEl.classList.add('hidden');
-            }
-        });
-
         function switchTab(name) {
             document.querySelectorAll('.tab-pane').forEach(p => p.classList.add('hidden'));
             document.querySelectorAll('.tab-btn').forEach(b => {
