@@ -11,35 +11,36 @@ class InvestorAuth
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (!Auth::guard('investor')->check()) {
+        if (! Auth::guard('investor')->check()) {
             return redirect()->route('investor.login')
                 ->with('error', 'Please log in to access the investor portal.');
         }
 
         $investorUser = Auth::guard('investor')->user();
-        
-        if (!$investorUser->is_active) {
+
+        if (! $investorUser->is_active) {
             Auth::guard('investor')->logout();
             return redirect()->route('investor.login')
                 ->with('error', 'Your account has been deactivated. Please contact support.');
         }
 
-        // Viewer nalozi nemaju 2FA
+        // Viewer accounts bypass PIN entirely
         if ($investorUser->investor?->data_room_access_level === 'viewer') {
             return $next($request);
         }
 
-        // 2FA provjera
-        if (!$investorUser->two_factor_enabled) {
-            if (!$request->routeIs('investor.2fa.setup') && !$request->routeIs('investor.2fa.enable')) {
-                return redirect()->route('investor.2fa.setup');
+        // PIN not set yet — redirect to setup
+        if (! $investorUser->portal_pin) {
+            if (! $request->routeIs('investor.pin.setup') && ! $request->routeIs('investor.pin.store')) {
+                return redirect()->route('investor.pin.setup');
             }
             return $next($request);
         }
 
-        if (!$request->session()->get('investor_2fa_verified')) {
-            if (!$request->routeIs('investor.2fa.verify') && !$request->routeIs('investor.2fa.check')) {
-                return redirect()->route('investor.2fa.verify');
+        // PIN set but not yet verified this session — redirect to verify
+        if (! $request->session()->get('investor_pin_verified')) {
+            if (! $request->routeIs('investor.pin.verify') && ! $request->routeIs('investor.pin.check')) {
+                return redirect()->route('investor.pin.verify');
             }
             return $next($request);
         }

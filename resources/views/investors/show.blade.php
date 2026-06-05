@@ -56,6 +56,16 @@
                         <span class="bg-gray-300 text-gray-600 font-bold py-2 px-4 rounded cursor-not-allowed">
                             ✅ Portal Active
                         </span>
+                        @can('update', $investor)
+                        <form method="POST" action="{{ route('investors.reset-portal-pin', $investor) }}" class="inline">
+                            @csrf
+                            <button type="submit"
+                                    class="bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 px-4 rounded text-sm"
+                                    onclick="return confirm('Reset portal PIN for {{ addslashes($investor->organization_name ?? $investor->legal_entity_name) }}? They will be prompted to set a new PIN on next login.')">
+                                🔑 Reset PIN
+                            </button>
+                        </form>
+                        @endcan
                     @elseif($portalAllowed)
                         <form method="POST" action="{{ route('investors.create-portal-access', $investor) }}" class="inline">
                             @csrf

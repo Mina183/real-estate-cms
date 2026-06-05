@@ -11,7 +11,7 @@ use App\Http\Controllers\DataRoomController;
 use App\Http\Controllers\InvestorAuthController;
 use App\Http\Controllers\InvestorPortalController;
 use App\Http\Controllers\TwoFactorController;
-use App\Http\Controllers\InvestorTwoFactorController;
+use App\Http\Controllers\InvestorPinController;
 use App\Http\Controllers\InvestorPasswordResetController;
 use App\Http\Controllers\InvestorEmailController;
 use App\Http\Controllers\ContactController;
@@ -75,11 +75,11 @@ Route::prefix('investor')->name('investor.')->group(function () {
         Route::post('/logout', [InvestorAuthController::class, 'logout'])
             ->name('logout');
 
-        // 2FA
-        Route::get('/2fa/setup', [InvestorTwoFactorController::class, 'setup'])->name('2fa.setup');
-        Route::post('/2fa/enable', [InvestorTwoFactorController::class, 'enable'])->name('2fa.enable');
-        Route::get('/2fa/verify', [InvestorTwoFactorController::class, 'verify'])->name('2fa.verify');
-        Route::post('/2fa/check', [InvestorTwoFactorController::class, 'check'])->name('2fa.check');    
+        // Portal PIN
+        Route::get('/pin/setup',  [InvestorPinController::class, 'showSetup'])->name('pin.setup');
+        Route::post('/pin/setup', [InvestorPinController::class, 'storeSetup'])->name('pin.store');
+        Route::get('/pin/verify', [InvestorPinController::class, 'showVerify'])->name('pin.verify');
+        Route::post('/pin/verify',[InvestorPinController::class, 'checkPin'])->name('pin.check');    
         
         // Dashboard
         Route::get('/dashboard', [InvestorPortalController::class, 'dashboard'])
@@ -175,6 +175,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Portal Access
         Route::post('/{investor}/create-portal-access', [InvestorController::class, 'createPortalAccess'])->name('investors.create-portal-access');
+        Route::post('/{investor}/reset-portal-pin', [InvestorController::class, 'resetPortalPin'])->name('investors.reset-portal-pin');
     });
 
     /*

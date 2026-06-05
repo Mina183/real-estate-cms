@@ -441,6 +441,19 @@ class InvestorController extends Controller
     return back()->with('success', 'Portal access created and credentials sent to ' . $primaryContact->email);
 }
 
+public function resetPortalPin(Investor $investor)
+{
+    $this->authorize('update', $investor);
+
+    if (! $investor->investorUser) {
+        return back()->with('error', 'This investor has no portal account.');
+    }
+
+    $investor->investorUser->update(['portal_pin' => null]);
+
+    return back()->with('success', 'Portal PIN reset. The investor will be prompted to set a new PIN on next login.');
+}
+
 public function storeMeeting(Request $request, Investor $investor)
 {
     $this->authorize('update', $investor);
