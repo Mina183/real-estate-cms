@@ -30,27 +30,27 @@
                 @method('PUT')
 
                 {{-- ===== CRM: ALWAYS VISIBLE ===== --}}
-                <div class="bg-red-50 border-l-4 border-red-500 rounded-lg p-6 mb-6 shadow-sm">
-                    <h3 class="text-sm font-bold text-red-700 uppercase tracking-wider mb-4">
-                        Next Action — Required
+                <div class="bg-gray-50 border-l-4 border-gray-300 rounded-lg p-6 mb-6 shadow-sm">
+                    <h3 class="text-sm font-bold text-gray-600 uppercase tracking-wider mb-4">
+                        Next Action
                     </h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label for="next_action" class="block text-sm font-medium text-gray-700 mb-1">
-                                Next Action <span class="text-red-500">*</span>
+                                Next Action
                             </label>
-                            <textarea name="next_action" id="next_action" rows="2" required
+                            <textarea name="next_action" id="next_action" rows="2"
                                       placeholder="e.g. Schedule KYC review call, Send NDA, Await capital call payment…"
-                                      class="block w-full rounded-md border-gray-300 shadow-sm focus:border-red-400 focus:ring-red-400 text-sm">{{ old('next_action', $investor->next_action) }}</textarea>
+                                      class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">{{ old('next_action', $investor->next_action) }}</textarea>
                         </div>
                         <div>
                             <label for="next_action_due_date" class="block text-sm font-medium text-gray-700 mb-1">
-                                Due Date <span class="text-red-500">*</span>
+                                Due Date
                             </label>
-                            <input type="date" name="next_action_due_date" id="next_action_due_date" required
+                            <input type="date" name="next_action_due_date" id="next_action_due_date"
                                    value="{{ old('next_action_due_date', $investor->next_action_due_date?->format('Y-m-d')) }}"
-                                   class="block w-full rounded-md border-gray-300 shadow-sm focus:border-red-400 focus:ring-red-400 text-sm">
-                            <p class="mt-1 text-xs text-gray-500">Every investor record must have a clear next step.</p>
+                                   class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                            <p class="mt-1 text-xs text-gray-500">Optional — set a clear next step and deadline.</p>
                         </div>
                     </div>
                 </div>
