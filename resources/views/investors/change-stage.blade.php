@@ -24,6 +24,7 @@
                                 @if($investor->stage === 'prospect') bg-gray-100 text-gray-800
                                 @elseif($investor->stage === 'eligibility_confirmed') bg-yellow-100 text-yellow-800
                                 @elseif($investor->stage === 'portal_access_granted') bg-blue-100 text-blue-800
+                                @elseif($investor->stage === 'subscription_signed') bg-indigo-100 text-indigo-800
                                 @elseif($investor->stage === 'kyc_in_progress') bg-purple-100 text-purple-800
                                 @elseif($investor->stage === 'kyc_completed') bg-green-100 text-green-800
                                 @elseif($investor->stage === 'funded') bg-teal-100 text-teal-800
@@ -128,19 +129,22 @@
                                     </div>
 
                                     {{-- Stage 3: Portal Access gates --}}
-                                    <div class="col-span-2 text-gray-400 font-medium uppercase tracking-wide mt-2">Stage 3 — Portal Access</div>
+                                    <div class="col-span-2 text-gray-400 font-medium uppercase tracking-wide mt-2">Stage 3 — Portal Access Granted</div>
 
                                     <div class="flex items-center">
                                         <span class="{{ $investor->has_consent_record ? 'text-green-600' : 'text-red-500' }} mr-2 font-bold">
                                             {{ $investor->has_consent_record ? '✓' : '✗' }}
                                         </span>
-                                        <span>DIFC DP consent record on file</span>
+                                        <span>DIFC DP Consent Record on file (investor submitted document access request)</span>
                                     </div>
 
                                     <div class="flex items-center text-gray-400">
                                         <span class="mr-2 font-bold">⟳</span>
-                                        <span>NDA implied via PPM — auto-set on move to this stage</span>
+                                        <span>Auto: portal account created & credentials sent, Data Room → Qualified</span>
                                     </div>
+
+                                    {{-- Stage 4: Subscription Signed gates --}}
+                                    <div class="col-span-2 text-gray-400 font-medium uppercase tracking-wide mt-2">Stage 4 — Subscription Signed</div>
 
                                     <div class="flex items-center">
                                         <span class="{{ $investor->has_introductory_meeting ? 'text-green-600' : 'text-red-500' }} mr-2 font-bold">
@@ -167,8 +171,8 @@
                                         <span>Final Commitment Amount entered</span>
                                     </div>
 
-                                    {{-- Stage 4: KYC In Progress gate --}}
-                                    <div class="col-span-2 text-gray-400 font-medium uppercase tracking-wide mt-2">Stage 4 — KYC In Progress</div>
+                                    {{-- Stage 5: KYC In Progress gate --}}
+                                    <div class="col-span-2 text-gray-400 font-medium uppercase tracking-wide mt-2">Stage 5 — KYC In Progress</div>
 
                                     <div class="flex items-center">
                                         <span class="{{ in_array($investor->kyc_status, ['in_progress','submitted','under_review','complete']) ? 'text-green-600' : 'text-red-500' }} mr-2 font-bold">
@@ -177,8 +181,8 @@
                                         <span>KYC status: {{ $investor->kyc_status ? str_replace('_', ' ', $investor->kyc_status) : 'not started' }}</span>
                                     </div>
 
-                                    {{-- Stage 5: KYC Completed gates --}}
-                                    <div class="col-span-2 text-gray-400 font-medium uppercase tracking-wide mt-2">Stage 5 — KYC Completed</div>
+                                    {{-- Stage 6: KYC Completed gates --}}
+                                    <div class="col-span-2 text-gray-400 font-medium uppercase tracking-wide mt-2">Stage 6 — KYC Completed</div>
 
                                     <div class="flex items-center">
                                         <span class="{{ $investor->kyc_status === 'complete' ? 'text-green-600' : 'text-red-500' }} mr-2 font-bold">
@@ -201,8 +205,8 @@
                                         <span>Commitment Letter signed</span>
                                     </div>
 
-                                    {{-- Stage 6: Funded gates --}}
-                                    <div class="col-span-2 text-gray-400 font-medium uppercase tracking-wide mt-2">Stage 6 — Funded / Active</div>
+                                    {{-- Stage 7: Funded gates --}}
+                                    <div class="col-span-2 text-gray-400 font-medium uppercase tracking-wide mt-2">Stage 7 — Funded / Active</div>
 
                                     <div class="flex items-center">
                                         <span class="{{ $investor->bank_account_verified ? 'text-green-600' : 'text-red-500' }} mr-2 font-bold">

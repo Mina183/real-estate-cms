@@ -22,32 +22,39 @@ class InvestorStageService
         ],
 
         // STAGE 3: Portal Access Granted
+        // Gate: DIFC DP consent record on file (auto-captured via doc access request form)
+        // Automation: investor portal account created + credentials sent automatically
         'portal_access_granted' => [
-            'has_consent_record'        => ['equals', true],
-            'has_introductory_meeting'  => ['equals', true],
-            'subscription_signed_date'  => ['not_null'],
-            'final_commitment_amount'   => ['greater_than', 0],
+            'has_consent_record' => ['equals', true],
         ],
 
-        // STAGE 4: KYC In Progress
+        // STAGE 4: Subscription Signed
+        // Gate: introductory meeting held, subscription signed, final commitment amount entered
+        'subscription_signed' => [
+            'has_introductory_meeting' => ['equals', true],
+            'subscription_signed_date' => ['not_null'],
+            'final_commitment_amount'  => ['greater_than', 0],
+        ],
+
+        // STAGE 5: KYC In Progress
         'kyc_in_progress' => [
             'kyc_status' => ['in', ['in_progress', 'submitted', 'under_review', 'complete']],
         ],
 
-        // STAGE 5: KYC Completed / Approved
+        // STAGE 6: KYC Completed / Approved
         'kyc_completed' => [
             'kyc_status'               => ['equals', 'complete'],
             'sanctions_check_passed'   => ['equals', true],
             'commitment_letter_signed' => ['equals', true],
         ],
 
-        // STAGE 6: Funded / Active
+        // STAGE 7: Funded / Active
         'funded' => [
             'bank_account_verified' => ['equals', true],
             'funded_amount'         => ['greater_than', 0],
         ],
 
-        // STAGE 7: Monitored — Compliance Officer decision, no hard gates
+        // STAGE 8: Monitored — Compliance Officer decision, no hard gates
         'monitored' => [],
     ];
 
@@ -58,9 +65,9 @@ class InvestorStageService
         'target_commitment_amount' => 'Target Commitment Amount (min $1,000,000)',
         'is_professional_client'   => 'Professional Client Status confirmed',
         'difc_dp_consent'          => 'Initial DP notice provided to client',
-        'agreed_confidentiality'   => 'NDA / Confidentiality implied (auto-set on Portal Access)',
-        'has_consent_record'        => 'Consent record on file (investor submitted a document access request)',
-        'has_introductory_meeting'  => 'Introductory Meeting held and logged',
+        'has_consent_record'       => 'DIFC DP Consent Record on File — investor must submit a document access request via a shared link',
+        'agreed_confidentiality'   => 'NDA / Confidentiality (auto-set on Portal Access)',
+        'has_introductory_meeting' => 'Introductory Meeting held and logged',
         'subscription_signed_date' => 'Subscription Agreement signed & received',
         'final_commitment_amount'  => 'Final Commitment Amount entered',
         'kyc_status'               => 'KYC/AML documents uploaded and in review',
@@ -144,6 +151,7 @@ class InvestorStageService
             'prospect'              => 'pending',
             'eligibility_confirmed' => 'in_review',
             'portal_access_granted' => 'in_review',
+            'subscription_signed'   => 'in_review',
             'kyc_in_progress'       => 'in_review',
             'kyc_completed'         => 'qualified',
             'funded'                => 'qualified',
@@ -160,7 +168,7 @@ class InvestorStageService
         switch ($newStage) {
 
             case 'portal_access_granted':
-                // Record PPM + NDA acknowledged (implied via PPM) and upgrade DR to Qualified
+                // Upgrade Data Room to Qualified and auto-create investor portal account
                 $investor->update([
                     'ppm_acknowledged_date'         => $investor->ppm_acknowledged_date ?? Carbon::now(),
                     'agreed_confidentiality'        => true,
@@ -209,20 +217,18 @@ class InvestorStageService
                 break;
 
             case 'kyc_completed':
-                // Record approval date and approver
                 $investor->update([
-                    'kyc_completed_date'     => Carbon::now(),
-                    'approved_date'          => Carbon::now(),
-                    'approved_by_user_id'    => auth()->id(),
+                    'kyc_completed_date'  => Carbon::now(),
+                    'approved_date'       => Carbon::now(),
+                    'approved_by_user_id' => auth()->id(),
                 ]);
                 break;
 
             case 'funded':
-                // Record funding & activation, upgrade DR to Subscribed, generate investor ID
                 $investor->update([
-                    'funding_date'           => $investor->funding_date ?? Carbon::now(),
-                    'activated_date'         => Carbon::now(),
-                    'data_room_access_level' => 'subscribed',
+                    'funding_date'             => $investor->funding_date ?? Carbon::now(),
+                    'activated_date'           => Carbon::now(),
+                    'data_room_access_level'   => 'subscribed',
                     'reporting_access_granted' => true,
                 ]);
                 app(\App\Services\DataRoomService::class)->upgradeAccess(
@@ -256,7 +262,8 @@ class InvestorStageService
         $progression = [
             'prospect'              => 'eligibility_confirmed',
             'eligibility_confirmed' => 'portal_access_granted',
-            'portal_access_granted' => 'kyc_in_progress',
+            'portal_access_granted' => 'subscription_signed',
+            'subscription_signed'   => 'kyc_in_progress',
             'kyc_in_progress'       => 'kyc_completed',
             'kyc_completed'         => 'funded',
         ];

@@ -79,7 +79,7 @@ class InvestorEmailController extends Controller
 
         $stages = [
             'prospect', 'eligibility_confirmed', 'portal_access_granted',
-            'kyc_in_progress', 'kyc_completed', 'funded', 'monitored',
+            'subscription_signed', 'kyc_in_progress', 'kyc_completed', 'funded', 'monitored',
         ];
 
         return view('investors.send-email', [

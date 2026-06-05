@@ -307,6 +307,7 @@ class InvestorController extends Controller
             'prospect'              => 'Prospect',
             'eligibility_confirmed' => 'Eligibility Confirmed',
             'portal_access_granted' => 'Portal Access Granted',
+            'subscription_signed'   => 'Subscription Signed',
             'kyc_in_progress'       => 'KYC In Progress',
             'kyc_completed'         => 'KYC Completed / Approved',
             'funded'                => 'Funded / Active',
@@ -331,7 +332,7 @@ class InvestorController extends Controller
         $this->authorize('changeStage', $investor);
 
         $validated = $request->validate([
-            'new_stage' => 'required|in:prospect,eligibility_confirmed,portal_access_granted,kyc_in_progress,kyc_completed,funded,monitored',
+            'new_stage' => 'required|in:prospect,eligibility_confirmed,portal_access_granted,subscription_signed,kyc_in_progress,kyc_completed,funded,monitored',
             'reason' => 'nullable|string|max:500',
         ]);
 
@@ -380,7 +381,8 @@ class InvestorController extends Controller
         return match($stage) {
             'prospect'              => 'No automatic actions',
             'eligibility_confirmed' => 'No automatic actions',
-            'portal_access_granted' => 'PPM acknowledged date recorded, Data Room upgraded to QUALIFIED level',
+            'portal_access_granted' => 'Investor portal account created & credentials emailed to primary contact. Data Room upgraded to QUALIFIED level. PPM acknowledgement recorded.',
+            'subscription_signed'   => 'No automatic actions',
             'kyc_in_progress'       => 'No automatic actions',
             'kyc_completed'         => 'KYC completion date, approval date and approver recorded',
             'funded'                => 'Funding date recorded, Data Room upgraded to SUBSCRIBED level, Investor ID generated, Reporting access granted',
@@ -399,9 +401,9 @@ class InvestorController extends Controller
     }
 
     // Provjeri stage
-    $allowedStages = ['portal_access_granted', 'kyc_in_progress', 'kyc_completed', 'funded', 'monitored'];
+    $allowedStages = ['portal_access_granted', 'subscription_signed', 'kyc_in_progress', 'kyc_completed', 'funded', 'monitored'];
     if (!in_array($investor->stage, $allowedStages)) {
-        return back()->with('error', 'Portal access can only be created from PPM Issued stage onwards.');
+        return back()->with('error', 'Portal access can only be created from Portal Access Granted stage onwards.');
     }
 
     // Uzmi primary contact
