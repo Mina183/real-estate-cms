@@ -25,7 +25,7 @@
                 </div>
             @endif
 
-            <form action="{{ route('investors.update', $investor) }}" method="POST">
+            <form id="investor-edit-form" action="{{ route('investors.update', $investor) }}" method="POST">
                 @csrf
                 @method('PUT')
 
@@ -910,7 +910,7 @@
         }
 
         // Attach JS validation to the form submit
-        document.querySelector('form').addEventListener('submit', function(e) {
+        document.getElementById('investor-edit-form').addEventListener('submit', function(e) {
             if (document.getElementById('skip_next_action').value === '1') return; // bypass active
 
             const action = document.getElementById('next_action').value.trim();
