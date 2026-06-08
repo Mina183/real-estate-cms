@@ -171,6 +171,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Meetings
         Route::post('/{investor}/meetings', [InvestorController::class, 'storeMeeting'])->name('investors.meetings.store');
+        Route::put('/{investor}/meetings/{meeting}', [InvestorController::class, 'updateMeeting'])->name('investors.meetings.update');
         Route::delete('/{investor}/meetings/{meeting}', [InvestorController::class, 'destroyMeeting'])->name('investors.meetings.destroy');
 
         // Portal Access

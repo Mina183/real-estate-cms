@@ -407,14 +407,53 @@
                     <div class="p-6">
                         <h3 class="text-lg font-semibold text-gray-900 mb-4">Meetings</h3>
 
+                        @php
+                            $meetingTimezones = [
+                                'UTC'                => 'UTC',
+                                'Europe/London'      => 'Europe/London (GMT/BST)',
+                                'Europe/Paris'       => 'Europe/Paris (CET/CEST)',
+                                'Europe/Berlin'      => 'Europe/Berlin (CET/CEST)',
+                                'Europe/Belgrade'    => 'Europe/Belgrade (CET/CEST)',
+                                'Europe/Moscow'      => 'Europe/Moscow (MSK)',
+                                'Asia/Dubai'         => 'Asia/Dubai (GST, UTC+4)',
+                                'Asia/Karachi'       => 'Asia/Karachi (PKT, UTC+5)',
+                                'Asia/Kolkata'       => 'Asia/Kolkata (IST, UTC+5:30)',
+                                'Asia/Singapore'     => 'Asia/Singapore (SGT, UTC+8)',
+                                'Asia/Hong_Kong'     => 'Asia/Hong Kong (HKT, UTC+8)',
+                                'Asia/Tokyo'         => 'Asia/Tokyo (JST, UTC+9)',
+                                'Africa/Cairo'       => 'Africa/Cairo (EET, UTC+2)',
+                                'America/New_York'   => 'America/New York (EST/EDT)',
+                                'America/Chicago'    => 'America/Chicago (CST/CDT)',
+                                'America/Denver'     => 'America/Denver (MST/MDT)',
+                                'America/Los_Angeles'=> 'America/Los Angeles (PST/PDT)',
+                            ];
+                            $meetingTimes = [];
+                            for ($h = 0; $h < 24; $h++) {
+                                foreach ([0, 30] as $m) {
+                                    $meetingTimes[] = sprintf('%02d:%02d', $h, $m);
+                                }
+                            }
+                        @endphp
+
                         @if($investor->meetings->count() > 0)
                             <div class="space-y-3 mb-6">
                                 @foreach($investor->meetings as $meeting)
                                     <div class="border border-gray-200 rounded-lg p-4">
                                         <div class="flex justify-between items-start">
                                             <div class="flex-1 min-w-0">
+                                                {{-- Title --}}
+                                                @if($meeting->title)
+                                                    <p class="text-sm font-bold text-gray-800 mb-0.5">{{ $meeting->title }}</p>
+                                                @endif
+                                                {{-- Date + time + timezone --}}
                                                 <p class="text-sm font-semibold text-gray-900">
                                                     {{ $meeting->meeting_date->format('M d, Y') }}
+                                                    @if($meeting->meeting_time)
+                                                        at {{ \Carbon\Carbon::parse($meeting->meeting_time)->format('H:i') }}
+                                                        @if($meeting->meeting_timezone)
+                                                            <span class="font-normal text-gray-500">({{ $meeting->meeting_timezone }})</span>
+                                                        @endif
+                                                    @endif
                                                 </p>
                                                 <p class="text-sm text-gray-600 mt-1">
                                                     <span class="font-medium">Attendees:</span> {{ $meeting->attendees }}
@@ -446,14 +485,29 @@
                                                 </p>
                                             </div>
                                             @can('update', $investor)
-                                                <form method="POST" action="{{ route('investors.meetings.destroy', [$investor, $meeting]) }}">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="text-red-600 hover:text-red-800 text-sm ml-4 flex-shrink-0"
-                                                            onclick="return confirm('Remove this meeting log?')">
-                                                        Remove
+                                                <div class="flex items-center gap-3 ml-4 flex-shrink-0">
+                                                    <button type="button"
+                                                            class="text-blue-600 hover:text-blue-800 text-sm"
+                                                            onclick="openEditMeeting({
+                                                                action: '{{ route('investors.meetings.update', [$investor, $meeting]) }}',
+                                                                title: {{ json_encode($meeting->title ?? '') }},
+                                                                date: '{{ $meeting->meeting_date->format('Y-m-d') }}',
+                                                                time: '{{ $meeting->meeting_time ?? '' }}',
+                                                                timezone: {{ json_encode($meeting->meeting_timezone ?? '') }},
+                                                                attendees: {{ json_encode($meeting->attendees) }},
+                                                                outcome: {{ json_encode($meeting->outcome ?? '') }}
+                                                            })">
+                                                        Edit
                                                     </button>
-                                                </form>
+                                                    <form method="POST" action="{{ route('investors.meetings.destroy', [$investor, $meeting]) }}">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="text-red-600 hover:text-red-800 text-sm"
+                                                                onclick="return confirm('Remove this meeting log?')">
+                                                            Remove
+                                                        </button>
+                                                    </form>
+                                                </div>
                                             @endcan
                                         </div>
                                     </div>
@@ -471,12 +525,40 @@
                                   onsubmit="tinymce.triggerSave(); return true;">
                                 @csrf
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="md:col-span-2">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                                            Title
+                                            <span class="text-xs font-normal text-gray-400 ml-1">— e.g. 1st Meeting, 2nd Meeting, Follow-up Meeting, Closing Call</span>
+                                        </label>
+                                        <input type="text" name="title"
+                                               placeholder="e.g. 1st Meeting, 2nd Meeting, Follow-up Meeting, Closing Call"
+                                               class="block w-full border-gray-300 rounded-md shadow-sm text-sm">
+                                    </div>
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">Meeting Date *</label>
                                         <input type="date" name="meeting_date" required
                                                class="block w-full border-gray-300 rounded-md shadow-sm text-sm">
                                     </div>
                                     <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Meeting Time</label>
+                                        <div class="flex gap-2">
+                                            <select name="meeting_time"
+                                                    class="block w-1/2 border-gray-300 rounded-md shadow-sm text-sm">
+                                                <option value="">— Not specified —</option>
+                                                @foreach($meetingTimes as $t)
+                                                    <option value="{{ $t }}">{{ $t }}</option>
+                                                @endforeach
+                                            </select>
+                                            <select name="meeting_timezone"
+                                                    class="block w-1/2 border-gray-300 rounded-md shadow-sm text-sm">
+                                                <option value="">— Timezone —</option>
+                                                @foreach($meetingTimezones as $tz => $label)
+                                                    <option value="{{ $tz }}">{{ $label }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="md:col-span-2">
                                         <label class="block text-sm font-medium text-gray-700 mb-1">Attendees *</label>
                                         <input type="text" name="attendees" required
                                                placeholder="e.g. John Smith, Jane Doe"
@@ -528,6 +610,140 @@
                     </div>
                 </div>
             </div>
+
+            {{-- EDIT MEETING MODAL --}}
+            @can('update', $investor)
+            <div id="editMeetingModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+                <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <div class="flex items-center justify-between px-6 py-4 border-b">
+                        <h3 class="text-lg font-semibold text-gray-900">Edit Meeting</h3>
+                        <button type="button" onclick="closeEditMeeting()" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+                    </div>
+                    <div class="p-6">
+                        <form id="editMeetingForm" method="POST" onsubmit="editMeetingTriggerSave()">
+                            @csrf
+                            @method('PUT')
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                                        Title
+                                        <span class="text-xs font-normal text-gray-400 ml-1">— e.g. 1st Meeting, 2nd Meeting, Follow-up Meeting, Closing Call</span>
+                                    </label>
+                                    <input type="text" name="title" id="edit_meeting_title"
+                                           placeholder="e.g. 1st Meeting, 2nd Meeting, Follow-up Meeting, Closing Call"
+                                           class="block w-full border-gray-300 rounded-md shadow-sm text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Meeting Date *</label>
+                                    <input type="date" name="meeting_date" id="edit_meeting_date" required
+                                           class="block w-full border-gray-300 rounded-md shadow-sm text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Meeting Time</label>
+                                    <div class="flex gap-2">
+                                        <select name="meeting_time" id="edit_meeting_time"
+                                                class="block w-1/2 border-gray-300 rounded-md shadow-sm text-sm">
+                                            <option value="">— Not specified —</option>
+                                            @foreach($meetingTimes as $t)
+                                                <option value="{{ $t }}">{{ $t }}</option>
+                                            @endforeach
+                                        </select>
+                                        <select name="meeting_timezone" id="edit_meeting_timezone"
+                                                class="block w-1/2 border-gray-300 rounded-md shadow-sm text-sm">
+                                            <option value="">— Timezone —</option>
+                                            @foreach($meetingTimezones as $tz => $label)
+                                                <option value="{{ $tz }}">{{ $label }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Attendees *</label>
+                                    <input type="text" name="attendees" id="edit_meeting_attendees" required
+                                           placeholder="e.g. John Smith, Jane Doe"
+                                           class="block w-full border-gray-300 rounded-md shadow-sm text-sm">
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                                        Notes / Transcript
+                                        <span class="text-xs font-normal text-gray-400 ml-1">— supports formatting, tables, bullet points</span>
+                                    </label>
+                                    <textarea name="outcome" id="edit_meeting_outcome" rows="10"
+                                              class="block w-full border-gray-300 rounded-md shadow-sm text-sm"></textarea>
+                                </div>
+                            </div>
+                            <div class="mt-5 flex gap-3 justify-end">
+                                <button type="button" onclick="closeEditMeeting()"
+                                        class="px-4 py-2 text-sm text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg">
+                                    Cancel
+                                </button>
+                                <button type="submit"
+                                        class="px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg">
+                                    Save Changes
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+            let editTinyMCEReady = false;
+
+            function openEditMeeting(data) {
+                document.getElementById('editMeetingForm').action = data.action;
+                document.getElementById('edit_meeting_title').value    = data.title || '';
+                document.getElementById('edit_meeting_date').value     = data.date  || '';
+                document.getElementById('edit_meeting_attendees').value = data.attendees || '';
+
+                const timeEl = document.getElementById('edit_meeting_time');
+                const tzEl   = document.getElementById('edit_meeting_timezone');
+                timeEl.value = data.time || '';
+                tzEl.value   = data.timezone || '';
+
+                document.getElementById('editMeetingModal').classList.remove('hidden');
+                document.body.classList.add('overflow-hidden');
+
+                if (editTinyMCEReady && tinymce.get('edit_meeting_outcome')) {
+                    tinymce.get('edit_meeting_outcome').setContent(data.outcome || '');
+                } else {
+                    tinymce.init({
+                        selector: '#edit_meeting_outcome',
+                        plugins: 'lists table link',
+                        toolbar: 'bold italic underline | bullist numlist | table | link | removeformat',
+                        menubar: false,
+                        height: 250,
+                        content_style: 'body { font-family: Arial, sans-serif; font-size: 13px; }',
+                        branding: false,
+                        relative_urls: false,
+                        remove_script_host: false,
+                        setup: function(editor) {
+                            editor.on('init', function() {
+                                editor.setContent(data.outcome || '');
+                                editTinyMCEReady = true;
+                            });
+                        }
+                    });
+                }
+            }
+
+            function closeEditMeeting() {
+                document.getElementById('editMeetingModal').classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+            }
+
+            function editMeetingTriggerSave() {
+                if (tinymce.get('edit_meeting_outcome')) {
+                    tinymce.get('edit_meeting_outcome').save();
+                }
+                return true;
+            }
+
+            document.getElementById('editMeetingModal').addEventListener('click', function(e) {
+                if (e.target === this) closeEditMeeting();
+            });
+            </script>
+            @endcan
 
 {{-- COMMUNICATIONS TAB --}}
 <div id="pane-communications" class="tab-pane hidden space-y-6">

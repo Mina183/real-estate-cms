@@ -459,10 +459,13 @@ public function storeMeeting(Request $request, Investor $investor)
     $this->authorize('update', $investor);
 
     $request->validate([
-        'meeting_date' => 'required|date',
-        'attendees'    => 'required|string|max:500',
-        'outcome'      => 'nullable|string',
-        'transcript'   => 'nullable|file|max:51200|mimes:pdf,doc,docx,xls,xlsx,txt',
+        'title'            => 'nullable|string|max:200',
+        'meeting_date'     => 'required|date',
+        'meeting_time'     => 'nullable|date_format:H:i',
+        'meeting_timezone' => 'nullable|string|max:64',
+        'attendees'        => 'required|string|max:500',
+        'outcome'          => 'nullable|string',
+        'transcript'       => 'nullable|file|max:51200|mimes:pdf,doc,docx,xls,xlsx,txt',
     ]);
 
     $transcriptPath = null;
@@ -501,7 +504,10 @@ public function storeMeeting(Request $request, Investor $investor)
     }
 
     $investor->meetings()->create([
+        'title'               => $request->title,
         'meeting_date'        => $request->meeting_date,
+        'meeting_time'        => $request->meeting_time,
+        'meeting_timezone'    => $request->meeting_timezone,
         'attendees'           => $request->attendees,
         'outcome'             => $request->outcome,
         'transcript_path'     => $transcriptPath,
@@ -511,6 +517,32 @@ public function storeMeeting(Request $request, Investor $investor)
 
     return redirect()->route('investors.show', $investor)
         ->with('success', 'Meeting logged successfully.' . ($transcriptPath ? ' Transcript saved to Communication Log.' : ''));
+}
+
+public function updateMeeting(Request $request, Investor $investor, \App\Models\InvestorMeeting $meeting)
+{
+    $this->authorize('update', $investor);
+
+    $request->validate([
+        'title'            => 'nullable|string|max:200',
+        'meeting_date'     => 'required|date',
+        'meeting_time'     => 'nullable|date_format:H:i',
+        'meeting_timezone' => 'nullable|string|max:64',
+        'attendees'        => 'required|string|max:500',
+        'outcome'          => 'nullable|string',
+    ]);
+
+    $meeting->update([
+        'title'            => $request->title,
+        'meeting_date'     => $request->meeting_date,
+        'meeting_time'     => $request->meeting_time,
+        'meeting_timezone' => $request->meeting_timezone,
+        'attendees'        => $request->attendees,
+        'outcome'          => $request->outcome,
+    ]);
+
+    return redirect()->route('investors.show', $investor)
+        ->with('success', 'Meeting updated successfully.');
 }
 
 public function destroyMeeting(Investor $investor, \App\Models\InvestorMeeting $meeting)

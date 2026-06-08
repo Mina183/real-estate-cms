@@ -8,7 +8,10 @@ class InvestorMeeting extends Model
 {
     protected $fillable = [
         'investor_id',
+        'title',
         'meeting_date',
+        'meeting_time',
+        'meeting_timezone',
         'attendees',
         'outcome',
         'transcript_path',
