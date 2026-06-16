@@ -237,7 +237,7 @@
                     ];
                     $tabLabels = [
                         '1'=>'Marketing',  '2'=>'Fund Legal',      '3'=>'Governance',
-                        '4'=>'Compliance', '5'=>'Research',        '6'=>'Financial Models',
+                        '4'=>'Compliance', '5'=>'Research & Evidence',        '6'=>'Financial Models',
                         '7'=>'Neptune',    '8'=>'Waterfall',       '9'=>'Subscription',
                         '10'=>'Reporting', '11'=>'Operations',     '12'=>'Pipeline',
                     ];
