@@ -39,6 +39,7 @@ class DataRoomViewerController extends Controller
             'name'     => 'required|string|max:255',
             'email'    => 'required|email|unique:investor_users,email',
             'password' => 'required|string|min:8',
+            'pin'      => 'nullable|digits:6',
         ]);
 
         $investor = Investor::create([
@@ -61,10 +62,16 @@ class DataRoomViewerController extends Controller
             'name'        => $validated['name'],
             'email'       => $validated['email'],
             'password'    => Hash::make($validated['password']),
+            'portal_pin'  => $request->filled('pin') ? Hash::make($validated['pin']) : null,
             'is_active'   => true,
         ]);
 
-        return back()->with('success', "Viewer account created for {$validated['name']}.");
+        $msg = "Viewer account created for {$validated['name']}.";
+        if ($request->filled('pin')) {
+            $msg .= ' A 6-digit PIN has been set for this account.';
+        }
+
+        return back()->with('success', $msg);
     }
 
     public function destroy($id)

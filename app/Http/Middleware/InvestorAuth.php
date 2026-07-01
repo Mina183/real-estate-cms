@@ -24,8 +24,16 @@ class InvestorAuth
                 ->with('error', 'Your account has been deactivated. Please contact support.');
         }
 
-        // Viewer accounts bypass PIN entirely
+        // Viewer accounts: bypass PIN only when none is set; if a PIN was configured, require verification
         if ($investorUser->investor?->data_room_access_level === 'viewer') {
+            if (! $investorUser->portal_pin) {
+                return $next($request);
+            }
+            if (! $request->session()->get('investor_pin_verified')) {
+                if (! $request->routeIs('investor.pin.verify') && ! $request->routeIs('investor.pin.check')) {
+                    return redirect()->route('investor.pin.verify');
+                }
+            }
             return $next($request);
         }
 

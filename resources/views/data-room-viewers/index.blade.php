@@ -37,7 +37,7 @@
                             {{ $errors->first() }}
                         </div>
                     @endif
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Full Name <span class="text-red-500">*</span></label>
                             <input type="text" name="name" value="{{ old('name') }}" required
@@ -55,6 +55,16 @@
                             <input type="password" name="password" required
                                    placeholder="Min. 8 characters"
                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                6-Digit PIN
+                                <span class="text-xs font-normal text-gray-400 ml-1">— optional</span>
+                            </label>
+                            <input type="password" name="pin" value="{{ old('pin') }}"
+                                   inputmode="numeric" maxlength="6" placeholder="e.g. 123456"
+                                   class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <p class="text-xs text-gray-400 mt-1">If set, viewer must enter PIN after login.</p>
                         </div>
                     </div>
                     <div class="mt-4 flex items-center gap-3">
