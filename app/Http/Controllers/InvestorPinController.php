@@ -39,7 +39,11 @@ class InvestorPinController extends Controller
 
         session(['investor_pin_verified' => true]);
 
-        return redirect()->intended(route('investor.dashboard'))
+        $default = $investorUser->investor?->data_room_access_level === 'viewer'
+            ? route('investor.documents')
+            : route('investor.dashboard');
+
+        return redirect()->intended($default)
             ->with('success', 'PIN set successfully. You are now logged in.');
     }
 
@@ -84,6 +88,10 @@ class InvestorPinController extends Controller
         RateLimiter::clear($key);
         session(['investor_pin_verified' => true]);
 
-        return redirect()->intended(route('investor.dashboard'));
+        $default = $investorUser->investor?->data_room_access_level === 'viewer'
+            ? route('investor.documents')
+            : route('investor.dashboard');
+
+        return redirect()->intended($default);
     }
 }
