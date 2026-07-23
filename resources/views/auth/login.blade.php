@@ -1,4 +1,6 @@
 <x-guest-layout>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
@@ -57,6 +59,14 @@
                 <input id="remember_me" type="checkbox" class="rounded dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800" name="remember">
                 <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">{{ __('Remember me') }}</span>
             </label>
+        </div>
+
+        <!-- Turnstile -->
+        <div class="mt-4">
+            <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.site_key') }}" data-theme="light"></div>
+            @error('cf-turnstile-response')
+                <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+            @enderror
         </div>
 
         <div class="flex items-center justify-end mt-4">

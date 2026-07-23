@@ -6,6 +6,7 @@ use App\Models\AuthLog;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -28,8 +29,16 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email'],
-            'password' => ['required', 'string'],
+            'email'                 => ['required', 'string', 'email'],
+            'password'              => ['required', 'string'],
+            'cf-turnstile-response' => ['required'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'cf-turnstile-response.required' => 'Security check failed. Please try again.',
         ];
     }
 
@@ -41,6 +50,19 @@ class LoginRequest extends FormRequest
     public function authenticate(): void
     {
         $this->ensureIsNotRateLimited();
+
+        // Turnstile server-side verification
+        $turnstile = Http::asForm()->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
+            'secret'   => config('services.turnstile.secret_key'),
+            'response' => $this->input('cf-turnstile-response'),
+            'remoteip' => $this->ip(),
+        ]);
+
+        if (! ($turnstile->json('success') ?? false)) {
+            throw ValidationException::withMessages([
+                'cf-turnstile-response' => 'Security check failed. Please refresh the page and try again.',
+            ]);
+        }
 
         $user = \App\Models\User::where('email', $this->input('email'))->first();
 
