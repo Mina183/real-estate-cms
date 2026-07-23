@@ -38,11 +38,12 @@ class SecurityHeaders
         $response->headers->set(
             'Content-Security-Policy',
             "default-src 'self'; " .
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdn.jsdelivr.net https://code.jquery.com https://cdn.tiny.cloud; " .
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdn.jsdelivr.net https://code.jquery.com https://cdn.tiny.cloud https://challenges.cloudflare.com; " .
             "style-src 'self' 'unsafe-inline' https://fonts.bunny.net https://cdn.jsdelivr.net https://cdn.tiny.cloud; " .
-            "font-src 'self' https://fonts.bunny.net https://cdn.tiny.cloud; " .
+            "font-src 'self' https://fonts.bunny.net https://cdn.tiny.cloud data:; " .
             "img-src 'self' data: blob: https://cdn.tiny.cloud https://sp.tinymce.com; " .
-            "connect-src 'self' https://cdn.tiny.cloud https://sp.tinymce.com" . ($storageOrigin ? " $storageOrigin" : '') . "; " .
+            "connect-src 'self' https://cdn.tiny.cloud https://sp.tinymce.com https://challenges.cloudflare.com" . ($storageOrigin ? " $storageOrigin" : '') . "; " .
+            "frame-src https://challenges.cloudflare.com; " .
             "frame-ancestors 'none';"
         );
 
