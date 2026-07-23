@@ -38,6 +38,8 @@ class InvestorEmailController extends Controller
      */
     public function compose(Investor $investor)
     {
+        $this->authorize('update', $investor);
+
         $documents = DataRoomDocument::where('status', 'approved')
             ->with('folder')
             ->orderBy('document_name')
@@ -56,6 +58,7 @@ class InvestorEmailController extends Controller
      */
     public function composeBulk(Request $request)
     {
+        abort_unless(in_array(auth()->user()?->role, ['superadmin', 'admin', 'relationship_manager', 'operations']), 403);
         $recipientType = $request->get('recipient_type', 'all');
         $stage         = $request->get('stage');
         $assignedToMe  = $request->boolean('assigned_to_me');
@@ -99,6 +102,8 @@ class InvestorEmailController extends Controller
      */
     public function send(Request $request)
     {
+        abort_unless(in_array(auth()->user()?->role, ['superadmin', 'admin', 'relationship_manager', 'operations']), 403);
+
         $request->validate([
             'template' => 'required|string',
             'document_ids' => 'nullable|array',

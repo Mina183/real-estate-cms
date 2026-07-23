@@ -41,7 +41,7 @@ Route::get('/acknowledge/{token}', [InvestorEmailController::class, 'acknowledge
 
 // Document Access — public link (no auth required)
 Route::prefix('doc-access')->name('doc-access.')->group(function () {
-    Route::get('/consent-status', [DocumentPublicAccessController::class, 'consentStatus'])->name('consent-status');
+    Route::get('/consent-status', [DocumentPublicAccessController::class, 'consentStatus'])->middleware('throttle:30,1')->name('consent-status');
     Route::get('/{token}', [DocumentPublicAccessController::class, 'show'])->name('show');
     Route::post('/{token}', [DocumentPublicAccessController::class, 'submit'])->name('submit');
     Route::get('/{token}/confirmation', [DocumentPublicAccessController::class, 'confirmation'])->name('confirmation');
@@ -64,6 +64,7 @@ Route::prefix('investor')->name('investor.')->group(function () {
     Route::get('/forgot-password', [InvestorPasswordResetController::class, 'showForgotForm'])
         ->name('password.request');
     Route::post('/forgot-password', [InvestorPasswordResetController::class, 'sendResetLink'])
+        ->middleware('throttle:5,1')
         ->name('password.email');
     Route::get('/reset-password/{token}', [InvestorPasswordResetController::class, 'showResetForm'])
         ->name('password.reset');

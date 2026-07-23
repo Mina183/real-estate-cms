@@ -105,7 +105,7 @@ class DataRoomController extends Controller
             'folder_id'     => 'required|exists:data_room_folders,id',
             'investor_id'   => 'nullable|exists:investors,id',
             'document_name' => 'required|string|max:255',
-            'document'      => 'required|file|max:512000',
+            'document'      => 'required|file|max:512000|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,txt,csv,jpg,jpeg,png,gif,eml,msg,zip',
             'version'       => 'nullable|string',
             'description'   => 'nullable|string',
             'access_level'  => 'nullable|in:public,restricted,confidential,highly_confidential',

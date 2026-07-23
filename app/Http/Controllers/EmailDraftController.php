@@ -127,7 +127,7 @@ class EmailDraftController extends Controller
                 'investor_id'              => null,
                 'template_key'             => 'custom',
                 'subject'                  => $request->subject,
-                'body'                     => $request->body,
+                'body'                     => $this->sanitizeRichText($request->body),
                 'document_ids'             => $request->input('document_ids', []),
                 'cc_emails'                => [],
                 'status'                   => 'pending_approval',
@@ -177,7 +177,7 @@ class EmailDraftController extends Controller
             'on_behalf_of_id'    => $validated['on_behalf_of_id'] ?? null,
             'signature_id'       => $validated['signature_id'] ?? null,
             'subject'            => $validated['subject'],
-            'body'               => $validated['body'],
+            'body'               => $this->sanitizeRichText($validated['body']),
             'document_ids'       => $validated['document_ids'] ?? [],
             'cc_emails'          => $ccEmails,
             'status'             => $this->resolveInitialStatus($request),
@@ -273,7 +273,7 @@ class EmailDraftController extends Controller
             'on_behalf_of_id' => $validated['on_behalf_of_id'] ?? null,
             'signature_id'    => $validated['signature_id'] ?? null,
             'subject'         => $validated['subject'],
-            'body'            => $validated['body'],
+            'body'            => $this->sanitizeRichText($validated['body']),
             'document_ids'    => $validated['document_ids'] ?? [],
             'cc_emails'       => $ccEmails,
             'status'          => $newStatus,
@@ -596,5 +596,17 @@ class EmailDraftController extends Controller
 
         // Admin/superadmin bypass approval — auto-approved
         return $isAdmin ? 'approved' : 'pending_approval';
+    }
+
+    private function sanitizeRichText(?string $html): ?string
+    {
+        if ($html === null) {
+            return null;
+        }
+        return strip_tags($html,
+            '<p><br><b><i><u><strong><em><s><ul><ol><li>' .
+            '<h1><h2><h3><h4><h5><h6><blockquote><a><span><div>' .
+            '<table><thead><tbody><tfoot><tr><td><th><caption>'
+        );
     }
 }

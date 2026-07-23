@@ -509,7 +509,7 @@ public function storeMeeting(Request $request, Investor $investor)
         'meeting_time'        => $request->meeting_time,
         'meeting_timezone'    => $request->meeting_timezone,
         'attendees'           => $request->attendees,
-        'outcome'             => $request->outcome,
+        'outcome'             => $this->sanitizeRichText($request->outcome),
         'transcript_path'     => $transcriptPath,
         'transcript_name'     => $transcriptName,
         'created_by_user_id'  => auth()->id(),
@@ -522,6 +522,7 @@ public function storeMeeting(Request $request, Investor $investor)
 public function updateMeeting(Request $request, Investor $investor, \App\Models\InvestorMeeting $meeting)
 {
     $this->authorize('update', $investor);
+    abort_if($meeting->investor_id !== $investor->id, 403);
 
     $request->validate([
         'title'            => 'nullable|string|max:200',
@@ -538,7 +539,7 @@ public function updateMeeting(Request $request, Investor $investor, \App\Models\
         'meeting_time'     => $request->meeting_time,
         'meeting_timezone' => $request->meeting_timezone,
         'attendees'        => $request->attendees,
-        'outcome'          => $request->outcome,
+        'outcome'          => $this->sanitizeRichText($request->outcome),
     ]);
 
     return redirect()->route('investors.show', $investor)
@@ -548,9 +549,22 @@ public function updateMeeting(Request $request, Investor $investor, \App\Models\
 public function destroyMeeting(Investor $investor, \App\Models\InvestorMeeting $meeting)
 {
     $this->authorize('update', $investor);
+    abort_if($meeting->investor_id !== $investor->id, 403);
     $meeting->delete();
 
     return redirect()->route('investors.show', $investor)
         ->with('success', 'Meeting removed.');
+}
+
+private function sanitizeRichText(?string $html): ?string
+{
+    if ($html === null) {
+        return null;
+    }
+    return strip_tags($html,
+        '<p><br><b><i><u><strong><em><s><ul><ol><li>' .
+        '<h1><h2><h3><h4><h5><h6><blockquote><a><span><div>' .
+        '<table><thead><tbody><tfoot><tr><td><th><caption>'
+    );
 }
 }

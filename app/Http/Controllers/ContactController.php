@@ -33,7 +33,11 @@ class ContactController extends Controller
             $investor->contacts()->update(['is_primary' => false]);
         }
 
-        $investor->contacts()->create($request->all());
+        $investor->contacts()->create($request->only([
+            'first_name', 'last_name', 'email', 'phone', 'mobile',
+            'role', 'is_primary', 'can_sign_documents', 'receives_capital_calls',
+            'receives_distributions', 'receives_reports', 'title', 'nationality',
+        ]));
 
         return redirect()->route('investors.show', $investor)
             ->with('success', 'Contact added successfully.');
@@ -42,6 +46,7 @@ class ContactController extends Controller
     public function destroy(Investor $investor, Contact $contact)
     {
         $this->authorize('update', $investor);
+        abort_if($contact->investor_id !== $investor->id, 403);
 
         $contact->delete();
 
