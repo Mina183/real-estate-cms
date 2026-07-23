@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\ValidationException;
 
 class InvestorAuthController extends Controller
@@ -32,9 +33,25 @@ class InvestorAuthController extends Controller
 public function login(Request $request)
 {
     $request->validate([
-        'email' => 'required|email',
+        'email'    => 'required|email',
         'password' => 'required',
+        'cf-turnstile-response' => 'required',
+    ], [
+        'cf-turnstile-response.required' => 'Security check failed. Please try again.',
     ]);
+
+    // Turnstile server-side verification
+    $turnstile = Http::asForm()->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
+        'secret'   => env('TURNSTILE_SECRET_KEY'),
+        'response' => $request->input('cf-turnstile-response'),
+        'remoteip' => $request->ip(),
+    ]);
+
+    if (! ($turnstile->json('success') ?? false)) {
+        throw ValidationException::withMessages([
+            'cf-turnstile-response' => 'Security check failed. Please refresh the page and try again.',
+        ]);
+    }
 
     // Rate limiting
     $key = Str::transliterate(Str::lower($request->input('email')).'|'.$request->ip());

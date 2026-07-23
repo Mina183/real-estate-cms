@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Investor Portal Login - Triton</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 <body class="bg-gray-50">
     <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -121,6 +122,12 @@
                         </a>
                     </div>
                 </div>
+
+                <!-- Turnstile -->
+                <div class="cf-turnstile" data-sitekey="{{ env('TURNSTILE_SITE_KEY') }}" data-theme="light"></div>
+                @error('cf-turnstile-response')
+                    <p class="text-xs text-red-600 -mt-2">{{ $message }}</p>
+                @enderror
 
                 <!-- Submit Button -->
                 <div>
