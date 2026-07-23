@@ -124,7 +124,7 @@
                 </div>
 
                 <!-- Turnstile -->
-                <div class="cf-turnstile" data-sitekey="{{ env('TURNSTILE_SITE_KEY') }}" data-theme="light"></div>
+                <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.site_key') }}" data-theme="light"></div>
                 @error('cf-turnstile-response')
                     <p class="text-xs text-red-600 -mt-2">{{ $message }}</p>
                 @enderror
